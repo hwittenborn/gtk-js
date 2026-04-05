@@ -6,6 +6,10 @@ out
 dist
 *.tgz
 
+# generated icon files
+packages/adwaita-icons/src/icons/
+packages/gtk4-icons/src/icons/
+
 # code coverage
 coverage
 *.lcov
