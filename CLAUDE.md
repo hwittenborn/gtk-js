@@ -21,9 +21,9 @@ When adding a new widget, always check which layout manager it uses in the upstr
 
 ## Cross-Referencing Against Upstream
 
-**ALWAYS cross-verify against the actual GTK4 and libadwaita source code** in `upstream/gtk/` and `upstream/libadwaita/` (git submodules).
+**ALWAYS cross-verify against the actual GTK4 and libadwaita source code** in `upstream/gtk/` and `upstream/libadwaita/` (git submodules). This applies to ANY modification — styling, functionality, props, behavior, or layout — not just when first implementing a widget.
 
-When implementing or debugging a widget:
+When implementing OR modifying a widget:
 
 1. **Check the C source** for:
    - CSS node name (`gtk_widget_class_set_css_name`)

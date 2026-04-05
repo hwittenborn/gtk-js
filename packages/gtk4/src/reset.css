@@ -49,6 +49,28 @@ body:has([data-gtk-provider]) {
   overflow: clip;
 }
 
+/* GtkWindow allocates the titlebar its natural height only, then gives the
+   remainder to the child. Replicate this by preventing the titlebar wrapper
+   from flex-growing or stretching inside the window's flex column.
+   @see upstream/gtk/gtk/gtkwindow.c — _gtk_window_set_allocation */
+:where([data-gtk-provider] .gtk-window > .titlebar) {
+  flex-shrink: 0;
+  flex-grow: 0;
+  align-self: auto;
+}
+
+/* GtkSpinner — GTK draws this via -gtk-icon-source (process-working-symbolic).
+   On the web we replicate it with a CSS border spinner.
+   The spin keyframe and opacity/animation are provided by Adwaita CSS. */
+:where([data-gtk-provider] .gtk-spinner) {
+  display: inline-block;
+  width: 16px;
+  height: 16px;
+  border-radius: 50%;
+  border: 2px solid currentColor;
+  border-top-color: transparent;
+}
+
 /* GtkImage is a widget with intrinsic sizing — needs a proper box model */
 :where([data-gtk-provider] .gtk-image) {
   display: inline-flex;

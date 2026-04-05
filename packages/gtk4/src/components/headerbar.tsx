@@ -1,4 +1,4 @@
-import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { forwardRef, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
 import { useIcon } from "../icon-context.tsx";
 
 export interface GtkHeaderBarProps extends HTMLAttributes<HTMLDivElement> {
@@ -15,6 +15,26 @@ export interface GtkHeaderBarProps extends HTMLAttributes<HTMLDivElement> {
   start?: ReactNode;
   /** End-side children (after title). */
   end?: ReactNode;
+  /**
+   * Called when the close button is clicked.
+   * Mirrors GTK's window.close action registered on GtkWindow.
+   */
+  onWindowClose?: () => void;
+  /**
+   * Called when the maximize/restore button is clicked.
+   * Mirrors GTK's window.toggle-maximized action registered on GtkWindow.
+   */
+  onWindowToggleMaximized?: () => void;
+  /**
+   * Called when the minimize button is clicked.
+   * Mirrors GTK's window.minimize action registered on GtkWindow.
+   */
+  onWindowMinimize?: () => void;
+  /**
+   * Called on pointerdown on the windowhandle (drag region).
+   * Mirrors GTK's GtkWindowHandle drag-begin signal.
+   */
+  onWindowHandleDragStart?: (e: PointerEvent<HTMLDivElement>) => void;
 }
 
 /** Maps decoration-layout button names to icon component PascalCase names. */
@@ -24,14 +44,14 @@ const controlIconNames: Record<string, string> = {
   maximize: "WindowMaximize",
 };
 
-function WindowControlButton({ name }: { name: string }) {
+function WindowControlButton({ name, onClick }: { name: string; onClick?: () => void }) {
   const iconName = controlIconNames[name];
   const Icon = useIcon(iconName ?? "");
 
   if (!Icon) return null;
 
   return (
-    <button className={`gtk-button image-button ${name}`} type="button">
+    <button className={`gtk-button image-button ${name}`} type="button" onClick={onClick}>
       <span className="gtk-image">
         <Icon size={16} />
       </span>
@@ -39,10 +59,28 @@ function WindowControlButton({ name }: { name: string }) {
   );
 }
 
-function WindowControls({ side, layout }: { side: "start" | "end"; layout: string }) {
+function WindowControls({
+  side,
+  layout,
+  onWindowClose,
+  onWindowToggleMaximized,
+  onWindowMinimize,
+}: {
+  side: "start" | "end";
+  layout: string;
+  onWindowClose?: () => void;
+  onWindowToggleMaximized?: () => void;
+  onWindowMinimize?: () => void;
+}) {
   const [startPart = "", endPart = ""] = layout.split(":");
   const part = side === "start" ? startPart : endPart;
   const buttons = part.split(",").filter((b) => b && b !== "appmenu");
+
+  const clickHandlers: Record<string, (() => void) | undefined> = {
+    close: onWindowClose,
+    maximize: onWindowToggleMaximized,
+    minimize: onWindowMinimize,
+  };
 
   if (buttons.length === 0) {
     return <div className={`gtk-windowcontrols ${side} empty`} />;
@@ -51,7 +89,7 @@ function WindowControls({ side, layout }: { side: "start" | "end"; layout: strin
   return (
     <div className={`gtk-windowcontrols gtk-box-layout horizontal ${side}`} style={{ gap: 3 }}>
       {buttons.map((name) => (
-        <WindowControlButton key={name} name={name} />
+        <WindowControlButton key={name} name={name} onClick={clickHandlers[name]} />
       ))}
     </div>
   );
@@ -70,7 +108,13 @@ function WindowControls({ side, layout }: { side: "start" | "end"; layout: strin
  *             ├── <title widget>
  *             └── box.end
  *
+ * Window control buttons mirror GTK's action system:
+ *   - close     → window.close action
+ *   - maximize  → window.toggle-maximized action
+ *   - minimize  → window.minimize action
+ *
  * @see https://docs.gtk.org/gtk4/class.HeaderBar.html
+ * @see upstream/gtk/gtk/gtkwindowcontrols.c
  */
 export const GtkHeaderBar = forwardRef<HTMLDivElement, GtkHeaderBarProps>(function GtkHeaderBar(
   {
@@ -81,6 +125,10 @@ export const GtkHeaderBar = forwardRef<HTMLDivElement, GtkHeaderBarProps>(functi
     end,
     className,
     children,
+    onWindowClose,
+    onWindowToggleMaximized,
+    onWindowMinimize,
+    onWindowHandleDragStart,
     ...rest
   },
   ref,
@@ -90,10 +138,18 @@ export const GtkHeaderBar = forwardRef<HTMLDivElement, GtkHeaderBarProps>(functi
 
   return (
     <div ref={ref} className={classes.join(" ")} {...rest}>
-      <div className="gtk-windowhandle">
+      <div className="gtk-windowhandle" onPointerDown={onWindowHandleDragStart}>
         <div className="gtk-box gtk-center-layout">
           <div className="gtk-box gtk-box-layout horizontal start gtk-center-layout-start">
-            {showWindowControls && <WindowControls side="start" layout={decorationLayout} />}
+            {showWindowControls && (
+              <WindowControls
+                side="start"
+                layout={decorationLayout}
+                onWindowClose={onWindowClose}
+                onWindowToggleMaximized={onWindowToggleMaximized}
+                onWindowMinimize={onWindowMinimize}
+              />
+            )}
             {start}
           </div>
 
@@ -101,7 +157,15 @@ export const GtkHeaderBar = forwardRef<HTMLDivElement, GtkHeaderBarProps>(functi
 
           <div className="gtk-box gtk-box-layout horizontal end gtk-center-layout-end">
             {end}
-            {showWindowControls && <WindowControls side="end" layout={decorationLayout} />}
+            {showWindowControls && (
+              <WindowControls
+                side="end"
+                layout={decorationLayout}
+                onWindowClose={onWindowClose}
+                onWindowToggleMaximized={onWindowToggleMaximized}
+                onWindowMinimize={onWindowMinimize}
+              />
+            )}
           </div>
         </div>
       </div>

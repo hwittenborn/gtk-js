@@ -1,4 +1,11 @@
-import { createContext, type ReactNode, useContext, useEffect, useInsertionEffect } from "react";
+import {
+  type CSSProperties,
+  createContext,
+  type ReactNode,
+  useContext,
+  useEffect,
+  useInsertionEffect,
+} from "react";
 import { type IconMap, IconProvider } from "./icon-context.tsx";
 import layoutCSS from "./layouts/layout.css" with { type: "text" };
 import resetCSS from "./reset.css" with { type: "text" };
@@ -16,6 +23,8 @@ export interface GtkProviderProps {
   cssText?: string;
   /** Icon set to use. Pass the full export of an icon package (e.g. @gtk-js/gtk4-icons). */
   icons?: IconMap;
+  /** Style applied to the root scoping div. */
+  style?: CSSProperties;
   children: ReactNode;
 }
 
@@ -51,6 +60,7 @@ export function GtkProvider({
   cssHref,
   cssText,
   icons = {},
+  style,
   children,
 }: GtkProviderProps) {
   // Inject reset + layout CSS
@@ -123,6 +133,7 @@ export function GtkProvider({
         <div
           data-gtk-provider=""
           className="background"
+          style={style}
           {...(colorScheme !== "auto" ? { "data-color-scheme": colorScheme } : {})}
         >
           {children}

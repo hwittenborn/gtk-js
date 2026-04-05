@@ -5,10 +5,17 @@ import * as adwaitaIcons from "@gtk-js/adwaita-icons";
 import { GtkButton } from "@gtk-js/gtk4";
 import Link from "next/link";
 import { useEffect, useRef, useState } from "react";
-import { AudioProvider, ShowcasePlayer, windowSteps } from "./scenes";
+import { createPortal } from "react-dom";
+import {
+  AudioProvider,
+  type CodeBadgeState,
+  ShowcasePlayer,
+  type SpinnerState,
+  windowSteps,
+} from "./scenes";
 import { SyntaxHighlight } from "./syntax-highlight";
 
-const CHARS_PER_SEC = 240;
+const CHARS_PER_SEC = 120;
 const START_DELAY_MS = 800;
 
 function useSteppedTyping() {
@@ -31,10 +38,13 @@ function useSteppedTyping() {
 
   useEffect(() => {
     if (!started || done || !step) return;
+    // Show the UI for this step as soon as its first character is typed
+    if (charIndex === 1 && visibleSteps <= stepIndex) {
+      setVisibleSteps(stepIndex + 1);
+    }
     if (charIndex >= stepCode.length) {
       const newCompleted = completedCode + (completedCode ? "\n" : "") + stepCode;
       setCompletedCode(newCompleted);
-      setVisibleSteps(stepIndex + 1);
       if (stepIndex + 1 < steps.length) {
         setStepIndex((i) => i + 1);
         setCharIndex(0);
@@ -45,22 +55,108 @@ function useSteppedTyping() {
     }
     const t = setTimeout(() => setCharIndex((i) => i + 1), 1000 / CHARS_PER_SEC);
     return () => clearTimeout(t);
-  }, [started, charIndex, stepCode, stepIndex, steps.length, step, done, completedCode]);
+  }, [
+    started,
+    charIndex,
+    stepCode,
+    stepIndex,
+    steps.length,
+    step,
+    done,
+    completedCode,
+    visibleSteps,
+  ]);
 
   const displayCode =
     completedCode + (completedCode && charIndex > 0 ? "\n" : "") + stepCode.slice(0, charIndex);
 
-  return { displayCode, cursor: done ? undefined : "▎", visibleSteps };
+  return { displayCode, cursor: done ? undefined : "▎", visibleSteps, loading: !done };
 }
 
 export function ShowcasePage() {
   const codeRef = useRef<HTMLDivElement>(null);
-  const { displayCode, cursor, visibleSteps } = useSteppedTyping();
+  const { displayCode, cursor, visibleSteps, loading } = useSteppedTyping();
+
+  // Client-only state — avoid hydration mismatch
+  const [mounted, setMounted] = useState(false);
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [maximized, setMaximized] = useState(false);
+  const [spinnerState, setSpinnerState] = useState<SpinnerState>("spinning");
+  const [codeBadge, setCodeBadge] = useState<CodeBadgeState>("visible");
+
+  const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(
+    null,
+  );
+
+  useEffect(() => {
+    setMounted(true);
+  }, []);
+
+  useEffect(() => {
+    if (loading) return;
+    // spinner → fade out → checkmark → fade out → hidden → code collapses → badge docks
+    setSpinnerState("fade-out");
+    const t1 = setTimeout(() => setSpinnerState("hidden"), 300);
+    const t2 = setTimeout(() => setSpinnerState("check"), 1300);
+    const t3 = setTimeout(() => setSpinnerState("fade-out-check"), 2300);
+    const t4 = setTimeout(() => setSpinnerState("hidden"), 3500);
+    const t5 = setTimeout(() => setCodeBadge("collapsing"), 3800); // start collapsing code panel
+    const t6 = setTimeout(() => setCodeBadge("docked"), 4600); // badge lands in headerbar
+    return () => {
+      clearTimeout(t1);
+      clearTimeout(t2);
+      clearTimeout(t3);
+      clearTimeout(t4);
+      clearTimeout(t5);
+      clearTimeout(t6);
+    };
+  }, [loading]);
 
   useEffect(() => {
     const el = codeRef.current;
     if (el) el.scrollTop = el.scrollHeight;
   }, [displayCode]);
+
+  const handleWindowHandleDragStart = (e: React.PointerEvent<HTMLDivElement>) => {
+    if ((e.target as HTMLElement).closest("button")) return;
+    if (e.button !== 0) return;
+    if (maximized) return;
+    e.currentTarget.setPointerCapture(e.pointerId);
+    dragRef.current = { startX: e.clientX, startY: e.clientY, origX: pos.x, origY: pos.y };
+  };
+
+  const handlePointerMove = (e: React.PointerEvent<HTMLDivElement>) => {
+    if (!dragRef.current) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    setPos({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
+  };
+
+  const handlePointerUp = () => {
+    dragRef.current = null;
+  };
+
+  const handleToggleMaximized = () => {
+    setMaximized((m) => {
+      if (!m) setPos({ x: 0, y: 0 });
+      return !m;
+    });
+  };
+
+  const player = (
+    <ShowcasePlayer
+      visibleSteps={visibleSteps}
+      spinnerState={spinnerState}
+      codeBadge={codeBadge}
+      onWindowHandleDragStart={handleWindowHandleDragStart}
+      onWindowToggleMaximized={handleToggleMaximized}
+      onWindowClose={() => {}}
+      maximized={maximized}
+    />
+  );
+
+  const codeCollapsed = codeBadge === "docked";
+  const codeCollapsing = codeBadge === "collapsing";
 
   return (
     <div style={{ minHeight: "100vh" }}>
@@ -87,42 +183,94 @@ export function ShowcasePage() {
             <div
               style={{
                 display: "grid",
-                gridTemplateColumns: "1fr 1fr",
-                minHeight: 420,
+                gridTemplateColumns: codeCollapsed ? "0fr 1fr" : "1fr 1fr",
+                transition: "grid-template-columns 600ms cubic-bezier(0.4, 0, 0.2, 1)",
                 borderRadius: 12,
               }}
             >
-              <div
-                ref={codeRef}
-                style={{
-                  padding: 20,
-                  overflowY: "auto",
-                  overflowX: "auto",
-                  maxHeight: 420,
-                  borderRight: "1px solid rgba(128,128,128,0.15)",
-                  scrollBehavior: "smooth",
-                  background: "#0d1117",
-                  borderRadius: 12,
-                }}
-              >
-                <SyntaxHighlight code={"// app.tsx\n" + displayCode} cursor={cursor} />
+              {/* Code panel — collapses via overflow:hidden + opacity */}
+              <div style={{ overflow: "hidden", minWidth: 0 }}>
+                <div
+                  ref={codeRef}
+                  style={{
+                    padding: 20,
+                    overflowY: "auto",
+                    overflowX: "auto",
+                    maxHeight: 420,
+                    borderRight: "1px solid rgba(128,128,128,0.15)",
+                    scrollBehavior: "smooth",
+                    background: "#0d1117",
+                    borderRadius: 12,
+                    opacity: codeCollapsing || codeCollapsed ? 0 : 1,
+                    transition: "opacity 500ms ease",
+                    position: "relative",
+                  }}
+                >
+                  <SyntaxHighlight code={"// app.tsx\n" + displayCode} cursor={cursor} />
+                  {/* Visual-only badge in panel corner — fades in during collapse to imply movement */}
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 12,
+                      right: 12,
+                      opacity: codeCollapsing ? 1 : 0,
+                      transition: "opacity 300ms ease",
+                      pointerEvents: "none",
+                      fontFamily: "monospace",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      color: "rgba(255,255,255,0.6)",
+                    }}
+                  >
+                    {"</>"}
+                  </div>
+                </div>
               </div>
 
               <div
-                style={{
-                  display: "flex",
-                  flexDirection: "column",
-                  alignItems: "center",
-                  justifyContent: "flex-start",
-                  padding: 24,
-                  overflow: "visible",
-                }}
+                style={{ position: "relative", overflow: "visible" }}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
               >
-                <div className="showcase-preview">
-                  <ShowcasePlayer visibleSteps={visibleSteps} />
-                </div>
+                {mounted && !maximized && (
+                  <div
+                    className="showcase-preview"
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: "50%",
+                      transform: codeCollapsed
+                        ? `translate(calc(-50% + ${pos.x}px), ${pos.y}px)`
+                        : `translate(calc(-50% + 24px + ${pos.x}px), ${pos.y}px)`,
+                      transition: dragRef.current
+                        ? undefined
+                        : `transform 600ms cubic-bezier(0.4, 0, 0.2, 1)`,
+                    }}
+                  >
+                    {player}
+                  </div>
+                )}
               </div>
             </div>
+
+            {mounted &&
+              maximized &&
+              createPortal(
+                <AdwaitaProvider
+                  icons={adwaitaIcons}
+                  style={{ position: "fixed", inset: 0, zIndex: 9999 }}
+                >
+                  <div
+                    className="showcase-preview"
+                    style={{ width: "100%", height: "100%" }}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                  >
+                    {player}
+                  </div>
+                </AdwaitaProvider>,
+                document.body,
+              )}
           </AudioProvider>
         </AdwaitaProvider>
       </div>
@@ -144,6 +292,10 @@ export function ShowcasePage() {
           from { opacity: 0; }
           to { opacity: 1; }
         }
+        @keyframes sc-badge-in {
+          from { opacity: 0; transform: scale(0.6); }
+          to { opacity: 1; transform: scale(1); }
+        }
         .showcase-preview .gtk-window {
           animation: sc-scale-in 350ms cubic-bezier(0.16, 1, 0.3, 1) both;
         }
@@ -162,6 +314,15 @@ export function ShowcasePage() {
         }
         .showcase-preview .gtk-scale {
           animation: sc-slide-up 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
+        }
+        .showcase-preview .gtk-windowhandle {
+          cursor: grab;
+        }
+        .showcase-preview .gtk-windowhandle:active {
+          cursor: grabbing;
+        }
+        .showcase-preview .gtk-windowhandle button {
+          cursor: default;
         }
       `}</style>
     </div>

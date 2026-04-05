@@ -182,6 +182,9 @@ const remapPseudoClasses: Plugin = {
     // :selected → [aria-selected="true"]
     sel = sel.replace(/:selected/g, '[aria-selected="true"]');
 
+    // :checked → [data-checked] (GTK uses checked state for toggles/spinners)
+    sel = sel.replace(/:checked/g, "[data-checked]");
+
     if (sel !== rule.selector) {
       rule.selector = sel;
     }
