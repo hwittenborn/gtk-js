@@ -3,7 +3,8 @@
   "private": true,
   "workspaces": [
     "packages/*",
-    "themes/*"
+    "themes/*",
+    "tests"
   ],
   "scripts": {
     "dev": "bun run --cwd packages/website dev",

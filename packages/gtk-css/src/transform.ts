@@ -368,6 +368,31 @@ const removeGtkAssetFunctions: Plugin = {
 };
 
 /**
+ * PostCSS plugin: Rewrite color-mix(in srgb, ...) to color-mix(in oklab, ...).
+ *
+ * GTK's CSS engine does NOT apply gamut mapping when converting colors to sRGB
+ * for color-mix interpolation:
+ *   https://gitlab.gnome.org/GNOME/gtk/-/blob/5957885ec/gtk/gtkcsscolor.c#L659
+ *   (FIXME comment: "Gamut mapping goes here")
+ *
+ * Browsers per CSS spec DO gamut-map, which clamps out-of-sRGB-gamut values
+ * (e.g. negative green from oklab-derived destructive colors). This produces
+ * visibly different results for wide-gamut colors like the destructive red.
+ *
+ * Switching the interpolation space to oklab avoids the issue: oklab values are
+ * always in-gamut, so no gamut mapping is triggered, matching GTK's behavior.
+ */
+const COLOR_MIX_SRGB_RE = /color-mix\(in srgb\b/g;
+const fixColorMixGamut: Plugin = {
+  postcssPlugin: "gtk-fix-color-mix-gamut",
+  Declaration(decl) {
+    if (decl.value.includes("color-mix(in srgb")) {
+      decl.value = decl.value.replace(COLOR_MIX_SRGB_RE, "color-mix(in oklab");
+    }
+  },
+};
+
+/**
  * The complete GTK → web CSS PostCSS transformation pipeline.
  * Pass a custom asset plugin to replace -gtk-scaled() with embedded data URIs.
  */
@@ -378,6 +403,7 @@ export function buildGtkToWeb(assetPlugin?: Plugin) {
     handleGtkProperties,
     fixGtkTransitionRefs,
     replaceImageFunction,
+    fixColorMixGamut,
     removeGtkRecolor,
     assetPlugin ?? removeGtkAssetFunctions,
   ]);

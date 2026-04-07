@@ -18,7 +18,7 @@ body:has([data-gtk-provider]) {
   border: none;
   background: transparent;
   box-sizing: content-box;
-  font-family: system-ui, sans-serif;
+  font-family: Cantarell, sans-serif;
   font-size: inherit;
   line-height: inherit;
   color: inherit;
