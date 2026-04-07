@@ -99,6 +99,7 @@ export type { GtkCenterLayoutProps } from "./layouts/center-layout.tsx";
 export { GtkCenterLayout } from "./layouts/center-layout.tsx";
 export type { GtkProviderProps } from "./provider.tsx";
 export { GtkProvider, useGtkTheme } from "./provider.tsx";
+export { GtkTheme } from "@gtk-js/gtk-css";
 
 // Types
 export type * from "./types.ts";

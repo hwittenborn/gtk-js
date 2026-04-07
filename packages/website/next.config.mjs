@@ -6,4 +6,7 @@ export default withMDX({
   output: "export",
   images: { unoptimized: true },
   basePath: process.env.BASE_PATH,
+  experimental: {
+    turbopackImportTypeText: true,
+  },
 });

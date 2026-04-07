@@ -1,10 +1,12 @@
 "use client";
 
-import { AdwaitaProvider } from "@gtk-js/adwaita";
 import * as adwaitaIcons from "@gtk-js/adwaita-icons";
-import { GtkButton } from "@gtk-js/gtk4";
+import { ApplicationsSystem } from "@gtk-js/adwaita-icons";
+import { GtkBox, GtkButton, GtkLabel, GtkPopover, GtkProvider } from "@gtk-js/gtk4";
+import { AdwaitaTheme } from "@gtk-js/theme-adwaita";
+import { WhiteSurTheme } from "@gtk-js/theme-whitesur";
 import Link from "next/link";
-import { useEffect, useRef, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import {
   AudioProvider,
@@ -38,7 +40,6 @@ function useSteppedTyping() {
 
   useEffect(() => {
     if (!started || done || !step) return;
-    // Show the UI for this step as soon as its first character is typed
     if (charIndex === 1 && visibleSteps <= stepIndex) {
       setVisibleSteps(stepIndex + 1);
     }
@@ -55,17 +56,7 @@ function useSteppedTyping() {
     }
     const t = setTimeout(() => setCharIndex((i) => i + 1), 1000 / CHARS_PER_SEC);
     return () => clearTimeout(t);
-  }, [
-    started,
-    charIndex,
-    stepCode,
-    stepIndex,
-    steps.length,
-    step,
-    done,
-    completedCode,
-    visibleSteps,
-  ]);
+  }, [started, charIndex, stepCode, stepIndex, steps.length, step, done, completedCode, visibleSteps]);
 
   const displayCode =
     completedCode + (completedCode && charIndex > 0 ? "\n" : "") + stepCode.slice(0, charIndex);
@@ -73,43 +64,56 @@ function useSteppedTyping() {
   return { displayCode, cursor: done ? undefined : "▎", visibleSteps, loading: !done };
 }
 
+type ThemeName = "adwaita" | "whitesur";
+
+const ADWAITA_ACCENT_PRESETS = [
+  "#3584e4", // GNOME blue (default)
+  "#9141ac", // purple
+  "#e66100", // orange
+  "#2ec27e", // green
+  "#e01b24", // red
+  "#f5c211", // yellow
+];
+
 export function ShowcasePage() {
   const codeRef = useRef<HTMLDivElement>(null);
   const { displayCode, cursor, visibleSteps, loading } = useSteppedTyping();
 
-  // Client-only state — avoid hydration mismatch
   const [mounted, setMounted] = useState(false);
   const [pos, setPos] = useState({ x: 0, y: 0 });
   const [maximized, setMaximized] = useState(false);
   const [spinnerState, setSpinnerState] = useState<SpinnerState>("spinning");
   const [codeBadge, setCodeBadge] = useState<CodeBadgeState>("visible");
 
+  // Theme state
+  const [themeName, setThemeName] = useState<ThemeName>("adwaita");
+  const [colorScheme, setColorScheme] = useState<"light" | "dark" | "auto">("auto");
+  const [adwaitaAccent, setAdwaitaAccent] = useState("#3584e4");
+  const [settingsOpen, setSettingsOpen] = useState(false);
+
+  const theme = useMemo(() => {
+    if (themeName === "whitesur") {
+      return new WhiteSurTheme({ colorScheme });
+    }
+    return new AdwaitaTheme({ colorScheme, accentColor: adwaitaAccent });
+  }, [themeName, colorScheme, adwaitaAccent]);
+
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(
     null,
   );
 
-  useEffect(() => {
-    setMounted(true);
-  }, []);
+  useEffect(() => { setMounted(true); }, []);
 
   useEffect(() => {
     if (loading) return;
-    // spinner → fade out → checkmark → fade out → hidden → code collapses → badge docks
     setSpinnerState("fade-out");
     const t1 = setTimeout(() => setSpinnerState("hidden"), 300);
     const t2 = setTimeout(() => setSpinnerState("check"), 1300);
     const t3 = setTimeout(() => setSpinnerState("fade-out-check"), 2300);
     const t4 = setTimeout(() => setSpinnerState("hidden"), 3500);
-    const t5 = setTimeout(() => setCodeBadge("collapsing"), 3800); // start collapsing code panel
-    const t6 = setTimeout(() => setCodeBadge("docked"), 4600); // badge lands in headerbar
-    return () => {
-      clearTimeout(t1);
-      clearTimeout(t2);
-      clearTimeout(t3);
-      clearTimeout(t4);
-      clearTimeout(t5);
-      clearTimeout(t6);
-    };
+    const t5 = setTimeout(() => setCodeBadge("collapsing"), 3800);
+    const t6 = setTimeout(() => setCodeBadge("docked"), 4600);
+    return () => { clearTimeout(t1); clearTimeout(t2); clearTimeout(t3); clearTimeout(t4); clearTimeout(t5); clearTimeout(t6); };
   }, [loading]);
 
   useEffect(() => {
@@ -132,9 +136,7 @@ export function ShowcasePage() {
     setPos({ x: dragRef.current.origX + dx, y: dragRef.current.origY + dy });
   };
 
-  const handlePointerUp = () => {
-    dragRef.current = null;
-  };
+  const handlePointerUp = () => { dragRef.current = null; };
 
   const handleToggleMaximized = () => {
     setMaximized((m) => {
@@ -142,6 +144,9 @@ export function ShowcasePage() {
       return !m;
     });
   };
+
+  const codeCollapsed = codeBadge === "docked";
+  const codeCollapsing = codeBadge === "collapsing";
 
   const player = (
     <ShowcasePlayer
@@ -155,11 +160,84 @@ export function ShowcasePage() {
     />
   );
 
-  const codeCollapsed = codeBadge === "docked";
-  const codeCollapsing = codeBadge === "collapsing";
-
   return (
-    <div style={{ minHeight: "100vh" }}>
+    <GtkProvider theme={theme} icons={adwaitaIcons} style={{ minHeight: "100vh" }}>
+      <div style={{ display: "flex", justifyContent: "flex-end", padding: "16px 24px 0" }}>
+        <div style={{ position: "relative" }}>
+          <GtkButton
+            hasFrame={false}
+            onClicked={() => setSettingsOpen((o) => !o)}
+          >
+            <ApplicationsSystem size={20} />
+          </GtkButton>
+          <GtkPopover
+            visible={settingsOpen}
+            onClosed={() => setSettingsOpen(false)}
+            position="bottom"
+            style={{ minWidth: 240 }}
+          >
+            <GtkBox orientation="vertical" spacing={12} style={{ padding: 12 }}>
+              {/* Theme picker */}
+              <GtkBox orientation="vertical" spacing={6}>
+                <GtkLabel label="Theme" className="dim-label" style={{ fontSize: "0.8rem", alignSelf: "flex-start" }} />
+                <GtkBox spacing={6}>
+                  {(["adwaita", "whitesur"] as ThemeName[]).map((t) => (
+                    <GtkButton
+                      key={t}
+                      label={t === "adwaita" ? "Adwaita" : "WhiteSur"}
+                      className={themeName === t ? "suggested-action" : ""}
+                      onClicked={() => setThemeName(t)}
+                    />
+                  ))}
+                </GtkBox>
+              </GtkBox>
+
+              {/* Color scheme */}
+              <GtkBox orientation="vertical" spacing={6}>
+                <GtkLabel label="Mode" className="dim-label" style={{ fontSize: "0.8rem", alignSelf: "flex-start" }} />
+                <GtkBox spacing={6}>
+                  {(["auto", "light", "dark"] as const).map((s) => (
+                    <GtkButton
+                      key={s}
+                      label={s.charAt(0).toUpperCase() + s.slice(1)}
+                      className={colorScheme === s ? "suggested-action" : ""}
+                      onClicked={() => setColorScheme(s)}
+                    />
+                  ))}
+                </GtkBox>
+              </GtkBox>
+
+              {/* Accent (Adwaita only) */}
+              {themeName === "adwaita" && (
+                <GtkBox orientation="vertical" spacing={6}>
+                  <GtkLabel label="Accent" className="dim-label" style={{ fontSize: "0.8rem", alignSelf: "flex-start" }} />
+                  <GtkBox spacing={6} style={{ flexWrap: "wrap" }}>
+                    {ADWAITA_ACCENT_PRESETS.map((color) => (
+                      <button
+                        key={color}
+                        title={color}
+                        onClick={() => setAdwaitaAccent(color)}
+                        style={{
+                          width: 22,
+                          height: 22,
+                          borderRadius: "50%",
+                          border: adwaitaAccent === color ? "2px solid white" : "2px solid transparent",
+                          boxShadow: adwaitaAccent === color ? `0 0 0 2px ${color}` : "none",
+                          background: color,
+                          cursor: "pointer",
+                          padding: 0,
+                          transition: "box-shadow 150ms",
+                        }}
+                      />
+                    ))}
+                  </GtkBox>
+                </GtkBox>
+              )}
+            </GtkBox>
+          </GtkPopover>
+        </div>
+      </div>
+
       <div style={{ textAlign: "center", padding: "64px 24px 32px" }}>
         <h1 style={{ fontSize: "2.5rem", fontWeight: 800, margin: "0 0 8px" }}>
           GTK4 &amp; Adwaita for the Web
@@ -178,7 +256,6 @@ export function ShowcasePage() {
       </div>
 
       <div style={{ maxWidth: 920, margin: "0 auto", padding: "0 24px 48px" }}>
-        <AdwaitaProvider icons={adwaitaIcons}>
           <AudioProvider>
             <div
               style={{
@@ -188,7 +265,7 @@ export function ShowcasePage() {
                 borderRadius: 12,
               }}
             >
-              {/* Code panel — collapses via overflow:hidden + opacity */}
+              {/* Code panel */}
               <div style={{ overflow: "hidden", minWidth: 0 }}>
                 <div
                   ref={codeRef}
@@ -207,7 +284,6 @@ export function ShowcasePage() {
                   }}
                 >
                   <SyntaxHighlight code={"// app.tsx\n" + displayCode} cursor={cursor} />
-                  {/* Visual-only badge in panel corner — fades in during collapse to imply movement */}
                   <div
                     style={{
                       position: "absolute",
@@ -256,7 +332,8 @@ export function ShowcasePage() {
             {mounted &&
               maximized &&
               createPortal(
-                <AdwaitaProvider
+                <GtkProvider
+                  theme={theme}
                   icons={adwaitaIcons}
                   style={{ position: "fixed", inset: 0, zIndex: 9999 }}
                 >
@@ -268,11 +345,10 @@ export function ShowcasePage() {
                   >
                     {player}
                   </div>
-                </AdwaitaProvider>,
+                </GtkProvider>,
                 document.body,
               )}
           </AudioProvider>
-        </AdwaitaProvider>
       </div>
 
       <style>{`
@@ -302,8 +378,7 @@ export function ShowcasePage() {
         .showcase-preview .gtk-headerbar {
           animation: sc-slide-down 250ms cubic-bezier(0.16, 1, 0.3, 1) both;
         }
-        .showcase-preview .gtk-windowtitle .title,
-        .showcase-preview .gtk-windowtitle .subtitle {
+        .showcase-preview .gtk-windowtitle .title {
           animation: sc-fade 200ms ease-out both;
         }
         .showcase-preview .gtk-label {
@@ -325,6 +400,6 @@ export function ShowcasePage() {
           cursor: default;
         }
       `}</style>
-    </div>
+    </GtkProvider>
   );
 }

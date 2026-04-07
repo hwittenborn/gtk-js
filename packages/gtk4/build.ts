@@ -1,4 +1,4 @@
-import { compileGtkCSS } from "@gtk-js/gtk-css";
+import { compileGtkCSS } from "@gtk-js/gtk-css/compile";
 
 const css = await compileGtkCSS(
   new URL("../../upstream/gtk/gtk/theme/Default/Default-light.scss", import.meta.url).pathname,

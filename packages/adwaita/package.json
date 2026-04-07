@@ -11,7 +11,8 @@
     "build:css": "bun build.ts"
   },
   "dependencies": {
-    "@gtk-js/gtk4": "workspace:*"
+    "@gtk-js/gtk4": "workspace:*",
+    "@gtk-js/theme-adwaita": "workspace:*"
   },
   "devDependencies": {
     "@gtk-js/gtk-css": "workspace:*",

@@ -1,4 +1,5 @@
 import postcss, { type Plugin } from "postcss";
+import type { CompileOptions } from "./compile.ts";
 import { ALL_SELECTORS } from "./selectors.ts";
 
 /**
@@ -7,19 +8,21 @@ import { ALL_SELECTORS } from "./selectors.ts";
  *
  * This is a text-based pass that runs BEFORE PostCSS parsing.
  */
-export function preprocess(rawCSS: string): string {
+export function preprocess(rawCSS: string, options?: CompileOptions): string {
   const lines = rawCSS.split("\n");
+  const { scheme, accentColor } = options ?? {};
 
   // Pass 1: Collect @define-color values, separating light (top-level) from
   // dark (inside @media (prefers-color-scheme: dark)).
   // Light values are used as defaults when resolving @name references.
+  const accentSeed = accentColor ?? "#3584e4";
   const lightColors = new Map<string, string>([
     // Runtime-only colors set by adw-style-manager.c, never in stylesheet
-    ["accent_bg_color", "#3584e4"], // GNOME default blue
+    ["accent_bg_color", accentSeed],
     ["accent_fg_color", "white"],
   ]);
   const darkColors = new Map<string, string>([
-    ["accent_bg_color", "#3584e4"],
+    ["accent_bg_color", accentSeed],
     ["accent_fg_color", "white"],
   ]);
 
@@ -108,7 +111,7 @@ export function preprocess(rawCSS: string): string {
     return `var(--${name.replace(/_/g, "-")})`;
   });
 
-  // Emit dark color variable overrides for OS-level dark mode and forced dark/light via colorScheme prop.
+  // Collect per-scheme color variable differences
   const darkOverrides: string[] = [];
   for (const [name, darkVal] of darkColors) {
     const lightVal = lightColors.get(name);
@@ -118,16 +121,27 @@ export function preprocess(rawCSS: string): string {
       darkOverrides.push(`    --${name.replace(/_/g, "-")}: ${resolvedDark};`);
     }
   }
-  if (darkOverrides.length > 0) {
-    result += `\n@media (prefers-color-scheme: dark) {\n  :root {\n${darkOverrides.join("\n")}\n  }\n}\n`;
-    result += `\n[data-gtk-provider][data-color-scheme="dark"] {\n${darkOverrides.join("\n")}\n}\n`;
-  }
 
-  const lightOverrides = [...lightColors.entries()]
-    .filter(([name]) => darkColors.has(name))
-    .map(([name, val]) => `  --${name.replace(/_/g, "-")}: ${resolveColorRef(val, lightColors)};`);
-  if (lightOverrides.length > 0) {
-    result += `\n[data-gtk-provider][data-color-scheme="light"] {\n${lightOverrides.join("\n")}\n}\n`;
+  if (scheme === "dark") {
+    // Dark-only output: rewrite base :root variables to dark values, emit nothing else
+    if (darkOverrides.length > 0) {
+      result += `\n:root {\n${darkOverrides.join("\n")}\n}\n`;
+    }
+  } else if (scheme === "light") {
+    // Light-only output: no dark overrides at all — light values are already the base
+  } else {
+    // Default: emit both @media and [data-color-scheme] overrides (auto behavior)
+    if (darkOverrides.length > 0) {
+      result += `\n@media (prefers-color-scheme: dark) {\n  :root {\n${darkOverrides.join("\n")}\n  }\n}\n`;
+      result += `\n[data-gtk-provider][data-color-scheme="dark"] {\n${darkOverrides.join("\n")}\n}\n`;
+    }
+
+    const lightOverrides = [...lightColors.entries()]
+      .filter(([name]) => darkColors.has(name))
+      .map(([name, val]) => `  --${name.replace(/_/g, "-")}: ${resolveColorRef(val, lightColors)};`);
+    if (lightOverrides.length > 0) {
+      result += `\n[data-gtk-provider][data-color-scheme="light"] {\n${lightOverrides.join("\n")}\n}\n`;
+    }
   }
 
   return result;
@@ -197,6 +211,12 @@ const remapPseudoClasses: Plugin = {
 const handleGtkProperties: Plugin = {
   postcssPlugin: "gtk-handle-properties",
   Declaration(decl) {
+    // Strip GTK3-style uppercase widget properties: -GtkWidget-*, -GtkDialog-*, etc.
+    if (/^-Gtk[A-Z]/.test(decl.prop)) {
+      decl.remove();
+      return;
+    }
+
     if (!decl.prop.startsWith("-gtk-")) return;
 
     switch (decl.prop) {
@@ -333,13 +353,33 @@ const removeGtkRecolor: Plugin = {
 };
 
 /**
- * The complete GTK → web CSS PostCSS transformation pipeline.
+ * PostCSS plugin: Remove -gtk-scaled() declarations (not resolvable at runtime).
+ * Asset embedding is handled at build time in compile.ts via makeGtkAssetPlugin.
  */
-export const gtkToWeb = postcss([
-  remapSelectors,
-  remapPseudoClasses,
-  handleGtkProperties,
-  fixGtkTransitionRefs,
-  replaceImageFunction,
-  removeGtkRecolor,
-]);
+const removeGtkAssetFunctions: Plugin = {
+  postcssPlugin: "gtk-remove-asset-functions",
+  Declaration(decl) {
+    if (decl.value.includes("-gtk-scaled(")) {
+      decl.remove();
+    }
+  },
+};
+
+/**
+ * The complete GTK → web CSS PostCSS transformation pipeline.
+ * Pass a custom asset plugin to replace -gtk-scaled() with embedded data URIs.
+ */
+export function buildGtkToWeb(assetPlugin?: Plugin) {
+  return postcss([
+    remapSelectors,
+    remapPseudoClasses,
+    handleGtkProperties,
+    fixGtkTransitionRefs,
+    replaceImageFunction,
+    removeGtkRecolor,
+    assetPlugin ?? removeGtkAssetFunctions,
+  ]);
+}
+
+/** Default pipeline — removes -gtk-scaled() declarations. */
+export const gtkToWeb = buildGtkToWeb();

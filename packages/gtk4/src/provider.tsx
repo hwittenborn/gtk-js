@@ -3,23 +3,19 @@ import {
   createContext,
   type ReactNode,
   useContext,
-  useEffect,
   useInsertionEffect,
 } from "react";
+import { type GtkTheme } from "@gtk-js/gtk-css";
 import { type IconMap, IconProvider } from "./icon-context.tsx";
 import layoutCSS from "./layouts/layout.css" with { type: "text" };
 import resetCSS from "./reset.css" with { type: "text" };
 
 export interface GtkProviderProps {
-  /** Accent color (hex). Applied as --accent-bg-color. */
-  accentColor?: string;
-  /** Color scheme preference. Default: "auto" (follows prefers-color-scheme). */
-  colorScheme?: "light" | "dark" | "auto";
-  /** Enable high contrast mode. Default: false. */
-  highContrast?: boolean;
-  /** URL to a theme CSS file (loaded via <link> tag). */
+  /** Theme instance. Call theme.getCSS() to get the CSS to inject. */
+  theme?: GtkTheme;
+  /** URL to a theme CSS file (loaded via <link> tag). Ignored if theme is set. */
   cssHref?: string;
-  /** Theme CSS as a string (injected via <style> tag). Takes priority over cssHref. */
+  /** Theme CSS as a string (injected via <style> tag). Ignored if theme is set. Takes priority over cssHref. */
   cssText?: string;
   /** Icon set to use. Pass the full export of an icon package (e.g. @gtk-js/gtk4-icons). */
   icons?: IconMap;
@@ -28,41 +24,36 @@ export interface GtkProviderProps {
   children: ReactNode;
 }
 
-interface GtkThemeContext {
-  accentColor?: string;
-  colorScheme: "light" | "dark" | "auto";
-  highContrast: boolean;
-}
-
-const ThemeContext = createContext<GtkThemeContext>({
-  colorScheme: "auto",
-  highContrast: false,
-});
+const ThemeContext = createContext<GtkTheme | undefined>(undefined);
 
 export function useGtkTheme() {
   return useContext(ThemeContext);
 }
 
 /**
- * GtkProvider — Initializes the GTK theme, analogous to gtk_init().
+ * GtkProvider — Initializes a GTK theme, analogous to gtk_init().
  *
- * Injects the reset stylesheet and theme stylesheet, and provides theme
- * context (accent color, color scheme, high contrast) and icon set
- * to descendants.
+ * Injects the reset stylesheet and theme stylesheet, and provides the theme
+ * object and icon set to descendants.
  *
- * Everything inside this provider gets browser defaults stripped and GTK
+ * Pass a theme instance via the `theme` prop. The theme class controls
+ * everything about appearance — color scheme, accent color, variants, etc.
+ * GtkProvider just injects whatever CSS the theme returns.
+ *
+ * Everything inside this provider gets browser defaults stripped and the GTK
  * theme applied. Everything outside is completely unaffected.
  */
 export function GtkProvider({
-  accentColor,
-  colorScheme = "auto",
-  highContrast = false,
+  theme,
   cssHref,
   cssText,
   icons = {},
   style,
   children,
 }: GtkProviderProps) {
+  // Resolve theme CSS — theme takes priority, then cssText, then cssHref
+  const resolvedCSSText = theme ? theme.getCSS() : cssText;
+
   // Inject reset + layout CSS
   useInsertionEffect(() => {
     const id = "gtk-js-reset";
@@ -78,26 +69,30 @@ export function GtkProvider({
     };
   }, []);
 
-  // Inject theme CSS inline (takes priority over cssHref)
+  // Inject theme CSS inline
   useInsertionEffect(() => {
-    if (!cssText) return;
+    if (!resolvedCSSText) return;
 
     const id = "gtk-js-theme";
-    if (document.getElementById(id)) return;
+    const existing = document.getElementById(id);
+    if (existing) {
+      existing.textContent = resolvedCSSText;
+      return;
+    }
 
     const style = document.createElement("style");
     style.id = id;
-    style.textContent = cssText;
+    style.textContent = resolvedCSSText;
     document.head.appendChild(style);
 
     return () => {
       style.remove();
     };
-  }, [cssText]);
+  }, [resolvedCSSText]);
 
-  // Inject theme stylesheet via <link> (fallback when cssText not provided)
+  // Inject theme stylesheet via <link> (fallback when no cssText/theme provided)
   useInsertionEffect(() => {
-    if (cssText || !cssHref) return;
+    if (resolvedCSSText || !cssHref) return;
 
     const id = "gtk-js-theme";
     if (document.getElementById(id)) return;
@@ -111,30 +106,15 @@ export function GtkProvider({
     return () => {
       link.remove();
     };
-  }, [cssText, cssHref]);
-
-  // Apply accent color as CSS custom properties
-  useEffect(() => {
-    if (!accentColor) return;
-
-    const style = document.createElement("style");
-    style.id = "gtk-js-accent";
-    style.textContent = `:root { --accent-bg-color: ${accentColor}; }`;
-    document.head.appendChild(style);
-
-    return () => {
-      style.remove();
-    };
-  }, [accentColor]);
+  }, [resolvedCSSText, cssHref]);
 
   return (
-    <ThemeContext.Provider value={{ accentColor, colorScheme, highContrast }}>
+    <ThemeContext.Provider value={theme}>
       <IconProvider value={icons}>
         <div
           data-gtk-provider=""
           className="background"
           style={style}
-          {...(colorScheme !== "auto" ? { "data-color-scheme": colorScheme } : {})}
         >
           {children}
         </div>

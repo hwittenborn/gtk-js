@@ -155,3 +155,78 @@
   margin-left: -8px;
   margin-right: -8px;
 }
+
+/* === Popover Arrow ===
+ * GTK draws the popover arrow as a 24x12 triangle via Cairo (gtkpopover.c).
+ * TAIL_GAP_WIDTH=24, TAIL_HEIGHT=12. We replicate with clip-path.
+ *
+ * The arrow is absolutely positioned within the popover. The JS component
+ * computes its offset to point at the anchor element's center, clamped to
+ * stay within the popover's border-radius (matching gtk_popover_get_gap_coords).
+ *
+ * GTK paints a unified shadow around arrow+contents as one shape. We
+ * approximate this with filter: drop-shadow() on the parent, replacing
+ * per-element box-shadow. The drop-shadow values below are from Adwaita.
+ * TODO: Read shadow from theme CSS at runtime so non-Adwaita themes
+ * (e.g. WhiteSur) get correct shadows. Requires converting computed
+ * box-shadow to drop-shadow format, or emitting a CSS custom property
+ * from the compile pipeline. */
+
+.gtk-popover.background[data-position] {
+  filter: drop-shadow(0 1px 6px rgba(0,0,0,0.09)) drop-shadow(0 2px 17px rgba(0,0,0,0.05));
+}
+
+.gtk-popover.background[data-position] > .gtk-arrow,
+.gtk-popover.background[data-position] > .gtk-contents {
+  box-shadow: none;
+}
+
+.gtk-popover.background[data-position] > .gtk-arrow {
+  position: absolute;
+  border: none;
+  z-index: 1;
+}
+
+/* Bottom: popover below anchor, arrow points up from top edge */
+.gtk-popover.background[data-position="bottom"] > .gtk-arrow {
+  width: 24px;
+  height: 12px;
+  clip-path: polygon(50% 0%, 0% 100%, 100% 100%);
+  top: 0;
+}
+.gtk-popover.background[data-position="bottom"] > .gtk-contents {
+  margin-top: 11px; /* TAIL_HEIGHT - 1px overlap */
+}
+
+/* Top: popover above anchor, arrow points down from bottom edge */
+.gtk-popover.background[data-position="top"] > .gtk-arrow {
+  width: 24px;
+  height: 12px;
+  clip-path: polygon(0% 0%, 50% 100%, 100% 0%);
+  bottom: 0;
+}
+.gtk-popover.background[data-position="top"] > .gtk-contents {
+  margin-bottom: 11px;
+}
+
+/* Right: popover right of anchor, arrow points left from left edge */
+.gtk-popover.background[data-position="right"] > .gtk-arrow {
+  width: 12px;
+  height: 24px;
+  clip-path: polygon(100% 0%, 0% 50%, 100% 100%);
+  left: 0;
+}
+.gtk-popover.background[data-position="right"] > .gtk-contents {
+  margin-left: 11px;
+}
+
+/* Left: popover left of anchor, arrow points right from right edge */
+.gtk-popover.background[data-position="left"] > .gtk-arrow {
+  width: 12px;
+  height: 24px;
+  clip-path: polygon(0% 0%, 100% 50%, 0% 100%);
+  right: 0;
+}
+.gtk-popover.background[data-position="left"] > .gtk-contents {
+  margin-right: 11px;
+}

@@ -1,6 +1,5 @@
 "use client";
 
-import { AdwaitaProvider } from "@gtk-js/adwaita";
 import {
   EditCopy,
   MediaPlaybackPause,
@@ -19,6 +18,7 @@ import {
   GtkSpinner,
   GtkWindow,
   GtkWindowTitle,
+  IconProvider,
   useIcons,
 } from "@gtk-js/gtk4";
 import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from "react";
@@ -163,7 +163,6 @@ export const FULL_CODE = `// app.tsx
     titleWidget={
       <GtkWindowTitle
         title="Harmonix"
-        subtitle="Music Player"
       />
     }
   />}
@@ -300,20 +299,21 @@ export function CodeBadge({ code, animateIn }: { code: string; animateIn?: boole
         popoverPos &&
         typeof document !== "undefined" &&
         createPortal(
-          <AdwaitaProvider
-            icons={icons}
-            style={{ position: "fixed", top: popoverPos.top, left: popoverPos.left, zIndex: 9999 }}
-          >
-            <GtkPopover
-              visible
-              hasArrow={false}
-              position="bottom"
-              onClosed={() => setOpen(false)}
-              style={{ position: "static", transform: "none", minWidth: 320 }}
+          <IconProvider value={icons}>
+            <div
+              style={{ position: "fixed", top: popoverPos.top, left: popoverPos.left, zIndex: 9999 }}
             >
-              <CodePopoverContent code={code} />
-            </GtkPopover>
-          </AdwaitaProvider>,
+              <GtkPopover
+                visible
+                hasArrow={false}
+                position="bottom"
+                onClosed={() => setOpen(false)}
+                style={{ position: "static", transform: "none", minWidth: 320 }}
+              >
+                <CodePopoverContent code={code} />
+              </GtkPopover>
+            </div>
+          </IconProvider>,
           document.body,
         )}
     </div>
@@ -379,7 +379,7 @@ export function ShowcasePlayer({
     <GtkHeaderBar
       titleWidget={
         show(STEP_WINDOW_TITLE) ? (
-          <GtkWindowTitle title="Harmonix" subtitle="Music Player" />
+          <GtkWindowTitle title="Harmonix" />
         ) : undefined
       }
       start={startSlot}
@@ -456,7 +456,6 @@ export const windowSteps: SceneStep[] = [
     code: `    titleWidget={
       <GtkWindowTitle
         title="Harmonix"
-        subtitle="Music Player"
       />
     }
   />}`,

@@ -1,8 +1,13 @@
 import { GtkProvider, type GtkProviderProps } from "@gtk-js/gtk4";
-import { type ReactNode } from "react";
-import adwaitaCSS from "../dist/adwaita.css" with { type: "text" };
+import { AdwaitaTheme } from "@gtk-js/theme-adwaita";
+import { type ReactNode, useMemo } from "react";
 
-export interface AdwaitaProviderProps extends Omit<GtkProviderProps, "cssHref" | "cssText"> {
+export interface AdwaitaProviderProps
+  extends Omit<GtkProviderProps, "theme" | "cssHref" | "cssText"> {
+  /** Color scheme. Default: "auto" (follows prefers-color-scheme). */
+  colorScheme?: "light" | "dark" | "auto";
+  /** Accent color (hex). Defaults to GNOME blue via AdwaitaTheme. */
+  accentColor?: string;
   children: ReactNode;
 }
 
@@ -10,8 +15,16 @@ export interface AdwaitaProviderProps extends Omit<GtkProviderProps, "cssHref" |
  * AdwaitaProvider — Initializes the Adwaita theme, analogous to adw_init().
  *
  * Replaces GtkProvider — use one or the other, not both.
- * Automatically injects the Adwaita CSS theme (no external file needed).
+ * Constructs an AdwaitaTheme instance from props and passes it to GtkProvider.
  */
-export function AdwaitaProvider(props: AdwaitaProviderProps) {
-  return <GtkProvider cssText={adwaitaCSS} {...props} />;
+export function AdwaitaProvider({
+  colorScheme = "auto",
+  accentColor,
+  ...rest
+}: AdwaitaProviderProps) {
+  const theme = useMemo(
+    () => new AdwaitaTheme({ colorScheme, accentColor }),
+    [colorScheme, accentColor],
+  );
+  return <GtkProvider theme={theme} {...rest} />;
 }

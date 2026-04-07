@@ -11,6 +11,8 @@
     "@gtk-js/gtk4": "workspace:*",
     "@gtk-js/adwaita": "workspace:*",
     "@gtk-js/adwaita-icons": "workspace:*",
+    "@gtk-js/theme-adwaita": "workspace:*",
+    "@gtk-js/theme-whitesur": "workspace:*",
     "@types/mdx": "^2",
     "fumadocs-core": "latest",
     "fumadocs-mdx": "latest",

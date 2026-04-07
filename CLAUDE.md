@@ -68,6 +68,7 @@ GTK uses `content-box` sizing — `min-height` refers to content only, padding i
 - Icons are React components generated at build time from upstream SVGs
 - Both icon packages export the same component names — the Provider's `icons` prop selects which set
 - Widgets load icons from context, never by importing an icon package directly
+- The website (`packages/website/`) should prefer Adwaita icons (`@gtk-js/adwaita-icons`) over GTK4 icons
 
 ## Component Conventions
 
