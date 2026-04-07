@@ -1,0 +1,89 @@
+# gtk-js
+
+Bringing the GTK4/Adwaita ecosystem to the web via React.
+
+## Tooling
+
+Default to using Bun instead of Node.js.
+
+- Use `bun <file>`, `bun test`, `bun install`, `bun run <script>`
+- Run `bun run check` (biome lint + tsc) and `bun run fix` (biome auto-fix) before committing.
+- Use `Bun.serve()` with HTML imports for dev servers. Don't use vite.
+- Bun's HMR does NOT detect changes to files imported with `{ type: "text" }`. The server must be fully restarted when modifying `.css` files imported this way.
+
+## Architecture: Two Rendering Layers
+
+GTK has two completely separate rendering layers:
+
+1. **Theme CSS** (Adwaita SCSS) — handles ONLY visual appearance: colors, borders, shadows, padding, fonts, transitions. Does NOT handle layout.
+2. **Layout Managers** (C code) — handles structural layout: flex, grid, centering, spacing. Replicated on the web via `layout.css` and layout components.
+
+When adding a new widget, always check which layout manager it uses in the upstream C source (`set_layout_manager_type`), then use the corresponding layout CSS class.
+
+## Cross-Referencing Against Upstream
+
+**ALWAYS cross-verify against the actual GTK4 and libadwaita source code** in `upstream/gtk/` and `upstream/libadwaita/` (git submodules). This applies to ANY modification — styling, functionality, props, behavior, or layout — not just when first implementing a widget.
+
+When implementing OR modifying a widget:
+
+1. **Check the C source** for:
+   - CSS node name (`gtk_widget_class_set_css_name`)
+   - Layout manager (`set_layout_manager_type`)
+   - Dynamic CSS classes (`gtk_widget_add_css_class` / `remove_css_class`)
+   - Default property values (e.g. GtkLabel's `yalign = 0.5`)
+   - Internal child structure
+
+2. **Check the SCSS source** at `upstream/libadwaita/src/stylesheet/widgets/` for:
+   - Exact CSS values (min-height, padding, font-weight)
+   - Hover/active/focus state changes
+   - Whether properties are `background-color` vs `background-image` (matters for animations)
+   - Placeholder selectors (`%opaque_button`, `%button_basic_flat`) that get `@extend`ed
+
+3. **Build a native GTK4 reference app** with the same layout to visually compare side-by-side.
+
+## CSS Transform Pipeline
+
+`@gtk-js/gtk-css` converts GTK CSS to web CSS:
+
+1. **sassc compilation** — must use `sassc`, not dart-sass (libadwaita has a syntax bug dart-sass rejects)
+2. **Text preprocessing** — strips `@define-color`, resolves `@color_name` references with light/dark separation
+3. **PostCSS plugins** — remap selectors, pseudo-classes, `-gtk-*` properties, `image()` function
+
+### Key pipeline rules
+
+- `@define-color` light vs dark values must be separated — dark values live inside `@media (prefers-color-scheme: dark)` blocks. The preprocessor tracks brace depth.
+- `@accent_bg_color` and `@accent_fg_color` are set at runtime in native GTK, never in the stylesheet. We seed with GNOME default blue (#3584e4).
+- `image()` replacement needs balanced-paren matching for nested `color-mix()`.
+- Convert `background-image: image(X)` to `linear-gradient(X, X)` (NOT `background-color`) — this preserves layering so hover overlays (background-image) render on top of base background-color correctly.
+- The selector map in `selectors.ts` must cover ALL bare GTK selectors. Audit after any upstream update.
+
+## Box Model
+
+GTK uses `content-box` sizing — `min-height` refers to content only, padding is added on top. The reset CSS uses `box-sizing: content-box` to match. Do NOT change to `border-box`.
+
+## Icon System
+
+- `@gtk-js/icon-helpers` — shared `createGtkIcon` factory and SVG parsing/build helpers
+- `@gtk-js/gtk4-icons` — GTK4 base icons from `upstream/gtk/gtk/icons/`
+- `@gtk-js/adwaita-icons` — Adwaita theme icons from `upstream/adwaita-icon-theme/`
+- Icons are React components generated at build time from upstream SVGs
+- Both icon packages export the same component names — the Provider's `icons` prop selects which set
+- Widgets load icons from context, never by importing an icon package directly
+- The website (`packages/website/`) should prefer Adwaita icons (`@gtk-js/adwaita-icons`) over GTK4 icons
+
+## Component Conventions
+
+- Prefix with `Gtk` (GtkButton, GtkBox, GtkLabel). CamelCase props (hasFrame, iconName).
+- Each component mirrors the GTK widget's CSS node tree so Adwaita CSS selectors match.
+- Layout via CSS classes (`gtk-box-layout`, `gtk-center-layout`, `gtk-bin-layout`), not inline styles. Exception: `gap` for spacing.
+- `.gtk-window.csd` needs `overflow: clip` — GTK clips to border-radius automatically, browsers don't.
+- GtkLabel needs `display: inline-flex; align-items: center` to match GTK's default `yalign=0.5`.
+- GtkImage needs `display: inline-flex` to form a proper box for circular `border-radius`.
+
+## Updating Upstream
+
+```sh
+bun run update-upstream
+```
+
+Queries latest stable tags (even minor versions per GNOME convention) and checks them out in each submodule.

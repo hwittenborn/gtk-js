@@ -141,29 +141,32 @@ export function getNativeSnapshot(caseName: string): Promise<WidgetSnapshot> {
   if (cached) return cached;
 
   const promise = (async () => {
+    const tmpFile = `${import.meta.dir}/.native-output-${caseName}-${Date.now()}.json`;
     const proc = Bun.spawn(
-      [
-        "xvfb-run",
-        "-a",
-        "cargo",
-        "run",
-        "--manifest-path",
-        "tests/native/Cargo.toml",
-        "--",
-        caseName,
-      ],
-      { stdout: "pipe", stderr: "pipe" },
+      ["xvfb-run", "-a", "tests/native/target/debug/gtk-js-test", "--output", tmpFile, caseName],
+      { stdout: "ignore", stderr: "pipe" },
     );
 
-    const output = await new Response(proc.stdout).text();
     const exitCode = await proc.exited;
 
     if (exitCode !== 0) {
       const stderr = await new Response(proc.stderr).text();
-      throw new Error(`Native snapshot failed for ${caseName} (exit ${exitCode}):\n${stderr}`);
+      const hint =
+        exitCode === 127
+          ? "\nHint: exit code 127 means a command was not found. Are xvfb-run and cargo installed?"
+          : "";
+      throw new Error(
+        `Native snapshot failed for ${caseName} (exit ${exitCode}):\n${stderr}${hint}`,
+      );
     }
 
-    return JSON.parse(output);
+    const file = Bun.file(tmpFile);
+    try {
+      const output = await file.text();
+      return JSON.parse(output);
+    } finally {
+      await file.unlink();
+    }
   })();
 
   nativeSnapshotCache.set(caseName, promise);

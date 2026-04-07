@@ -21,18 +21,26 @@ jobs:
           submodules: recursive
 
       - name: Install needed dependencies
-        run: dnf install -y sassc unzip
+        run: dnf install -y sassc unzip cargo
 
       - uses: oven-sh/setup-bun@v2
 
       - name: Install dependencies
         run: bun install
+        env:
+          HOME: /root
 
       - name: Build packages
         run: bun run build:packages
 
       - name: Run tests
         run: bun test --reporter=default --reporter=junit --reporter-outfile=test-results.xml
+        env:
+          HOME: /root
+
+      - name: Fix git ownership for test reporter
+        if: ${{ !cancelled() }}
+        run: git config --global --add safe.directory "$GITHUB_WORKSPACE"
 
       - name: Report test results
         uses: dorny/test-reporter@v3

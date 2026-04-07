@@ -83,7 +83,10 @@ fn rgba_to_color(rgba: &gdk::RGBA) -> Color {
 }
 
 #[allow(deprecated)]
-pub fn extract_with_widget<W: IsA<gtk::Widget>>(node: &gsk::RenderNode, widget: &W) -> WidgetSnapshot {
+pub fn extract_with_widget<W: IsA<gtk::Widget>>(
+    node: &gsk::RenderNode,
+    widget: &W,
+) -> WidgetSnapshot {
     let mut snapshot = extract_snapshot(node);
     let w = widget.as_ref();
 

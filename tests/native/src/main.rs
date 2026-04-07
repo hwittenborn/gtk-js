@@ -1,6 +1,8 @@
 mod cases;
 mod extract;
 
+use std::path::PathBuf;
+
 use clap::{Parser, Subcommand};
 use relm4::adw;
 use relm4::adw::prelude::*;
@@ -13,6 +15,10 @@ use relm4::prelude::*;
 struct Cli {
     #[command(subcommand)]
     command: Command,
+
+    /// Write JSON output to this file instead of stdout
+    #[arg(long)]
+    output: Option<PathBuf>,
 }
 
 #[derive(Subcommand)]
@@ -25,9 +31,13 @@ enum Command {
     ButtonCircular,
     ButtonPill,
     ButtonDisabled,
+    ToggleTextDefault,
+    ToggleTextChecked,
+    ToggleTextFlat,
+    ToggleDisabled,
 }
 
-fn render_and_extract<C>(init: C::Init)
+fn render_and_extract<C>(init: C::Init, output: Option<PathBuf>)
 where
     C: SimpleComponent,
     C::Root: IsA<gtk::Widget>,
@@ -43,6 +53,7 @@ where
         .build();
 
     app.connect_activate(move |app| {
+        let output = output.clone();
         let settings = gtk::Settings::default().expect("Failed to get GtkSettings");
         settings.set_gtk_font_name(Some("Cantarell 11"));
         // Force Adwaita style manager to light mode
@@ -74,17 +85,17 @@ where
             // Snapshot the widget at its natural size
             let paintable = gtk::WidgetPaintable::new(Some(&widget));
             let snapshot = gtk::Snapshot::new();
-            paintable.snapshot(
-                &snapshot,
-                widget_width as f64,
-                widget_height as f64,
-            );
+            paintable.snapshot(&snapshot, widget_width as f64, widget_height as f64);
 
             if let Some(node) = snapshot.to_node() {
                 let result = extract::extract_with_widget(&node, &widget);
                 let json =
                     serde_json::to_string_pretty(&result).expect("Failed to serialize snapshot");
-                println!("{json}");
+                if let Some(ref path) = output {
+                    std::fs::write(path, &json).expect("Failed to write output file");
+                } else {
+                    println!("{json}");
+                }
             } else {
                 eprintln!("No render node produced");
                 std::process::exit(1);
@@ -100,23 +111,40 @@ where
 
 fn main() {
     let cli = Cli::parse();
+    let output = cli.output;
 
     match cli.command {
         Command::ButtonTextDefault => {
-            render_and_extract::<cases::button_text_default::ButtonTextDefault>(())
+            render_and_extract::<cases::button_text_default::ButtonTextDefault>((), output)
         }
         Command::ButtonTextFlat => {
-            render_and_extract::<cases::button_text_flat::ButtonTextFlat>(())
+            render_and_extract::<cases::button_text_flat::ButtonTextFlat>((), output)
         }
         Command::ButtonTextSuggested => {
-            render_and_extract::<cases::button_text_suggested::ButtonTextSuggested>(())
+            render_and_extract::<cases::button_text_suggested::ButtonTextSuggested>((), output)
         }
         Command::ButtonTextDestructive => {
-            render_and_extract::<cases::button_text_destructive::ButtonTextDestructive>(())
+            render_and_extract::<cases::button_text_destructive::ButtonTextDestructive>((), output)
         }
-        Command::ButtonIcon => render_and_extract::<cases::button_icon::ButtonIcon>(()),
-        Command::ButtonCircular => render_and_extract::<cases::button_circular::ButtonCircular>(()),
-        Command::ButtonPill => render_and_extract::<cases::button_pill::ButtonPill>(()),
-        Command::ButtonDisabled => render_and_extract::<cases::button_disabled::ButtonDisabled>(()),
+        Command::ButtonIcon => render_and_extract::<cases::button_icon::ButtonIcon>((), output),
+        Command::ButtonCircular => {
+            render_and_extract::<cases::button_circular::ButtonCircular>((), output)
+        }
+        Command::ButtonPill => render_and_extract::<cases::button_pill::ButtonPill>((), output),
+        Command::ButtonDisabled => {
+            render_and_extract::<cases::button_disabled::ButtonDisabled>((), output)
+        }
+        Command::ToggleTextDefault => {
+            render_and_extract::<cases::toggle_text_default::ToggleTextDefault>((), output)
+        }
+        Command::ToggleTextChecked => {
+            render_and_extract::<cases::toggle_text_checked::ToggleTextChecked>((), output)
+        }
+        Command::ToggleTextFlat => {
+            render_and_extract::<cases::toggle_text_flat::ToggleTextFlat>((), output)
+        }
+        Command::ToggleDisabled => {
+            render_and_extract::<cases::toggle_disabled::ToggleDisabled>((), output)
+        }
     }
 }

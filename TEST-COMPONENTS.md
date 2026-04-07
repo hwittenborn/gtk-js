@@ -1,0 +1,91 @@
+# Component Test Coverage
+
+Structural regression tests comparing native GTK4/Adwaita rendering against web rendering via GSK render nodes.
+
+## GTK4 Components
+
+- [x] GtkButton
+  - [x] text-default
+  - [x] text-flat
+  - [x] text-suggested
+  - [x] text-destructive
+  - [x] icon
+  - [x] circular
+  - [x] pill
+  - [x] disabled
+- [x] GtkToggleButton
+  - [x] text-default
+  - [x] text-checked
+  - [x] text-flat
+  - [x] disabled
+- [ ] GtkLinkButton
+- [ ] GtkMenuButton
+- [ ] GtkCheckButton
+- [ ] GtkSwitch
+- [ ] GtkLabel
+- [ ] GtkImage
+- [ ] GtkEntry
+- [ ] GtkPasswordEntry
+- [ ] GtkSearchEntry
+- [ ] GtkEditableLabel
+- [ ] GtkTextView
+- [ ] GtkSpinButton
+- [ ] GtkScale
+- [ ] GtkProgressBar
+- [ ] GtkLevelBar
+- [ ] GtkSpinner
+- [ ] GtkCalendar
+- [ ] GtkBox
+- [ ] GtkCenterBox
+- [ ] GtkGrid
+- [ ] GtkFlowBox
+- [ ] GtkPaned
+- [ ] GtkStack
+- [ ] GtkNotebook
+- [ ] GtkOverlay
+- [ ] GtkFrame
+- [ ] GtkExpander
+- [ ] GtkSeparator
+- [ ] GtkScrolledWindow
+- [ ] GtkScrollBar
+- [ ] GtkHeaderBar
+- [ ] GtkActionBar
+- [ ] GtkSearchBar
+- [ ] GtkPopover
+- [ ] GtkDropDown
+- [ ] GtkListBox
+- [ ] GtkWindowTitle
+- [ ] GtkWindow
+
+## Adwaita Components
+
+- [ ] AdwActionRow
+- [ ] AdwButtonContent
+- [ ] AdwButtonRow
+- [ ] AdwSplitButton
+- [ ] AdwToggleGroup
+- [ ] AdwEntryRow
+- [ ] AdwPasswordEntryRow
+- [ ] AdwSpinRow
+- [ ] AdwComboRow
+- [ ] AdwSwitchRow
+- [ ] AdwExpanderRow
+- [ ] AdwPreferencesRow
+- [ ] AdwPreferencesGroup
+- [ ] AdwPreferencesPage
+- [ ] AdwAvatar
+- [ ] AdwBanner
+- [ ] AdwStatusPage
+- [ ] AdwClamp
+- [ ] AdwCarousel
+- [ ] AdwHeaderBar
+- [ ] AdwToolbarView
+- [ ] AdwNavigationView
+- [ ] AdwOverlaySplitView
+- [ ] AdwBreakpointBin
+- [ ] AdwViewSwitcher
+- [ ] AdwDialog
+- [ ] AdwAlertDialog
+- [ ] AdwAboutDialog
+- [ ] AdwToastOverlay
+- [ ] AdwWindow
