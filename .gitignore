@@ -8,7 +8,12 @@ dist
 
 # generated icon files
 packages/adwaita-icons/src/icons/
+packages/adwaita-icons/src/index.ts
 packages/gtk4-icons/src/icons/
+packages/gtk4-icons/src/index.ts
+
+# Next.js generated
+packages/website/next-env.d.ts
 
 # code coverage
 coverage

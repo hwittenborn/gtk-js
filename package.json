@@ -7,15 +7,14 @@
   ],
   "scripts": {
     "dev": "bun run --cwd packages/website dev",
-    "build:packages": "bun run --cwd packages/gtk4 build:css && bun run --cwd packages/gtk4-icons build && bun run --cwd packages/adwaita build:css && bun run --cwd packages/adwaita-icons build",
+    "build:packages": "bun run --cwd themes/adwaita build && bun run --cwd themes/whitesur build && bun run --cwd packages/gtk4 build:css && bun run --cwd packages/gtk4-icons build && bun run --cwd packages/adwaita build:css && bun run --cwd packages/adwaita-icons build",
     "build": "bun run build:packages && bun run --cwd packages/website build",
     "check": "biome check . && tsc --noEmit && bun run --cwd packages/website tsc --noEmit",
     "fix": "biome check . --write",
     "update-upstream": "bun scripts/update-upstream.ts",
     "changeset": "changeset",
     "version": "changeset version",
-    "publish:packages": "bun publish --cwd packages/gtk-css && bun publish --cwd packages/icon-helpers && bun publish --cwd packages/gtk4-icons && bun publish --cwd packages/adwaita-icons && bun publish --cwd packages/gtk4 && bun publish --cwd packages/adwaita",
-    "publish": "bun run build:packages && bun run publish:packages"
+    "publish": "bun run build:packages && bun scripts/publish.ts"
   },
   "devDependencies": {
     "@biomejs/biome": "^2.4.10",
