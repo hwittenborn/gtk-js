@@ -9,3 +9,15 @@
 export abstract class GtkTheme {
   abstract getCSS(): string;
 }
+
+/** Resolve "auto" color scheme to "light" or "dark" using prefers-color-scheme. */
+export function resolveColorScheme(scheme: "light" | "dark" | "auto"): "light" | "dark" {
+  if (scheme !== "auto") return scheme;
+  if (
+    typeof window !== "undefined" &&
+    window.matchMedia?.("(prefers-color-scheme: dark)").matches
+  ) {
+    return "dark";
+  }
+  return "light";
+}

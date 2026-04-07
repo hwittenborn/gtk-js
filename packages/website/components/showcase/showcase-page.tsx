@@ -4,6 +4,7 @@ import * as adwaitaIcons from "@gtk-js/adwaita-icons";
 import { ApplicationsSystem } from "@gtk-js/adwaita-icons";
 import { GtkBox, GtkButton, GtkLabel, GtkPopover, GtkProvider } from "@gtk-js/gtk4";
 import { AdwaitaTheme } from "@gtk-js/theme-adwaita";
+import { MacTahoeTheme } from "@gtk-js/theme-mactahoe";
 import { WhiteSurTheme } from "@gtk-js/theme-whitesur";
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
@@ -74,7 +75,13 @@ function useSteppedTyping() {
   return { displayCode, cursor: done ? undefined : "▎", visibleSteps, loading: !done };
 }
 
-type ThemeName = "adwaita" | "whitesur";
+type ThemeName = "adwaita" | "whitesur" | "mactahoe";
+
+const THEME_LABELS: Record<ThemeName, string> = {
+  adwaita: "Adwaita",
+  whitesur: "WhiteSur",
+  mactahoe: "MacTahoe",
+};
 
 const ADWAITA_ACCENT_PRESETS = [
   "#3584e4", // GNOME blue (default)
@@ -104,6 +111,9 @@ export function ShowcasePage() {
   const theme = useMemo(() => {
     if (themeName === "whitesur") {
       return new WhiteSurTheme({ colorScheme });
+    }
+    if (themeName === "mactahoe") {
+      return new MacTahoeTheme({ colorScheme });
     }
     return new AdwaitaTheme({ colorScheme, accentColor: adwaitaAccent });
   }, [themeName, colorScheme, adwaitaAccent]);
@@ -192,7 +202,7 @@ export function ShowcasePage() {
             visible={settingsOpen}
             onClosed={() => setSettingsOpen(false)}
             position="bottom"
-            style={{ minWidth: 240 }}
+            style={{ minWidth: 280 }}
           >
             <GtkBox orientation="vertical" spacing={12} style={{ padding: 12 }}>
               {/* Theme picker */}
@@ -202,11 +212,11 @@ export function ShowcasePage() {
                   className="dim-label"
                   style={{ fontSize: "0.8rem", alignSelf: "flex-start" }}
                 />
-                <GtkBox spacing={6}>
-                  {(["adwaita", "whitesur"] as ThemeName[]).map((t) => (
+                <GtkBox spacing={6} style={{ flexWrap: "wrap" }}>
+                  {(["adwaita", "whitesur", "mactahoe"] as ThemeName[]).map((t) => (
                     <GtkButton
                       key={t}
-                      label={t === "adwaita" ? "Adwaita" : "WhiteSur"}
+                      label={THEME_LABELS[t]}
                       className={themeName === t ? "suggested-action" : ""}
                       onClicked={() => setThemeName(t)}
                     />

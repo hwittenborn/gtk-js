@@ -1,0 +1,16 @@
+{
+  "name": "@gtk-js/theme-mactahoe",
+  "version": "0.0.1",
+  "main": "src/index.ts",
+  "dependencies": {
+    "@gtk-js/gtk-css": "workspace:*",
+    "fast-xml-parser": "^5.5.10"
+  },
+  "exports": {
+    ".": "./src/index.ts"
+  },
+  "scripts": {
+    "build": "bun build.ts"
+  },
+  "type": "module"
+}

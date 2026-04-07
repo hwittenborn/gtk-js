@@ -51,7 +51,13 @@ function WindowControlButton({ name, onClick }: { name: string; onClick?: () => 
   if (!Icon) return null;
 
   return (
-    <button className={`gtk-button image-button ${name}`} type="button" onClick={onClick}>
+    <button
+      className={`gtk-button image-button ${name}`}
+      type="button"
+      tabIndex={-1}
+      onMouseDown={(e) => e.preventDefault()}
+      onClick={onClick}
+    >
       <span className="gtk-image">
         <Icon size={16} />
       </span>
@@ -133,12 +139,12 @@ export const GtkHeaderBar = forwardRef<HTMLDivElement, GtkHeaderBarProps>(functi
   },
   ref,
 ) {
-  const classes = ["gtk-headerbar"];
+  const classes = ["gtk-headerbar", "gtk-bin-layout"];
   if (className) classes.push(className);
 
   return (
     <div ref={ref} className={classes.join(" ")} {...rest}>
-      <div className="gtk-windowhandle" onPointerDown={onWindowHandleDragStart}>
+      <div className="gtk-windowhandle gtk-bin-layout" onPointerDown={onWindowHandleDragStart}>
         <div className="gtk-box gtk-center-layout">
           <div className="gtk-box gtk-box-layout horizontal start gtk-center-layout-start">
             {showWindowControls && (

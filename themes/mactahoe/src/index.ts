@@ -2,7 +2,7 @@ import { GtkTheme, resolveColorScheme } from "@gtk-js/gtk-css";
 import dark from "../dist/dark_default.css" with { type: "text" };
 import light from "../dist/light_default.css" with { type: "text" };
 
-export class WhiteSurTheme extends GtkTheme {
+export class MacTahoeTheme extends GtkTheme {
   readonly colorScheme: "light" | "dark" | "auto";
 
   constructor({

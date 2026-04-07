@@ -97,6 +97,7 @@
         "@gtk-js/adwaita-icons": "workspace:*",
         "@gtk-js/gtk4": "workspace:*",
         "@gtk-js/theme-adwaita": "workspace:*",
+        "@gtk-js/theme-mactahoe": "workspace:*",
         "@gtk-js/theme-whitesur": "workspace:*",
         "@types/mdx": "^2",
         "fumadocs-core": "latest",
@@ -135,6 +136,14 @@
       "version": "0.0.1",
       "dependencies": {
         "@gtk-js/gtk-css": "workspace:*",
+      },
+    },
+    "themes/mactahoe": {
+      "name": "@gtk-js/theme-mactahoe",
+      "version": "0.0.1",
+      "dependencies": {
+        "@gtk-js/gtk-css": "workspace:*",
+        "fast-xml-parser": "^5.5.10",
       },
     },
     "themes/whitesur": {
@@ -286,6 +295,8 @@
     "@gtk-js/tests": ["@gtk-js/tests@workspace:tests"],
 
     "@gtk-js/theme-adwaita": ["@gtk-js/theme-adwaita@workspace:themes/adwaita"],
+
+    "@gtk-js/theme-mactahoe": ["@gtk-js/theme-mactahoe@workspace:themes/mactahoe"],
 
     "@gtk-js/theme-whitesur": ["@gtk-js/theme-whitesur@workspace:themes/whitesur"],
 

@@ -13,6 +13,7 @@
     "@gtk-js/adwaita-icons": "workspace:*",
     "@gtk-js/theme-adwaita": "workspace:*",
     "@gtk-js/theme-whitesur": "workspace:*",
+    "@gtk-js/theme-mactahoe": "workspace:*",
     "@types/mdx": "^2",
     "fumadocs-core": "latest",
     "fumadocs-mdx": "latest",
