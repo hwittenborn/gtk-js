@@ -176,6 +176,7 @@ export function getNativeSnapshot(caseName: string): Promise<WidgetSnapshot> {
 export async function extractWebStyles(
   browser: Browser,
   caseName: string,
+  childSelector?: string,
 ): Promise<WidgetSnapshot> {
   const page = await browser.newPage({
     viewport: { width: 400, height: 300 },
@@ -185,7 +186,10 @@ export async function extractWebStyles(
   await page.goto(`http://localhost:${getPort()}/${caseName}`);
   await page.waitForSelector("[data-testid='target']");
 
-  const raw = await page.locator("[data-testid='target']").evaluate((el: HTMLElement) => {
+  const selector = childSelector
+    ? `[data-testid='target'] ${childSelector}`
+    : "[data-testid='target']";
+  const raw = await page.locator(selector).evaluate((el: HTMLElement) => {
     const cs = getComputedStyle(el);
     const rect = el.getBoundingClientRect();
     return {
@@ -358,17 +362,29 @@ export function compare(native: WidgetSnapshot, web: WidgetSnapshot): CompareRes
 
 export type GtkTestCallback = (native: WidgetSnapshot, web: WidgetSnapshot) => void;
 
-export function gtkTest(caseName: string, cb?: GtkTestCallback) {
+export interface GtkTestOptions {
+  /** CSS selector for a child element within [data-testid='target'] to extract styles from.
+   *  Use for container widgets where the visual element is a child (e.g. GtkMenuButton's inner toggle button). */
+  childSelector?: string;
+}
+
+export function gtkTest(
+  caseName: string,
+  cbOrOpts?: GtkTestCallback | GtkTestOptions,
+  cb?: GtkTestCallback,
+) {
+  const opts: GtkTestOptions = typeof cbOrOpts === "function" ? {} : (cbOrOpts ?? {});
+  const callback = typeof cbOrOpts === "function" ? cbOrOpts : cb;
   const browsers = globalThis.__testBrowsers;
   for (const [browserName, browser] of Object.entries(browsers)) {
     test(`${caseName} (${browserName})`, async () => {
       const [native, web] = await Promise.all([
         getNativeSnapshot(caseName),
-        extractWebStyles(browser, caseName),
+        extractWebStyles(browser, caseName, opts?.childSelector),
       ]);
       try {
-        if (cb) {
-          cb(native, web);
+        if (callback) {
+          callback(native, web);
         } else {
           const result = compare(native, web);
           if (result.failures.length > 0) {

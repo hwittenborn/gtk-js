@@ -1,4 +1,10 @@
-import { AdwaitaProvider, GtkButton, GtkLinkButton, GtkToggleButton } from "@gtk-js/adwaita";
+import {
+  AdwaitaProvider,
+  GtkButton,
+  GtkLinkButton,
+  GtkMenuButton,
+  GtkToggleButton,
+} from "@gtk-js/adwaita";
 import { createRoot } from "react-dom/client";
 
 const caseName = window.location.pathname.slice(1);
@@ -26,6 +32,13 @@ const cases: Record<string, () => React.ReactElement> = {
   "link-visited": () => (
     <GtkLinkButton uri="https://example.com" label="Link" visited data-testid="target" />
   ),
+  // GtkMenuButton cases
+  "menu-button-text-default": () => <GtkMenuButton label="Button" data-testid="target" />,
+  "menu-button-icon": () => <GtkMenuButton iconName="open-menu-symbolic" data-testid="target" />,
+  "menu-button-flat": () => <GtkMenuButton label="Button" hasFrame={false} data-testid="target" />,
+  "menu-button-circular": () => <GtkMenuButton className="circular" data-testid="target" />,
+  "menu-button-disabled": () => <GtkMenuButton label="Button" disabled data-testid="target" />,
+
   // GtkToggleButton cases
   "toggle-text-default": () => <GtkToggleButton label="Toggle" data-testid="target" />,
   "toggle-text-checked": () => <GtkToggleButton label="Toggle" active data-testid="target" />,

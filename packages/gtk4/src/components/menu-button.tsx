@@ -21,6 +21,8 @@ export interface GtkMenuButtonProps extends Omit<HTMLAttributes<HTMLDivElement>,
   canShrink?: boolean;
   /** Whether this is a primary menu button (opens on F10). Default: false. */
   primary?: boolean;
+  /** Disables the button. */
+  disabled?: boolean;
 }
 
 const arrowIconMap: Record<GtkArrowType, string> = {
@@ -53,6 +55,7 @@ export const GtkMenuButton = forwardRef<HTMLDivElement, GtkMenuButtonProps>(func
     alwaysShowArrow = false,
     canShrink = false,
     primary = false,
+    disabled,
     className,
     ...rest
   },
@@ -79,16 +82,24 @@ export const GtkMenuButton = forwardRef<HTMLDivElement, GtkMenuButtonProps>(func
   if (showArrow && !arrowOnly) btnClasses.push("arrow-button");
   if (open) btnClasses.push("has-open-popup");
 
-  const toggle = useCallback(() => setOpen((o) => !o), []);
+  const toggle = useCallback(() => {
+    if (!disabled) setOpen((o) => !o);
+  }, [disabled]);
 
   return (
-    <div ref={ref} className={rootClasses.join(" ")} {...rest}>
+    <div
+      ref={ref}
+      className={rootClasses.join(" ")}
+      aria-disabled={disabled || undefined}
+      {...rest}
+    >
       <button
         type="button"
         className={btnClasses.join(" ")}
         aria-haspopup="true"
         aria-expanded={open}
         data-checked={open || undefined}
+        disabled={disabled}
         onClick={toggle}
       >
         {hasCustomChild ? (
