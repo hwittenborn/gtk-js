@@ -6,8 +6,10 @@ import {
   GtkToggleButton,
 } from "@gtk-js/adwaita";
 import { createRoot } from "react-dom/client";
+import { Fragment } from "react";
 
 const caseName = window.location.pathname.slice(1);
+const isGallery = caseName === "gallery";
 
 const cases: Record<string, () => React.ReactElement> = {
   "button-text-default": () => <GtkButton label="Button" data-testid="target" />,
@@ -59,11 +61,25 @@ const cases: Record<string, () => React.ReactElement> = {
   ),
 };
 
-const renderCase = cases[caseName];
+const root = createRoot(document.getElementById("root")!);
 
-if (!renderCase) {
-  document.getElementById("root")!.textContent = `Unknown case: ${caseName}`;
+if (isGallery) {
+  root.render(
+    <AdwaitaProvider colorScheme="light">
+      <div style={{ display: "grid", gridTemplateColumns: "repeat(4, max-content)", gap: 24 }}>
+        {Object.entries(cases).map(([name, renderCase]) => (
+          <div key={name} data-case={name} style={{ display: "inline-flex", alignItems: "flex-start" }}>
+            <Fragment>{renderCase()}</Fragment>
+          </div>
+        ))}
+      </div>
+    </AdwaitaProvider>,
+  );
 } else {
-  const root = createRoot(document.getElementById("root")!);
-  root.render(<AdwaitaProvider colorScheme="light">{renderCase()}</AdwaitaProvider>);
+  const renderCase = cases[caseName];
+  if (!renderCase) {
+    document.getElementById("root")!.textContent = `Unknown case: ${caseName}`;
+  } else {
+    root.render(<AdwaitaProvider colorScheme="light">{renderCase()}</AdwaitaProvider>);
+  }
 }

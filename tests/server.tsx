@@ -6,6 +6,7 @@ export function startTestServer(): Server {
     port: 0,
     routes: {
       "/health": new Response("ok"),
+      "/gallery": client,
       "/:caseName": client,
     },
   });

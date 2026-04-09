@@ -1,8 +1,21 @@
 import { expect, test } from "bun:test";
 import type { Browser } from "playwright";
 
-function getPort(): number {
-  return globalThis.__testServer.port;
+function debugEnabled(): boolean {
+  return Bun.env.GTK_JS_TEST_DEBUG != null;
+}
+
+function debugLog(scope: string, message: string): void {
+  if (debugEnabled()) {
+    console.error(`[${scope}] ${message}`);
+  }
+}
+
+const GTK_TEST_TIMEOUT = 30_000;
+
+function isPageClosedError(error: unknown): boolean {
+  if (!(error instanceof Error)) return false;
+  return /Target page, context or browser has been closed/i.test(error.message);
 }
 
 export interface WidgetSnapshot {
@@ -141,32 +154,18 @@ export function getNativeSnapshot(caseName: string): Promise<WidgetSnapshot> {
   if (cached) return cached;
 
   const promise = (async () => {
-    const tmpFile = `${import.meta.dir}/.native-output-${caseName}-${Date.now()}.json`;
-    const proc = Bun.spawn(
-      ["xvfb-run", "-a", "tests/native/target/debug/gtk-js-test", "--output", tmpFile, caseName],
-      { stdout: "ignore", stderr: "pipe" },
+    debugLog("native", `fetch start case=${caseName} port=${globalThis.__nativeServerPort}`);
+    const response = await fetch(
+      `http://127.0.0.1:${globalThis.__nativeServerPort}/${encodeURIComponent(caseName)}`,
     );
 
-    const exitCode = await proc.exited;
-
-    if (exitCode !== 0) {
-      const stderr = await new Response(proc.stderr).text();
-      const hint =
-        exitCode === 127
-          ? "\nHint: exit code 127 means a command was not found. Are xvfb-run and cargo installed?"
-          : "";
-      throw new Error(
-        `Native snapshot failed for ${caseName} (exit ${exitCode}):\n${stderr}${hint}`,
-      );
+    if (!response.ok) {
+      const body = await response.text();
+      throw new Error(`Native snapshot failed for ${caseName} (HTTP ${response.status}):\n${body}`);
     }
 
-    const file = Bun.file(tmpFile);
-    try {
-      const output = await file.text();
-      return JSON.parse(output);
-    } finally {
-      await file.unlink();
-    }
+    debugLog("native", `fetch complete case=${caseName}`);
+    return (await response.json()) as WidgetSnapshot;
   })();
 
   nativeSnapshotCache.set(caseName, promise);
@@ -178,79 +177,81 @@ export async function extractWebStyles(
   caseName: string,
   childSelector?: string,
 ): Promise<WidgetSnapshot> {
-  const page = await browser.newPage({
-    viewport: { width: 400, height: 300 },
-    deviceScaleFactor: 1,
-  });
+  const browserName = browser.browserType().name();
+  const page = globalThis.__testPages[browserName];
+  const rootSelector = `[data-case="${caseName}"] [data-testid='target']`;
+  const selector = childSelector ? `${rootSelector} ${childSelector}` : rootSelector;
 
-  await page.goto(`http://localhost:${getPort()}/${caseName}`);
-  await page.waitForSelector("[data-testid='target']");
+  try {
+    debugLog("web", `read case=${caseName} browser=${browserName}`);
+    await page.locator(rootSelector).waitFor();
+    debugLog("web", `selector ready case=${caseName} browser=${browserName}`);
+    const raw = await page.locator(selector).evaluate((el: HTMLElement) => {
+      const cs = getComputedStyle(el);
+      const rect = el.getBoundingClientRect();
+      return {
+        width: rect.width,
+        height: rect.height,
+        padding: {
+          top: parseFloat(cs.paddingTop),
+          right: parseFloat(cs.paddingRight),
+          bottom: parseFloat(cs.paddingBottom),
+          left: parseFloat(cs.paddingLeft),
+        },
+        border_radius: {
+          top_left: parseFloat(cs.borderTopLeftRadius),
+          top_right: parseFloat(cs.borderTopRightRadius),
+          bottom_right: parseFloat(cs.borderBottomRightRadius),
+          bottom_left: parseFloat(cs.borderBottomLeftRadius),
+        },
+        background_color: cs.backgroundColor,
+        border_widths: {
+          top: parseFloat(cs.borderTopWidth),
+          right: parseFloat(cs.borderRightWidth),
+          bottom: parseFloat(cs.borderBottomWidth),
+          left: parseFloat(cs.borderLeftWidth),
+        },
+        border_colors: {
+          top: cs.borderTopColor,
+          right: cs.borderRightColor,
+          bottom: cs.borderBottomColor,
+          left: cs.borderLeftColor,
+        },
+        color: cs.color,
+        font_family: cs.fontFamily.replace(/['"]/g, "").split(",")[0].trim(),
+        font_weight: parseInt(cs.fontWeight),
+        shadows: [] as string[],
+        inset_shadows: [] as string[],
+        opacity: parseFloat(cs.opacity),
+      };
+    });
 
-  const selector = childSelector
-    ? `[data-testid='target'] ${childSelector}`
-    : "[data-testid='target']";
-  const raw = await page.locator(selector).evaluate((el: HTMLElement) => {
-    const cs = getComputedStyle(el);
-    const rect = el.getBoundingClientRect();
     return {
-      width: rect.width,
-      height: rect.height,
-      padding: {
-        top: parseFloat(cs.paddingTop),
-        right: parseFloat(cs.paddingRight),
-        bottom: parseFloat(cs.paddingBottom),
-        left: parseFloat(cs.paddingLeft),
-      },
-      border_radius: {
-        top_left: parseFloat(cs.borderTopLeftRadius),
-        top_right: parseFloat(cs.borderTopRightRadius),
-        bottom_right: parseFloat(cs.borderBottomRightRadius),
-        bottom_left: parseFloat(cs.borderBottomLeftRadius),
-      },
-      background_color: cs.backgroundColor,
-      border_widths: {
-        top: parseFloat(cs.borderTopWidth),
-        right: parseFloat(cs.borderRightWidth),
-        bottom: parseFloat(cs.borderBottomWidth),
-        left: parseFloat(cs.borderLeftWidth),
-      },
+      width: raw.width,
+      height: raw.height,
+      padding: raw.padding,
+      border_radius: raw.border_radius,
+      background_color: parseColor(raw.background_color),
+      border_widths: raw.border_widths,
       border_colors: {
-        top: cs.borderTopColor,
-        right: cs.borderRightColor,
-        bottom: cs.borderBottomColor,
-        left: cs.borderLeftColor,
+        top: parseColor(raw.border_colors.top),
+        right: parseColor(raw.border_colors.right),
+        bottom: parseColor(raw.border_colors.bottom),
+        left: parseColor(raw.border_colors.left),
       },
-      color: cs.color,
-      font_family: cs.fontFamily.replace(/['"]/g, "").split(",")[0].trim(),
-      font_weight: parseInt(cs.fontWeight),
-      shadows: [] as string[],
-      inset_shadows: [] as string[],
-      opacity: parseFloat(cs.opacity),
+      color: parseColor(raw.color),
+      font_family: raw.font_family,
+      font_weight: raw.font_weight,
+      shadows: [],
+      inset_shadows: [],
+      opacity: raw.opacity,
     };
-  });
-
-  await page.close();
-
-  return {
-    width: raw.width,
-    height: raw.height,
-    padding: raw.padding,
-    border_radius: raw.border_radius,
-    background_color: parseColor(raw.background_color),
-    border_widths: raw.border_widths,
-    border_colors: {
-      top: parseColor(raw.border_colors.top),
-      right: parseColor(raw.border_colors.right),
-      bottom: parseColor(raw.border_colors.bottom),
-      left: parseColor(raw.border_colors.left),
-    },
-    color: parseColor(raw.color),
-    font_family: raw.font_family,
-    font_weight: raw.font_weight,
-    shadows: [],
-    inset_shadows: [],
-    opacity: raw.opacity,
-  };
+  } catch (error) {
+    if (isPageClosedError(error)) {
+      throw error;
+    }
+    throw error;
+  }
 }
 
 export const DEFAULT_COLOR_TOLERANCE = 1 / 255;
@@ -377,44 +378,57 @@ export function gtkTest(
   const callback = typeof cbOrOpts === "function" ? cbOrOpts : cb;
   const browsers = globalThis.__testBrowsers;
   for (const [browserName, browser] of Object.entries(browsers)) {
-    test(`${caseName} (${browserName})`, async () => {
-      const [native, web] = await Promise.all([
-        getNativeSnapshot(caseName),
-        extractWebStyles(browser, caseName, opts?.childSelector),
-      ]);
-      try {
-        if (callback) {
-          callback(native, web);
-        } else {
-          const result = compare(native, web);
-          if (result.failures.length > 0) {
-            console.error("Failures:", JSON.stringify(result.failures, null, 2));
+    test.concurrent(
+      `${caseName} (${browserName})`,
+      async () => {
+        debugLog("test", `start case=${caseName} browser=${browserName}`);
+        const [native, web] = await Promise.all([
+          getNativeSnapshot(caseName),
+          extractWebStyles(browser, caseName, opts?.childSelector),
+        ]);
+        try {
+          if (callback) {
+            callback(native, web);
+          } else {
+            const result = compare(native, web);
+            if (result.failures.length > 0) {
+              console.error("Failures:", JSON.stringify(result.failures, null, 2));
+            }
+            expect(result.failures).toEqual([]);
           }
-          expect(result.failures).toEqual([]);
+        } catch (err) {
+          console.error("Native:", JSON.stringify(native, null, 2));
+          console.error("Web:", JSON.stringify(web, null, 2));
+          throw err;
+        } finally {
+          debugLog("test", `end case=${caseName} browser=${browserName}`);
         }
-      } catch (err) {
-        console.error("Native:", JSON.stringify(native, null, 2));
-        console.error("Web:", JSON.stringify(web, null, 2));
-        throw err;
-      }
-    });
+      },
+      GTK_TEST_TIMEOUT,
+    );
   }
 }
 
 export function gtkTestExpectFailure(caseName: string, expectedFailProperties: string[]) {
   const browsers = globalThis.__testBrowsers;
   for (const [browserName, browser] of Object.entries(browsers)) {
-    test(`${caseName} (${browserName}) [expected failure]`, async () => {
-      const nativeCaseName = caseName.replace(/-wrong-.*$/, "");
-      const [native, web] = await Promise.all([
-        getNativeSnapshot(nativeCaseName),
-        extractWebStyles(browser, caseName),
-      ]);
-      const result = compare(native, web);
-      expect(result.failures.length).toBeGreaterThan(0);
-      for (const prop of expectedFailProperties) {
-        expect(result.failures.some((f) => f.property.startsWith(prop))).toBe(true);
-      }
-    });
+    test.concurrent(
+      `${caseName} (${browserName}) [expected failure]`,
+      async () => {
+        debugLog("test", `start case=${caseName} browser=${browserName} expected-failure`);
+        const nativeCaseName = caseName.replace(/-wrong-.*$/, "");
+        const [native, web] = await Promise.all([
+          getNativeSnapshot(nativeCaseName),
+          extractWebStyles(browser, caseName),
+        ]);
+        const result = compare(native, web);
+        expect(result.failures.length).toBeGreaterThan(0);
+        for (const prop of expectedFailProperties) {
+          expect(result.failures.some((f) => f.property.startsWith(prop))).toBe(true);
+        }
+        debugLog("test", `end case=${caseName} browser=${browserName} expected-failure`);
+      },
+      GTK_TEST_TIMEOUT,
+    );
   }
 }

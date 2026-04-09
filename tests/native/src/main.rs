@@ -1,8 +1,18 @@
 mod cases;
 mod extract;
 
+use std::io::Write;
 use std::path::PathBuf;
+use std::sync::atomic::{AtomicBool, Ordering};
+use std::sync::mpsc;
+use std::sync::{Arc, Mutex};
+use std::thread;
+use std::time::Duration;
 
+use axum::Router;
+use axum::extract::{Path, State};
+use axum::http::StatusCode;
+use axum::routing::get;
 use clap::{Parser, Subcommand};
 use relm4::adw;
 use relm4::adw::prelude::*;
@@ -23,6 +33,10 @@ struct Cli {
 
 #[derive(Subcommand)]
 enum Command {
+    Serve {
+        #[arg(long)]
+        port_file: Option<PathBuf>,
+    },
     ButtonTextDefault,
     ButtonTextFlat,
     ButtonTextSuggested,
@@ -44,159 +58,373 @@ enum Command {
     ToggleDisabled,
 }
 
-/// Like [`render_and_extract`] but snapshots and extracts from the widget's first child
-/// rather than the root widget itself.
-///
-/// Use this for container widgets (e.g. GtkMenuButton) whose visual rendering is entirely
-/// delegated to a single child widget. The harness walks all render nodes including children,
-/// so reading properties from the container's CSS context (padding=0) while visual properties
-/// (background, border-radius, font-weight) come from the child's render nodes produces
-/// inconsistent results. Snapshotting the child directly gives a clean, uniform comparison.
-fn render_and_extract_inner<C>(init: C::Init, output: Option<PathBuf>)
-where
-    C: SimpleComponent,
-    C::Root: IsA<gtk::Widget>,
-    C::Init: Copy,
-{
-    // Set environment before GTK init for deterministic rendering
+struct NativeRequest {
+    case_name: String,
+    response: mpsc::SyncSender<Result<String, String>>,
+}
+
+#[derive(Clone)]
+struct ServerState {
+    sender: mpsc::Sender<NativeRequest>,
+    ready: Arc<AtomicBool>,
+}
+
+fn debug_enabled() -> bool {
+    std::env::var_os("GTK_JS_TEST_DEBUG").is_some()
+}
+
+fn debug_log(message: impl AsRef<str>) {
+    if debug_enabled() {
+        eprintln!("[native] {}", message.as_ref());
+    }
+}
+
+macro_rules! widget_case {
+    ($component:path, $use_inner:expr) => {{
+        let component = <$component>::builder().launch(()).detach();
+        Some((
+            component.widget().clone().upcast::<gtk::Widget>(),
+            $use_inner,
+        ))
+    }};
+}
+
+impl Command {
+    fn case_name(&self) -> Option<&'static str> {
+        match self {
+            Self::Serve { .. } => None,
+            Self::ButtonTextDefault => Some("button-text-default"),
+            Self::ButtonTextFlat => Some("button-text-flat"),
+            Self::ButtonTextSuggested => Some("button-text-suggested"),
+            Self::ButtonTextDestructive => Some("button-text-destructive"),
+            Self::ButtonIcon => Some("button-icon"),
+            Self::ButtonCircular => Some("button-circular"),
+            Self::ButtonPill => Some("button-pill"),
+            Self::ButtonDisabled => Some("button-disabled"),
+            Self::LinkDefault => Some("link-default"),
+            Self::LinkVisited => Some("link-visited"),
+            Self::MenuButtonTextDefault => Some("menu-button-text-default"),
+            Self::MenuButtonIcon => Some("menu-button-icon"),
+            Self::MenuButtonFlat => Some("menu-button-flat"),
+            Self::MenuButtonCircular => Some("menu-button-circular"),
+            Self::MenuButtonDisabled => Some("menu-button-disabled"),
+            Self::ToggleTextDefault => Some("toggle-text-default"),
+            Self::ToggleTextChecked => Some("toggle-text-checked"),
+            Self::ToggleTextFlat => Some("toggle-text-flat"),
+            Self::ToggleDisabled => Some("toggle-disabled"),
+        }
+    }
+}
+
+fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
+    match name {
+        "button-text-default" => widget_case!(cases::button_text_default::ButtonTextDefault, false),
+        "button-text-flat" => widget_case!(cases::button_text_flat::ButtonTextFlat, false),
+        "button-text-suggested" => {
+            widget_case!(cases::button_text_suggested::ButtonTextSuggested, false)
+        }
+        "button-text-destructive" => {
+            widget_case!(cases::button_text_destructive::ButtonTextDestructive, false)
+        }
+        "button-icon" => widget_case!(cases::button_icon::ButtonIcon, false),
+        "button-circular" => widget_case!(cases::button_circular::ButtonCircular, false),
+        "button-pill" => widget_case!(cases::button_pill::ButtonPill, false),
+        "button-disabled" => widget_case!(cases::button_disabled::ButtonDisabled, false),
+        "link-default" => widget_case!(cases::link_default::LinkDefault, false),
+        "link-visited" => widget_case!(cases::link_visited::LinkVisited, false),
+        "menu-button-text-default" => {
+            widget_case!(cases::menu_button_text_default::MenuButtonTextDefault, true)
+        }
+        "menu-button-icon" => widget_case!(cases::menu_button_icon::MenuButtonIcon, true),
+        "menu-button-flat" => widget_case!(cases::menu_button_flat::MenuButtonFlat, true),
+        "menu-button-circular" => {
+            widget_case!(cases::menu_button_circular::MenuButtonCircular, true)
+        }
+        "menu-button-disabled" => {
+            widget_case!(cases::menu_button_disabled::MenuButtonDisabled, true)
+        }
+        "toggle-text-default" => widget_case!(cases::toggle_text_default::ToggleTextDefault, false),
+        "toggle-text-checked" => widget_case!(cases::toggle_text_checked::ToggleTextChecked, false),
+        "toggle-text-flat" => widget_case!(cases::toggle_text_flat::ToggleTextFlat, false),
+        "toggle-disabled" => widget_case!(cases::toggle_disabled::ToggleDisabled, false),
+        _ => None,
+    }
+}
+
+fn is_known_case(name: &str) -> bool {
+    matches!(
+        name,
+        "button-text-default"
+            | "button-text-flat"
+            | "button-text-suggested"
+            | "button-text-destructive"
+            | "button-icon"
+            | "button-circular"
+            | "button-pill"
+            | "button-disabled"
+            | "link-default"
+            | "link-visited"
+            | "menu-button-text-default"
+            | "menu-button-icon"
+            | "menu-button-flat"
+            | "menu-button-circular"
+            | "menu-button-disabled"
+            | "toggle-text-default"
+            | "toggle-text-checked"
+            | "toggle-text-flat"
+            | "toggle-disabled"
+    )
+}
+
+fn configure_environment() {
     unsafe {
         std::env::set_var("GDK_SCALE", "1");
     }
+}
 
+fn configure_rendering() {
+    let settings = gtk::Settings::default().expect("Failed to get GtkSettings");
+    settings.set_gtk_font_name(Some("Cantarell 11"));
+
+    let style_manager = adw::StyleManager::default();
+    style_manager.set_color_scheme(adw::ColorScheme::ForceLight);
+}
+
+fn render_snapshot_json(widget: &gtk::Widget, use_inner: bool) -> Result<String, String> {
+    let target = if use_inner {
+        widget
+            .first_child()
+            .ok_or_else(|| "render_and_extract_inner: widget has no first child".to_string())?
+    } else {
+        widget.clone()
+    };
+
+    let target_width = target.width();
+    let target_height = target.height();
+
+    if target_width <= 0 || target_height <= 0 {
+        let label = if use_inner { "Inner widget" } else { "Widget" };
+        return Err(format!(
+            "{label} has zero size, layout may not have completed"
+        ));
+    }
+
+    let paintable = gtk::WidgetPaintable::new(Some(&target));
+    let snapshot = gtk::Snapshot::new();
+    paintable.snapshot(&snapshot, target_width as f64, target_height as f64);
+
+    let node = snapshot
+        .to_node()
+        .ok_or_else(|| "No render node produced".to_string())?;
+    let result = extract::extract_with_widget(&node, &target);
+
+    serde_json::to_string_pretty(&result).map_err(|err| err.to_string())
+}
+
+fn render_widget(
+    app: Option<&adw::Application>,
+    widget: gtk::Widget,
+    use_inner: bool,
+    on_complete: impl FnOnce(Result<String, String>) + 'static,
+) {
+    let window = adw::Window::builder()
+        .decorated(false)
+        .default_width(200)
+        .default_height(100)
+        .build();
+    if let Some(app) = app {
+        window.set_application(Some(app));
+    }
+
+    window.set_content(Some(&widget));
+    window.present();
+
+    gtk::glib::idle_add_local_once(move || {
+        let result = render_snapshot_json(&widget, use_inner);
+        on_complete(result);
+        window.close();
+    });
+}
+
+fn run_single_snapshot(case_name: &'static str, output: Option<PathBuf>) {
+    configure_environment();
     let app = adw::Application::builder()
         .application_id("org.gtkjs.test")
         .build();
 
     app.connect_activate(move |app| {
+        configure_rendering();
+
+        let Some((widget, use_inner)) = create_widget_for_case(case_name) else {
+            eprintln!("Unknown case: {case_name}");
+            app.quit();
+            return;
+        };
+
         let output = output.clone();
-        let settings = gtk::Settings::default().expect("Failed to get GtkSettings");
-        settings.set_gtk_font_name(Some("Cantarell 11"));
-        // Force Adwaita style manager to light mode
-        let style_manager = adw::StyleManager::default();
-        style_manager.set_color_scheme(adw::ColorScheme::ForceLight);
-
-        let window = adw::Window::builder()
-            .application(app)
-            .decorated(false)
-            .default_width(200)
-            .default_height(100)
-            .build();
-
-        let component = C::builder().launch(init).detach();
-
-        let widget = component.widget().clone();
-        window.set_content(Some(&widget));
-        window.present();
-
-        gtk::glib::idle_add_local_once(move || {
-            let inner = widget
-                .first_child()
-                .expect("render_and_extract_inner: widget has no first child");
-
-            let inner_width = inner.width();
-            let inner_height = inner.height();
-
-            if inner_width <= 0 || inner_height <= 0 {
-                eprintln!("Inner widget has zero size, layout may not have completed");
-                std::process::exit(1);
-            }
-
-            let paintable = gtk::WidgetPaintable::new(Some(&inner));
-            let snapshot = gtk::Snapshot::new();
-            paintable.snapshot(&snapshot, inner_width as f64, inner_height as f64);
-
-            if let Some(node) = snapshot.to_node() {
-                let result = extract::extract_with_widget(&node, &inner);
-                let json =
-                    serde_json::to_string_pretty(&result).expect("Failed to serialize snapshot");
-                if let Some(ref path) = output {
-                    std::fs::write(path, &json).expect("Failed to write output file");
-                } else {
-                    println!("{json}");
+        let app = app.clone();
+        let quit_app = app.clone();
+        render_widget(Some(app.as_ref()), widget, use_inner, move |result| {
+            match result {
+                Ok(json) => {
+                    if let Some(ref path) = output {
+                        if let Err(err) = std::fs::write(path, &json) {
+                            eprintln!("Failed to write output file: {err}");
+                        }
+                    } else {
+                        println!("{json}");
+                    }
                 }
-            } else {
-                eprintln!("No render node produced");
-                std::process::exit(1);
+                Err(err) => eprintln!("{err}"),
             }
 
-            window.close();
-            std::process::exit(0);
+            quit_app.quit();
         });
     });
 
     app.run_with_args::<&str>(&[]);
 }
 
-fn render_and_extract<C>(init: C::Init, output: Option<PathBuf>)
-where
-    C: SimpleComponent,
-    C::Root: IsA<gtk::Widget>,
-    C::Init: Copy,
-{
-    // Set environment before GTK init for deterministic rendering
-    unsafe {
-        std::env::set_var("GDK_SCALE", "1");
+fn handle_snapshot_request(request: NativeRequest) {
+    debug_log(format!("received request for {}", request.case_name));
+    let Some((widget, use_inner)) = create_widget_for_case(&request.case_name) else {
+        let _ = request
+            .response
+            .send(Err(format!("Unknown case: {}", request.case_name)));
+        return;
+    };
+
+    render_widget(None, widget, use_inner, move |result| {
+        debug_log("completed request");
+        let _ = request.response.send(result);
+    });
+}
+
+async fn snapshot_handler(
+    Path(case_name): Path<String>,
+    State(state): State<ServerState>,
+) -> Result<String, (StatusCode, String)> {
+    if !state.ready.load(Ordering::Relaxed) {
+        return Err((
+            StatusCode::SERVICE_UNAVAILABLE,
+            "GTK server is not ready yet".to_string(),
+        ));
     }
 
-    let app = adw::Application::builder()
-        .application_id("org.gtkjs.test")
-        .build();
+    if !is_known_case(&case_name) {
+        return Err((StatusCode::NOT_FOUND, format!("Unknown case: {case_name}")));
+    }
 
-    app.connect_activate(move |app| {
-        let output = output.clone();
-        let settings = gtk::Settings::default().expect("Failed to get GtkSettings");
-        settings.set_gtk_font_name(Some("Cantarell 11"));
-        // Force Adwaita style manager to light mode
-        let style_manager = adw::StyleManager::default();
-        style_manager.set_color_scheme(adw::ColorScheme::ForceLight);
+    let (response_tx, response_rx) = mpsc::sync_channel(1);
+    state
+        .sender
+        .send(NativeRequest {
+            case_name,
+            response: response_tx,
+        })
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "GTK request channel closed".to_string(),
+            )
+        })?;
 
-        let window = adw::Window::builder()
-            .application(app)
-            .decorated(false)
-            .default_width(200)
-            .default_height(100)
-            .build();
+    let response = tokio::task::spawn_blocking(move || response_rx.recv());
+    tokio::time::timeout(Duration::from_secs(10), response)
+        .await
+        .map_err(|_| {
+            (
+                StatusCode::GATEWAY_TIMEOUT,
+                "GTK render timed out".to_string(),
+            )
+        })?
+        .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err.to_string()))?
+        .map_err(|_| {
+            (
+                StatusCode::INTERNAL_SERVER_ERROR,
+                "GTK response channel closed".to_string(),
+            )
+        })?
+        .map_err(|err| (StatusCode::INTERNAL_SERVER_ERROR, err))
+}
 
-        let component = C::builder().launch(init).detach();
+async fn ready_handler(State(state): State<ServerState>) -> Result<&'static str, StatusCode> {
+    if state.ready.load(Ordering::Relaxed) {
+        Ok("ok")
+    } else {
+        Err(StatusCode::SERVICE_UNAVAILABLE)
+    }
+}
 
-        let widget = component.widget().clone();
-        window.set_content(Some(&widget));
-        window.present();
+fn run_server(port_file: Option<PathBuf>) {
+    configure_environment();
+    gtk::init().expect("Failed to initialize GTK");
+    adw::init().expect("Failed to initialize libadwaita");
+    configure_rendering();
 
-        gtk::glib::idle_add_local_once(move || {
-            let widget_width = widget.width();
-            let widget_height = widget.height();
+    let (sender, receiver) = mpsc::channel::<NativeRequest>();
+    let receiver = Arc::new(Mutex::new(receiver));
+    let ready = Arc::new(AtomicBool::new(true));
+    let main_loop = gtk::glib::MainLoop::new(None, false);
 
-            if widget_width <= 0 || widget_height <= 0 {
-                eprintln!("Widget has zero size, layout may not have completed");
-                std::process::exit(1);
+    let receiver_for_loop = Arc::clone(&receiver);
+    gtk::glib::timeout_add_local(Duration::from_millis(1), move || {
+        loop {
+            let request = match receiver_for_loop
+                .lock()
+                .expect("receiver poisoned")
+                .try_recv()
+            {
+                Ok(request) => request,
+                Err(mpsc::TryRecvError::Empty) => break,
+                Err(mpsc::TryRecvError::Disconnected) => return gtk::glib::ControlFlow::Break,
+            };
+
+            handle_snapshot_request(request);
+        }
+
+        gtk::glib::ControlFlow::Continue
+    });
+    debug_log("gtk request loop ready");
+
+    thread::spawn(move || {
+        let runtime = tokio::runtime::Builder::new_current_thread()
+            .enable_all()
+            .build()
+            .expect("Failed to build tokio runtime");
+
+        runtime.block_on(async move {
+            let listener = std::net::TcpListener::bind("127.0.0.1:0")
+                .expect("Failed to bind native HTTP server");
+            listener
+                .set_nonblocking(true)
+                .expect("Failed to make listener nonblocking");
+            let port = listener
+                .local_addr()
+                .expect("Failed to get native server address")
+                .port();
+
+            let listener = tokio::net::TcpListener::from_std(listener)
+                .expect("Failed to create tokio listener");
+            let state = ServerState { sender, ready };
+            let router = Router::new()
+                .route("/ready", get(ready_handler))
+                .route("/{case}", get(snapshot_handler))
+                .with_state(state);
+            debug_log(format!("http server listening on 127.0.0.1:{port}"));
+            if let Some(path) = port_file {
+                std::fs::write(&path, format!("{port}\n")).expect("Failed to write port file");
             }
+            println!("LISTENING:{port}");
+            std::io::stdout().flush().expect("Failed to flush stdout");
 
-            // Snapshot the widget at its natural size
-            let paintable = gtk::WidgetPaintable::new(Some(&widget));
-            let snapshot = gtk::Snapshot::new();
-            paintable.snapshot(&snapshot, widget_width as f64, widget_height as f64);
-
-            if let Some(node) = snapshot.to_node() {
-                let result = extract::extract_with_widget(&node, &widget);
-                let json =
-                    serde_json::to_string_pretty(&result).expect("Failed to serialize snapshot");
-                if let Some(ref path) = output {
-                    std::fs::write(path, &json).expect("Failed to write output file");
-                } else {
-                    println!("{json}");
-                }
-            } else {
-                eprintln!("No render node produced");
-                std::process::exit(1);
-            }
-
-            window.close();
-            std::process::exit(0);
+            axum::serve(listener, router)
+                .await
+                .expect("Native HTTP server failed");
         });
     });
 
-    app.run_with_args::<&str>(&[]);
+    main_loop.run();
 }
 
 fn main() {
@@ -204,56 +432,7 @@ fn main() {
     let output = cli.output;
 
     match cli.command {
-        Command::ButtonTextDefault => {
-            render_and_extract::<cases::button_text_default::ButtonTextDefault>((), output)
-        }
-        Command::ButtonTextFlat => {
-            render_and_extract::<cases::button_text_flat::ButtonTextFlat>((), output)
-        }
-        Command::ButtonTextSuggested => {
-            render_and_extract::<cases::button_text_suggested::ButtonTextSuggested>((), output)
-        }
-        Command::ButtonTextDestructive => {
-            render_and_extract::<cases::button_text_destructive::ButtonTextDestructive>((), output)
-        }
-        Command::ButtonIcon => render_and_extract::<cases::button_icon::ButtonIcon>((), output),
-        Command::ButtonCircular => {
-            render_and_extract::<cases::button_circular::ButtonCircular>((), output)
-        }
-        Command::ButtonPill => render_and_extract::<cases::button_pill::ButtonPill>((), output),
-        Command::ButtonDisabled => {
-            render_and_extract::<cases::button_disabled::ButtonDisabled>((), output)
-        }
-        Command::LinkDefault => render_and_extract::<cases::link_default::LinkDefault>((), output),
-        Command::LinkVisited => render_and_extract::<cases::link_visited::LinkVisited>((), output),
-        Command::MenuButtonTextDefault => {
-            render_and_extract_inner::<cases::menu_button_text_default::MenuButtonTextDefault>(
-                (), output,
-            )
-        }
-        Command::MenuButtonIcon => {
-            render_and_extract_inner::<cases::menu_button_icon::MenuButtonIcon>((), output)
-        }
-        Command::MenuButtonFlat => {
-            render_and_extract_inner::<cases::menu_button_flat::MenuButtonFlat>((), output)
-        }
-        Command::MenuButtonCircular => {
-            render_and_extract_inner::<cases::menu_button_circular::MenuButtonCircular>((), output)
-        }
-        Command::MenuButtonDisabled => {
-            render_and_extract_inner::<cases::menu_button_disabled::MenuButtonDisabled>((), output)
-        }
-        Command::ToggleTextDefault => {
-            render_and_extract::<cases::toggle_text_default::ToggleTextDefault>((), output)
-        }
-        Command::ToggleTextChecked => {
-            render_and_extract::<cases::toggle_text_checked::ToggleTextChecked>((), output)
-        }
-        Command::ToggleTextFlat => {
-            render_and_extract::<cases::toggle_text_flat::ToggleTextFlat>((), output)
-        }
-        Command::ToggleDisabled => {
-            render_and_extract::<cases::toggle_disabled::ToggleDisabled>((), output)
-        }
+        Command::Serve { port_file } => run_server(port_file),
+        command => run_single_snapshot(command.case_name().expect("case command"), output),
     }
 }
