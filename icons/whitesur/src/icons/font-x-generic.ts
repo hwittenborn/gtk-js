@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const FontXGeneric = createGtkIcon("font-x-generic", [["path",{"fill":"currentColor","d":"M9.525.264H2.91a.53.53 0 0 0-.529.53V15.61c0 .293.236.529.53.529h11.111c.293 0 .53-.236.53-.53V5.292c0-.142-.049-.33-.148-.53h-3.821a.53.53 0 0 1-.53-.53V.377a1.3 1.3 0 0 0-.527-.113z"}],["path",{"fill":"currentColor","d":"M10.049.375v3.857c0 .293.236.529.53.529h3.826a2 2 0 0 0-.382-.53L10.583.793a1.4 1.4 0 0 0-.529-.416z"}],["path",{"fill":"currentColor","d":"m8.467 7.073-1.36 3.686h2.724zm-.566-.988h1.137l2.823 7.409h-1.042l-.675-1.9h-3.34l-.674 1.9H5.073z","ariaLabel":"A"}]]);

@@ -3,7 +3,7 @@ import { createContext, useContext } from "react";
 
 /**
  * Map of icon names to icon components.
- * Both @gtk-js/gtk4-icons and @gtk-js/adwaita-icons export compatible maps.
+ * Both @gtk-js/icons-gtk4 and @gtk-js/icons-adwaita export compatible maps.
  */
 export type IconMap = Record<string, GtkIcon>;
 

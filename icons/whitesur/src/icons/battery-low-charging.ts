@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const BatteryLowCharging = createGtkIcon("battery-low-charging", [["path",{"d":"m3 5c-0.554 0-1 0.446-1 1v4c0 0.554 0.446 1 1 1s1-0.446 1-1a1.0001 1.0001 0 0 1-0.83203-1.5547l0.83203-1.248v-1.1973c0-0.554-0.446-1-1-1z","fill":"currentColor"}],["path",{"d":"m15 6v4a1 2 0 0 0 1-2 1 2 0 0 0-1-2z","fill":"currentColor"}],["path",{"d":"m3 3c-1.662 0-3 1.338-3 3v4c0 1.662 1.338 3 3 3h8c1.662 0 3-1.338 3-3v-4c0-1.662-1.338-3-3-3zm0 1h8c1.108 0 2 0.892 2 2v4c0 1.108-0.892 2-2 2h-8c-1.108 0-2-0.892-2-2v-4c0-1.108 0.892-2 2-2z","fill":"currentColor"}],["path",{"d":"m7.334 4-3.334 5h3l-0.75 3h0.41602l3.334-5h-3l0.75-3z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round"}]]);

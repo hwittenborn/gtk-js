@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const SymbolBigger = createGtkIcon("symbol-bigger", [["rect",{"x":"319.65","y":"108.19","width":"16","height":"16","fillOpacity":"0","strokeWidth":".98681"}],["ellipse",{"cx":"327.65","cy":"116.19","rx":"4.4855","ry":"4.4906","fill":"none","stroke":"currentColor","strokeDasharray":"1.01888, 1.01888","strokeLinejoin":"round","strokeMiterlimit":"0","strokeWidth":"1.0189"}],["path",{"d":"m8 1a7 7 0 0 0-7 7 7 7 0 0 0 7 7 7 7 0 0 0 7-7 7 7 0 0 0-7-7zm0 1a6 6 0 0 1 6 6 6 6 0 0 1-6 6 6 6 0 0 1-6-6 6 6 0 0 1 6-6z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"2.1"}]]);

@@ -9,8 +9,8 @@
       "!**/upstream/**",
       "!**/.next/**",
       "!**/.source/**",
-      "!packages/adwaita-icons/src/icons/**",
-      "!packages/gtk4-icons/src/icons/**"
+      "!icons/*/src/icons/**",
+      "!icons/*/src/index.ts"
     ]
   },
   "formatter": {

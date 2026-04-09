@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const EditSelectSameFill = createGtkIcon("edit-select-same-fill", [["path",{"transform":"translate(45 707.36)","d":"m0 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm-14 2v1h1v-1h-1zm14 0v1h1v-1h-1zm-11 1v9h9v-9h-9zm-3 1v1h1v-1h-1zm14 0v1h1v-1h-1zm-14 2v1h1v-1h-1zm14 0v1h1v-1h-1zm-14 2v1h1v-1h-1zm14 0v1h1v-1h-1zm-14 2v1h1v-1h-1zm14 0v1h1v-1h-1zm-14 2v1h1v-1h-1zm14 0v1h1v-1h-1zm-14 2v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1zm2 0v1h1v-1h-1z","fill":"currentColor"}]]);

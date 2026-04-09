@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const MintupdateUpdatesAvailable = createGtkIcon("mintupdate-updates-available", [["circle",{"cx":"13","cy":"13","r":"2","fill":"currentColor","strokeWidth":"1.3333"}],["path",{"d":"m7.5 12v-5.0859l-1.6211 1.6211-0.70703-0.70703 2.8281-2.8281 2.8281 2.8281-0.70703 0.70703-1.6211-1.6211v5.0859z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"2"}],["path",{"d":"m8 0a8 8 0 0 0-8 8 8 8 0 0 0 8 8 8 8 0 0 0 3.1406-0.6543 3 3 0 0 1-0.70508-0.80078 7 7 0 0 1-2.4355 0.45508 7 7 0 0 1-7-7 7 7 0 0 1 6.9062-7 7 7 0 0 1 0.09375 0 7 7 0 0 1 7 7 7 7 0 0 1-0.45312 2.4297 3 3 0 0 1 0.80078 0.70508 8 8 0 0 0 0.65234-3.1348 8 8 0 0 0-8-8z","fill":"currentColor"}]]);

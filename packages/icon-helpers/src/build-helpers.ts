@@ -1,18 +1,28 @@
 /**
  * Shared helpers for building GTK icon packages.
- * Used by both @gtk-js/gtk4-icons and @gtk-js/adwaita-icons build scripts.
+ * Used by all icon packages under icons/.
  */
 
-import { existsSync, mkdirSync, readdirSync, statSync } from "fs";
+import { mkdirSync, readdirSync, statSync } from "fs";
 
-// Attributes to strip (GTK/namespace-specific)
+// Attributes to strip (GTK/namespace-specific or invalid as React props)
 const STRIP_ATTR_PREFIXES = ["gpa:", "xmlns:", "xml:", "cc:", "dc:", "rdf:"];
-const STRIP_ATTRS = new Set(["id", "class", "xmlns"]);
+// style: CSS strings aren't valid React style props (React requires objects)
+// filter/enableBackground/color: reference SVG defs or are non-standard SVG attrs
+const STRIP_ATTRS = new Set([
+  "id",
+  "class",
+  "xmlns",
+  "style",
+  "filter",
+  "enableBackground",
+  "color",
+]);
 
 export function toPascalCase(str: string): string {
   return str
     .replace(/-symbolic$/, "")
-    .replace(/[^a-zA-Z0-9-_]/g, "-") // replace non-alphanumeric chars with hyphens
+    .replace(/[^a-zA-Z0-9-_]/g, "-")
     .split(/[-_]+/)
     .filter(Boolean)
     .map((s) => s.charAt(0).toUpperCase() + s.slice(1))
@@ -22,9 +32,10 @@ export function toPascalCase(str: string): string {
 export function toKebabCase(str: string): string {
   return str
     .replace(/-symbolic$/, "")
-    .replace(/[^a-zA-Z0-9-_]/g, "-") // replace non-alphanumeric chars with hyphens
-    .replace(/[-_]+/g, "-") // collapse multiple hyphens/underscores
-    .replace(/^-|-$/g, ""); // trim leading/trailing hyphens
+    .replace(/[^a-zA-Z0-9-_]/g, "-")
+    .replace(/[-_]+/g, "-")
+    .replace(/^-|-$/g, "")
+    .toLowerCase(); // normalize case so mixed-case duplicates are caught
 }
 
 interface SvgChild {
@@ -52,13 +63,11 @@ export function parseSvgChildren(svg: string): SvgChild[] {
       if (STRIP_ATTRS.has(name)) continue;
       if (STRIP_ATTR_PREFIXES.some((p) => name.startsWith(p))) continue;
 
-      // Normalize fill colors to currentColor
       if (name === "fill" && value !== "none") {
         attrs[name] = "currentColor";
         continue;
       }
 
-      // Normalize stroke to currentColor
       if (name === "stroke" && value !== "none") {
         attrs[name] = "currentColor";
         continue;
@@ -99,48 +108,69 @@ export function findSvgFiles(dir: string): string[] {
  * @param iconsDir - directory containing SVG files (can be nested)
  * @param outDir - output directory for generated .ts files
  * @param createGtkIconImport - import path for createGtkIcon
- * @returns array of export statements for index.ts
+ * @returns sorted array of export statements for index.ts
  */
 export async function buildIconComponents(
   iconsDir: string,
   outDir: string,
   createGtkIconImport: string,
 ): Promise<string[]> {
-  if (!existsSync(outDir)) {
-    mkdirSync(outDir, { recursive: true });
-  }
+  mkdirSync(outDir, { recursive: true });
 
   const svgFiles = findSvgFiles(iconsDir);
-  const exports: string[] = [];
   const seenNames = new Set<string>();
 
+  // Phase 1: filter duplicates and invalid identifiers (no I/O)
+  const toProcess: { filePath: string; kebabName: string; pascalName: string }[] = [];
   for (const filePath of svgFiles) {
-    const fileName = filePath.split("/").pop()!;
-    const iconName = fileName.replace(".svg", "");
+    const iconName = filePath.split("/").pop()!.replace(".svg", "");
     const kebabName = toKebabCase(iconName);
-    const pascalName = toPascalCase(iconName);
+    const pascalName = toPascalCase(kebabName);
 
-    // Skip duplicates (same icon name in different subdirectories)
     if (seenNames.has(kebabName)) continue;
     seenNames.add(kebabName);
 
-    const svg = await Bun.file(filePath).text();
-    const children = parseSvgChildren(svg);
+    // Skip icons whose names start with a digit (invalid JS identifiers)
+    if (/^[0-9]/.test(pascalName)) continue;
 
-    if (children.length === 0) {
-      continue;
-    }
-
-    const childrenLiteral = JSON.stringify(children.map((c) => [c.tag, c.attrs]));
-
-    const code = `import { createGtkIcon } from "${createGtkIconImport}";
-
-export const ${pascalName} = createGtkIcon("${kebabName}", ${childrenLiteral});
-`;
-
-    await Bun.write(`${outDir}/${kebabName}.ts`, code);
-    exports.push(`export { ${pascalName} } from "./icons/${kebabName}.ts";`);
+    toProcess.push({ filePath, kebabName, pascalName });
   }
 
-  return exports;
+  // Phase 2: parallel read + write
+  const results = await Promise.all(
+    toProcess.map(async ({ filePath, kebabName, pascalName }) => {
+      const svg = await Bun.file(filePath).text();
+      const children = parseSvgChildren(svg);
+      if (children.length === 0) return null;
+
+      const childrenLiteral = JSON.stringify(children.map((c) => [c.tag, c.attrs]));
+      const code = `import { createGtkIcon } from "${createGtkIconImport}";\n\nexport const ${pascalName} = createGtkIcon("${kebabName}", ${childrenLiteral});\n`;
+
+      await Bun.write(`${outDir}/${kebabName}.ts`, code);
+      return `export { ${pascalName} } from "./icons/${kebabName}.ts";`;
+    }),
+  );
+
+  return results.filter((e): e is string => e !== null).sort();
+}
+
+/**
+ * Build a complete icon package from a directory of SVGs.
+ * Writes generated components to src/icons/ and an index to src/index.ts.
+ *
+ * @param iconsDir - directory containing SVG files (can be nested)
+ * @param pkgDir - root directory of the icon package (contains src/)
+ */
+export async function buildIconPackage(iconsDir: string, pkgDir: string): Promise<void> {
+  const outDir = `${pkgDir}/src/icons`;
+  const indexPath = `${pkgDir}/src/index.ts`;
+
+  const exports = await buildIconComponents(iconsDir, outDir, "@gtk-js/icon-helpers");
+
+  await Bun.write(
+    indexPath,
+    `export type { GtkIconProps, GtkIcon } from "@gtk-js/icon-helpers";\n\n${exports.join("\n")}\n`,
+  );
+
+  console.log(`Built ${exports.length} icon components`);
 }

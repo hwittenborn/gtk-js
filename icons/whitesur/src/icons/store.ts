@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const Store = createGtkIcon("store", [["path",{"d":"M 7,1 V 2 H 5.5 C 3.561,2 2,3.561 2,5.5 2,7.439 3.561,9 5.5,9 H 7 v 5 H 3 v 1 h 4 v 1 H 8 V 15 H 9.5 C 11.439,15 13,13.439 13,11.5 13,9.561 11.439,8 9.5,8 H 9 8 V 3 h 4 V 2 H 8 V 1 Z M 5.5,3 H 7 V 8 H 5.5 C 4.115,8 3,6.885 3,5.5 3,4.115 4.115,3 5.5,3 Z M 8,9 H 9 9.5 C 10.885,9 12,10.115 12,11.5 12,12.885 10.885,14 9.5,14 H 8 Z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round"}]]);

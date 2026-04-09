@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const ViewList = createGtkIcon("view-list", [["rect",{"x":"6","y":"5","width":"12","height":"1","fill":"currentColor","strokeWidth":".8165"}],["rect",{"x":"6","y":"10","width":"12","height":"1","fill":"currentColor","strokeWidth":".8165"}],["rect",{"x":"6","y":"15","width":"12","height":"1","fill":"currentColor","strokeWidth":".8165"}],["rect",{"x":"4","y":"5","width":"1","height":"1","fill":"currentColor"}],["rect",{"x":"4","y":"10","width":"1","height":"1","fill":"currentColor"}],["rect",{"x":"4","y":"15","width":"1","height":"1","fill":"currentColor"}]]);

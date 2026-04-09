@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const UninterruptiblePowerSupply = createGtkIcon("uninterruptible-power-supply", [["path",{"d":"m 4,0.005 c -1.108,0 -2,0.892 -2,2 v 13.5 c 0,0 0,0.5 0.5,0.5 h 11 c 0,0 0.5,0 0.5,-0.5 v -13.5 c 0,-1.108 -0.892,-2 -2,-2 z m 0,1 h 8 c 0.554,0 1,0.446 1,1 v 10.5 c 0,0 0.054,0.5 -0.5,0.5 h -9 c 0,0 -0.5,0 -0.5,-0.5 v -10.5 c 0,-0.554 0.446,-1 1,-1 z m 8.5,13 a 0.5,0.5 0 1 1 0,1 0.5,0.5 0 0 1 0,-1 z","fill":"currentColor","overflow":"visible"}],["path",{"d":"m 8,3.005 -3,5 h 3 v 3 l 3,-5 H 8 Z","fill":"currentColor","overflow":"visible"}]]);

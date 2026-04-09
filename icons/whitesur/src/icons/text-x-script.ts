@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const TextXScript = createGtkIcon("text-x-script", [["path",{"fill":"currentColor","strokeWidth":".1","d":"M3.715 3L3 3.695l2.639 2.797-2.621 2.813.715.695 2.943-3.162L7 6.492l-.324-.348zM7 12v1h6v-1z"}]]);

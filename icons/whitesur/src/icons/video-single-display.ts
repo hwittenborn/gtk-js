@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const VideoSingleDisplay = createGtkIcon("video-single-display", [["path",{"d":"m1 1c-0.554 0-1 0.446-1 1v11c0 0.554 0.446 1 1 1h14c0.554 0 1-0.446 1-1v-11c0-0.554-0.446-1-1-1h-14zm0 1h14v11h-14v-11zm7 3c-0.18 0.608-0.525 0.922-1 1v1h1v3h1v-5h-1zm-3 10v1h6v-1h-6z","fill":"currentColor"}]]);

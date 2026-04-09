@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const StartHereKdePlasma = createGtkIcon("start-here-kde-plasma", [["rect",{"width":"56.002","height":"56.002","x":"4","y":"3.969","fill":"currentColor","rx":"13.002","ry":"13.002"}],["path",{"fill":"currentColor","fillRule":"evenodd","d":"m425.24 489.13-6 6 11.333 11.333-11.333 11.333 6 6 17.333-17.333z"}],["rect",{"width":"6.667","height":"6.667","x":"399.9","y":"489.8","fill":"currentColor","rx":"3.333"}],["rect",{"width":"9.333","height":"9.333","x":"390.57","y":"509.13","fill":"currentColor","rx":"4.667"}],["rect",{"width":"13.333","height":"13.333","x":"403.9","y":"528.46","fill":"currentColor","rx":"6.667"}],["path",{"fillRule":"evenodd","d":"m419.24 517.8 6 6 11.333-11.333-6-6z","opacity":".25"}]]);

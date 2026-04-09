@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const DrawGeometrySetBoundingBox = createGtkIcon("draw-geometry-set-bounding-box", [["path",{"d":"m0 7.0738v7.8525l3.9906-3.9906z","fill":"currentColor","strokeWidth":".4"}],["path",{"d":"m22 7.0738v7.8525l-3.9906-3.9906z","fill":"currentColor","strokeWidth":".4"}],["path",{"d":"m4 2v2h2v-2h-2zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2zm-12 4v2h2v-2h-2zm12 0v2h2v-2h-2zm-12 4v2h2v-2h-2zm12 0v2h2v-2h-2zm-12 4v2h2v-2h-2zm12 0v2h2v-2h-2zm-12 4v2h2v-2h-2zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2zm4 0v2h2v-2h-2z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"2"}]]);

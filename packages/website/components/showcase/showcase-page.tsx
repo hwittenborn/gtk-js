@@ -1,9 +1,13 @@
 "use client";
 
-import * as adwaitaIcons from "@gtk-js/adwaita-icons";
-import { ApplicationsSystem } from "@gtk-js/adwaita-icons";
-import { GtkBox, GtkButton, GtkLabel, GtkPopover, GtkProvider } from "@gtk-js/gtk4";
+import { GtkBox, GtkButton, GtkLabel, GtkPopover, GtkProvider, type IconMap } from "@gtk-js/gtk4";
+import * as adwaitaIcons from "@gtk-js/icons-adwaita";
+import { ApplicationsSystem } from "@gtk-js/icons-adwaita";
+import * as fluentIcons from "@gtk-js/icons-fluent";
+import * as mactahoeIcons from "@gtk-js/icons-mactahoe";
+import * as whitesurIcons from "@gtk-js/icons-whitesur";
 import { AdwaitaTheme } from "@gtk-js/theme-adwaita";
+import { FluentTheme } from "@gtk-js/theme-fluent";
 import { MacTahoeTheme } from "@gtk-js/theme-mactahoe";
 import { WhiteSurTheme } from "@gtk-js/theme-whitesur";
 import Link from "next/link";
@@ -75,12 +79,20 @@ function useSteppedTyping() {
   return { displayCode, cursor: done ? undefined : "▎", visibleSteps, loading: !done };
 }
 
-type ThemeName = "adwaita" | "whitesur" | "mactahoe";
+type ThemeName = "adwaita" | "whitesur" | "mactahoe" | "fluent";
+
+const THEME_ICONS = {
+  adwaita: adwaitaIcons,
+  whitesur: whitesurIcons,
+  mactahoe: mactahoeIcons,
+  fluent: fluentIcons,
+} satisfies Record<ThemeName, IconMap>;
 
 const THEME_LABELS: Record<ThemeName, string> = {
   adwaita: "Adwaita",
-  whitesur: "WhiteSur",
-  mactahoe: "MacTahoe",
+  whitesur: "Big Sur",
+  mactahoe: "Tahoe",
+  fluent: "Fluent",
 };
 
 const ADWAITA_ACCENT_PRESETS = [
@@ -91,6 +103,53 @@ const ADWAITA_ACCENT_PRESETS = [
   "#e01b24", // red
   "#f5c211", // yellow
 ];
+
+const FLUENT_ACCENT_PRESETS = [
+  "#1A73E8", // Fluent blue (default)
+  "#9C27B0", // purple
+  "#E91E63", // pink
+  "#F44336", // red
+  "#FF9800", // orange
+  "#FFEB3B", // yellow
+  "#4CAF50", // green
+  "#009688", // teal
+  "#9E9E9E", // grey
+];
+
+function AccentPicker({
+  presets,
+  value,
+  onChange,
+}: {
+  presets: string[];
+  value: string;
+  onChange: (color: string) => void;
+}) {
+  return (
+    <GtkBox spacing={6} style={{ flexWrap: "wrap" }}>
+      {presets.map((color) => (
+        <button
+          key={color}
+          title={color}
+          aria-label={color}
+          aria-pressed={value === color}
+          onClick={() => onChange(color)}
+          style={{
+            width: 22,
+            height: 22,
+            borderRadius: "50%",
+            border: value === color ? "2px solid white" : "2px solid transparent",
+            boxShadow: value === color ? `0 0 0 2px ${color}` : "none",
+            background: color,
+            cursor: "pointer",
+            padding: 0,
+            transition: "box-shadow 150ms",
+          }}
+        />
+      ))}
+    </GtkBox>
+  );
+}
 
 export function ShowcasePage() {
   const codeRef = useRef<HTMLDivElement>(null);
@@ -106,6 +165,9 @@ export function ShowcasePage() {
   const [themeName, setThemeName] = useState<ThemeName>("adwaita");
   const [colorScheme, setColorScheme] = useState<"light" | "dark" | "auto">("auto");
   const [adwaitaAccent, setAdwaitaAccent] = useState("#3584e4");
+  const [fluentAccent, setFluentAccent] = useState("#1A73E8");
+  const [fluentTitlebutton, setFluentTitlebutton] = useState<"circular" | "square">("square");
+  const [fluentWindow, setFluentWindow] = useState<"default" | "round">("default");
   const [settingsOpen, setSettingsOpen] = useState(false);
 
   const theme = useMemo(() => {
@@ -115,8 +177,42 @@ export function ShowcasePage() {
     if (themeName === "mactahoe") {
       return new MacTahoeTheme({ colorScheme });
     }
+    if (themeName === "fluent") {
+      return new FluentTheme({
+        colorScheme,
+        titlebutton: fluentTitlebutton,
+        window: fluentWindow,
+        accentColor: fluentAccent,
+      });
+    }
     return new AdwaitaTheme({ colorScheme, accentColor: adwaitaAccent });
-  }, [themeName, colorScheme, adwaitaAccent]);
+  }, [themeName, colorScheme, adwaitaAccent, fluentAccent, fluentTitlebutton, fluentWindow]);
+
+  // Committed theme lags behind `theme`: on change, content slides out over 400ms,
+  // the CSS swaps while hidden, waits 1s, then slides back in. Changing theme resets.
+  const [committedTheme, setCommittedTheme] = useState(theme);
+  const [transitionState, setTransitionState] = useState<"idle" | "exiting" | "entering">("idle");
+  const isFirstThemeRender = useRef(true);
+
+  useEffect(() => {
+    if (isFirstThemeRender.current) {
+      isFirstThemeRender.current = false;
+      return;
+    }
+    setTransitionState("idle");
+    const timers: ReturnType<typeof setTimeout>[] = [];
+    // Next tick: start slide-out (idle reset needs one frame to paint first)
+    timers.push(setTimeout(() => setTransitionState("exiting"), 0));
+    // 400ms: slide-out done — apply new theme while content is hidden
+    timers.push(setTimeout(() => setCommittedTheme(theme), 400));
+    // 400ms + 1000ms wait: start slide-in
+    timers.push(setTimeout(() => setTransitionState("entering"), 1400));
+    // 400ms + 1000ms + 400ms: done
+    timers.push(setTimeout(() => setTransitionState("idle"), 1800));
+    return () => timers.forEach(clearTimeout);
+  }, [theme]);
+
+  const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(
     null,
@@ -192,208 +288,262 @@ export function ShowcasePage() {
   );
 
   return (
-    <GtkProvider theme={theme} icons={adwaitaIcons} style={{ minHeight: "100vh" }}>
-      <div style={{ display: "flex", justifyContent: "flex-end", padding: "16px 24px 0" }}>
-        <div style={{ position: "relative" }}>
-          <GtkButton hasFrame={false} onClicked={() => setSettingsOpen((o) => !o)}>
-            <ApplicationsSystem size={20} />
-          </GtkButton>
-          <GtkPopover
-            visible={settingsOpen}
-            onClosed={() => setSettingsOpen(false)}
-            position="bottom"
-            style={{ minWidth: 280 }}
-          >
-            <GtkBox orientation="vertical" spacing={12} style={{ padding: 12 }}>
-              {/* Theme picker */}
-              <GtkBox orientation="vertical" spacing={6}>
-                <GtkLabel
-                  label="Theme"
-                  className="dim-label"
-                  style={{ fontSize: "0.8rem", alignSelf: "flex-start" }}
-                />
-                <GtkBox spacing={6} style={{ flexWrap: "wrap" }}>
-                  {(["adwaita", "whitesur", "mactahoe"] as ThemeName[]).map((t) => (
-                    <GtkButton
-                      key={t}
-                      label={THEME_LABELS[t]}
-                      className={themeName === t ? "suggested-action" : ""}
-                      onClicked={() => setThemeName(t)}
-                    />
-                  ))}
-                </GtkBox>
-              </GtkBox>
-
-              {/* Color scheme */}
-              <GtkBox orientation="vertical" spacing={6}>
-                <GtkLabel
-                  label="Mode"
-                  className="dim-label"
-                  style={{ fontSize: "0.8rem", alignSelf: "flex-start" }}
-                />
-                <GtkBox spacing={6}>
-                  {(["auto", "light", "dark"] as const).map((s) => (
-                    <GtkButton
-                      key={s}
-                      label={s.charAt(0).toUpperCase() + s.slice(1)}
-                      className={colorScheme === s ? "suggested-action" : ""}
-                      onClicked={() => setColorScheme(s)}
-                    />
-                  ))}
-                </GtkBox>
-              </GtkBox>
-
-              {/* Accent (Adwaita only) */}
-              {themeName === "adwaita" && (
+    <GtkProvider
+      theme={committedTheme}
+      icons={THEME_ICONS[themeName]}
+      style={{ minHeight: "100vh", transition: "background-color 700ms ease" }}
+    >
+      <div
+        style={{
+          animation:
+            transitionState === "exiting"
+              ? "theme-swipe-out 400ms ease forwards"
+              : transitionState === "entering"
+                ? "theme-swipe-in 400ms ease forwards"
+                : undefined,
+        }}
+      >
+        <div style={{ display: "flex", justifyContent: "flex-end", padding: "16px 24px 0" }}>
+          <div style={{ position: "relative" }}>
+            <GtkButton
+              ref={settingsButtonRef}
+              hasFrame={false}
+              onClicked={() => setSettingsOpen((o) => !o)}
+            >
+              <ApplicationsSystem size={20} />
+            </GtkButton>
+            <GtkPopover
+              visible={settingsOpen}
+              onClosed={() => setSettingsOpen(false)}
+              anchorRef={settingsButtonRef}
+              position="bottom"
+              style={{ minWidth: 280 }}
+            >
+              <GtkBox orientation="vertical" spacing={12} style={{ padding: 12 }}>
+                {/* Theme picker */}
                 <GtkBox orientation="vertical" spacing={6}>
-                  <GtkLabel
-                    label="Accent"
-                    className="dim-label"
-                    style={{ fontSize: "0.8rem", alignSelf: "flex-start" }}
-                  />
-                  <GtkBox spacing={6} style={{ flexWrap: "wrap" }}>
-                    {ADWAITA_ACCENT_PRESETS.map((color) => (
-                      <button
-                        key={color}
-                        title={color}
-                        onClick={() => setAdwaitaAccent(color)}
-                        style={{
-                          width: 22,
-                          height: 22,
-                          borderRadius: "50%",
-                          border:
-                            adwaitaAccent === color ? "2px solid white" : "2px solid transparent",
-                          boxShadow: adwaitaAccent === color ? `0 0 0 2px ${color}` : "none",
-                          background: color,
-                          cursor: "pointer",
-                          padding: 0,
-                          transition: "box-shadow 150ms",
-                        }}
+                  <GtkLabel label="Theme" className="heading" />
+                  <GtkBox spacing={12}>
+                    {(
+                      [
+                        { label: "Linux", themes: ["adwaita"] },
+                        { label: "macOS", themes: ["whitesur", "mactahoe"] },
+                        { label: "Windows", themes: ["fluent"] },
+                      ] as { label: string; themes: ThemeName[] }[]
+                    ).map(({ label, themes }) => (
+                      <GtkBox key={label} orientation="vertical" spacing={4}>
+                        <GtkLabel label={label} className="caption-heading dimmed" />
+                        <GtkBox spacing={4}>
+                          {themes.map((t) => (
+                            <GtkButton
+                              key={t}
+                              label={THEME_LABELS[t]}
+                              className={themeName === t ? "suggested-action" : ""}
+                              onClicked={() => setThemeName(t)}
+                            />
+                          ))}
+                        </GtkBox>
+                      </GtkBox>
+                    ))}
+                  </GtkBox>
+                </GtkBox>
+
+                {/* Color scheme */}
+                <GtkBox orientation="vertical" spacing={6}>
+                  <GtkLabel label="Mode" className="caption-heading dimmed" />
+                  <GtkBox spacing={6}>
+                    {(["auto", "light", "dark"] as const).map((s) => (
+                      <GtkButton
+                        key={s}
+                        label={s.charAt(0).toUpperCase() + s.slice(1)}
+                        className={colorScheme === s ? "suggested-action" : ""}
+                        onClicked={() => setColorScheme(s)}
                       />
                     ))}
                   </GtkBox>
                 </GtkBox>
-              )}
-            </GtkBox>
-          </GtkPopover>
-        </div>
-      </div>
 
-      <div style={{ textAlign: "center", padding: "64px 24px 32px" }}>
-        <h1 style={{ fontSize: "2.5rem", fontWeight: 800, margin: "0 0 8px" }}>
-          The GNOME UI stack for React
-        </h1>
-        <p style={{ fontSize: "1.1rem", opacity: 0.7, margin: "0 0 32px" }}>
-          GTK4/Adwaita components, icons, themes, and more. All usable in your browser, Electron,
-          and wherever else you run React.
-        </p>
-        <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
-          <Link href="/docs/getting-started" style={{ textDecoration: "none" }}>
-            <GtkButton label="Get Started" className="suggested-action" />
-          </Link>
-          <Link href="/docs/gtk4/button" style={{ textDecoration: "none" }}>
-            <GtkButton label="View Components" />
-          </Link>
-        </div>
-      </div>
+                {/* Accent (Adwaita only) */}
+                {themeName === "adwaita" && (
+                  <GtkBox orientation="vertical" spacing={6}>
+                    <GtkLabel label="Accent" className="caption-heading dimmed" />
+                    <AccentPicker
+                      presets={ADWAITA_ACCENT_PRESETS}
+                      value={adwaitaAccent}
+                      onChange={setAdwaitaAccent}
+                    />
+                  </GtkBox>
+                )}
 
-      <div style={{ maxWidth: 920, margin: "0 auto", padding: "0 24px 48px" }}>
-        <AudioProvider>
-          <div
-            style={{
-              display: "grid",
-              gridTemplateColumns: codeCollapsed ? "0fr 1fr" : "1fr 1fr",
-              transition: "grid-template-columns 600ms cubic-bezier(0.4, 0, 0.2, 1)",
-              borderRadius: 12,
-            }}
-          >
-            {/* Code panel */}
-            <div style={{ overflow: "hidden", minWidth: 0 }}>
-              <div
-                ref={codeRef}
-                style={{
-                  padding: 20,
-                  overflowY: "auto",
-                  overflowX: "auto",
-                  maxHeight: 420,
-                  borderRight: "1px solid rgba(128,128,128,0.15)",
-                  scrollBehavior: "smooth",
-                  background: "#0d1117",
-                  borderRadius: 12,
-                  opacity: codeCollapsing || codeCollapsed ? 0 : 1,
-                  transition: "opacity 500ms ease",
-                  position: "relative",
-                }}
-              >
-                <SyntaxHighlight code={"// app.tsx\n" + displayCode} cursor={cursor} />
+                {/* Fluent-specific controls */}
+                {themeName === "fluent" && (
+                  <>
+                    <GtkBox orientation="vertical" spacing={6}>
+                      <GtkLabel label="Accent" className="caption-heading dimmed" />
+                      <AccentPicker
+                        presets={FLUENT_ACCENT_PRESETS}
+                        value={fluentAccent}
+                        onChange={setFluentAccent}
+                      />
+                    </GtkBox>
+
+                    <GtkBox orientation="vertical" spacing={6}>
+                      <GtkLabel label="Buttons" className="caption-heading dimmed" />
+                      <GtkBox spacing={6}>
+                        {(["circular", "square"] as const).map((t) => (
+                          <GtkButton
+                            key={t}
+                            label={t.charAt(0).toUpperCase() + t.slice(1)}
+                            className={fluentTitlebutton === t ? "suggested-action" : ""}
+                            onClicked={() => setFluentTitlebutton(t)}
+                          />
+                        ))}
+                      </GtkBox>
+                    </GtkBox>
+
+                    <GtkBox orientation="vertical" spacing={6}>
+                      <GtkLabel label="Corners" className="caption-heading dimmed" />
+                      <GtkBox spacing={6}>
+                        {(["default", "round"] as const).map((w) => (
+                          <GtkButton
+                            key={w}
+                            label={w.charAt(0).toUpperCase() + w.slice(1)}
+                            className={fluentWindow === w ? "suggested-action" : ""}
+                            onClicked={() => setFluentWindow(w)}
+                          />
+                        ))}
+                      </GtkBox>
+                    </GtkBox>
+                  </>
+                )}
+              </GtkBox>
+            </GtkPopover>
+          </div>
+        </div>
+
+        <div style={{ textAlign: "center", padding: "64px 24px 32px" }}>
+          <h1 style={{ fontSize: "2.5rem", fontWeight: 800, margin: "0 0 8px" }}>
+            The GNOME UI stack for React
+          </h1>
+          <p style={{ fontSize: "1.1rem", opacity: 0.7, margin: "0 0 32px" }}>
+            GTK4/Adwaita components, icons, themes, and more. All usable in your browser, Electron,
+            and wherever else you run React.
+          </p>
+          <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
+            <Link href="/docs/getting-started" style={{ textDecoration: "none" }}>
+              <GtkButton label="Get Started" className="suggested-action" />
+            </Link>
+            <Link href="/docs/gtk4/button" style={{ textDecoration: "none" }}>
+              <GtkButton label="View Components" />
+            </Link>
+          </div>
+        </div>
+
+        <div style={{ maxWidth: 920, margin: "0 auto", padding: "0 24px 48px" }}>
+          <AudioProvider>
+            <div
+              style={{
+                display: "grid",
+                gridTemplateColumns: codeCollapsed ? "0fr 1fr" : "1fr 1fr",
+                transition: "grid-template-columns 600ms cubic-bezier(0.4, 0, 0.2, 1)",
+                borderRadius: 12,
+              }}
+            >
+              {/* Code panel */}
+              <div style={{ overflow: "hidden", minWidth: 0 }}>
                 <div
+                  ref={codeRef}
                   style={{
-                    position: "absolute",
-                    bottom: 12,
-                    right: 12,
-                    opacity: codeCollapsing ? 1 : 0,
-                    transition: "opacity 300ms ease",
-                    pointerEvents: "none",
-                    fontFamily: "monospace",
-                    fontSize: "0.8rem",
-                    fontWeight: 600,
-                    color: "rgba(255,255,255,0.6)",
+                    padding: 20,
+                    overflowY: "auto",
+                    overflowX: "auto",
+                    maxHeight: 420,
+                    borderRight: "1px solid rgba(128,128,128,0.15)",
+                    scrollBehavior: "smooth",
+                    background: "#0d1117",
+                    borderRadius: 12,
+                    opacity: codeCollapsing || codeCollapsed ? 0 : 1,
+                    transition: "opacity 500ms ease",
+                    position: "relative",
                   }}
                 >
-                  {"</>"}
+                  <SyntaxHighlight code={"// app.tsx\n" + displayCode} cursor={cursor} />
+                  <div
+                    style={{
+                      position: "absolute",
+                      bottom: 12,
+                      right: 12,
+                      opacity: codeCollapsing ? 1 : 0,
+                      transition: "opacity 300ms ease",
+                      pointerEvents: "none",
+                      fontFamily: "monospace",
+                      fontSize: "0.8rem",
+                      fontWeight: 600,
+                      color: "rgba(255,255,255,0.6)",
+                    }}
+                  >
+                    {"</>"}
+                  </div>
                 </div>
+              </div>
+
+              <div
+                style={{ position: "relative", overflow: "visible" }}
+                onPointerMove={handlePointerMove}
+                onPointerUp={handlePointerUp}
+              >
+                {mounted && !maximized && (
+                  <div
+                    className="showcase-preview"
+                    style={{
+                      position: "absolute",
+                      top: 0,
+                      left: "50%",
+                      transform: codeCollapsed
+                        ? `translate(calc(-50% + ${pos.x}px), ${pos.y}px)`
+                        : `translate(calc(-50% + 24px + ${pos.x}px), ${pos.y}px)`,
+                      transition: dragRef.current
+                        ? undefined
+                        : `transform 600ms cubic-bezier(0.4, 0, 0.2, 1)`,
+                    }}
+                  >
+                    {player}
+                  </div>
+                )}
               </div>
             </div>
 
-            <div
-              style={{ position: "relative", overflow: "visible" }}
-              onPointerMove={handlePointerMove}
-              onPointerUp={handlePointerUp}
-            >
-              {mounted && !maximized && (
-                <div
-                  className="showcase-preview"
-                  style={{
-                    position: "absolute",
-                    top: 0,
-                    left: "50%",
-                    transform: codeCollapsed
-                      ? `translate(calc(-50% + ${pos.x}px), ${pos.y}px)`
-                      : `translate(calc(-50% + 24px + ${pos.x}px), ${pos.y}px)`,
-                    transition: dragRef.current
-                      ? undefined
-                      : `transform 600ms cubic-bezier(0.4, 0, 0.2, 1)`,
-                  }}
+            {mounted &&
+              maximized &&
+              createPortal(
+                <GtkProvider
+                  theme={committedTheme}
+                  icons={THEME_ICONS[themeName]}
+                  style={{ position: "fixed", inset: 0, zIndex: 9999 }}
                 >
-                  {player}
-                </div>
+                  <div
+                    className="showcase-preview"
+                    style={{ width: "100%", height: "100%" }}
+                    onPointerMove={handlePointerMove}
+                    onPointerUp={handlePointerUp}
+                  >
+                    {player}
+                  </div>
+                </GtkProvider>,
+                document.body,
               )}
-            </div>
-          </div>
+          </AudioProvider>
+        </div>
 
-          {mounted &&
-            maximized &&
-            createPortal(
-              <GtkProvider
-                theme={theme}
-                icons={adwaitaIcons}
-                style={{ position: "fixed", inset: 0, zIndex: 9999 }}
-              >
-                <div
-                  className="showcase-preview"
-                  style={{ width: "100%", height: "100%" }}
-                  onPointerMove={handlePointerMove}
-                  onPointerUp={handlePointerUp}
-                >
-                  {player}
-                </div>
-              </GtkProvider>,
-              document.body,
-            )}
-        </AudioProvider>
-      </div>
-
-      <style>{`
+        <style>{`
+        @keyframes theme-swipe-out {
+          from { opacity: 1; transform: translateY(0); }
+          to { opacity: 0; transform: translateY(-24px); }
+        }
+        @keyframes theme-swipe-in {
+          from { opacity: 0; transform: translateY(24px); }
+          to { opacity: 1; transform: translateY(0); }
+        }
         @keyframes sc-slide-up {
           from { opacity: 0; transform: translateY(8px); }
           to { opacity: 1; transform: translateY(0); }
@@ -442,6 +592,7 @@ export function ShowcasePage() {
           cursor: default;
         }
       `}</style>
+      </div>
     </GtkProvider>
   );
 }

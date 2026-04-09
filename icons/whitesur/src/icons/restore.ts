@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const Restore = createGtkIcon("restore", [["path",{"d":"m8 1.0176v1.002a6.5 6.5 0 0 1 6 6.4805 6.5 6.5 0 0 1-6.5 6.5 6.5 6.5 0 0 1-6.5-6.5 6.5 6.5 0 0 1 3.0098-5.4844l-0.55469-0.83203a7.5 7.5 0 0 0-3.4551 6.3164 7.5 7.5 0 0 0 7.5 7.5 7.5 7.5 0 0 0 7.5-7.5 7.5 7.5 0 0 0-7-7.4824z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"2"}],["rect",{"transform":"rotate(75)","x":"3.0535","y":"-7.464","width":"5.9805","height":".98186","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"2"}]]);

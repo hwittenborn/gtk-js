@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const DistributeHorizontalLeft = createGtkIcon("distribute-horizontal-left", [["path",{"d":"M 5 2 L 2 4 L 5 6 L 5 2 z M 7 2 L 7 6 L 10 4 L 7 2 z M 2 5 L 2 7 L 2 13 L 2 14 L 3 14 L 3 13 L 7 13 L 7 7 L 3 7 L 3 5 L 2 5 z M 9 5 L 9 7 L 9 13 L 9 14 L 10 14 L 10 13 L 14 13 L 14 7 L 10 7 L 10 5 L 9 5 z M 3 8 L 6 8 L 6 12 L 3 12 L 3 8 z M 10 8 L 13 8 L 13 12 L 10 12 L 10 8 z "}]]);

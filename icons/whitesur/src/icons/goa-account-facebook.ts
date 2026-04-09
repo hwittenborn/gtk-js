@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const GoaAccountFacebook = createGtkIcon("goa-account-facebook", [["rect",{"width":"28","height":"28","x":"2","y":"3","enableBackground":"accumulate","opacity":".15","rx":"5","ry":"5"}],["rect",{"width":"28","height":"28","x":"2","y":"2","fill":"currentColor","enableBackground":"accumulate","rx":"5","ry":"5"}],["path",{"d":"M88 364s-16 0-16 16v16H60v16h12v36h16v-36h14l2-16H88v-12c0-4 4-4 4-4h12v-16z","transform":"translate(0 -160)"}],["path",{"fill":"currentColor","d":"M88 364s-16 0-16 16v16H60v16h12v36h16v-36h14l2-16H88v-12c0-4 4-4 4-4h12v-16z","transform":"translate(-1.23 -90.615)scale(.26923)"}]]);

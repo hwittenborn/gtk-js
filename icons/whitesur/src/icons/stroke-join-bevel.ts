@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const StrokeJoinBevel = createGtkIcon("stroke-join-bevel", [["path",{"d":"m6.242 2l-4.242 4.242.008.008h-.008v7.75h4v-5.344l2.656-2.656h5.344v-4h-7.756zm.414 1h6.344v2h-4.758l-3.242 3.242v4.758h-2v-6.344zm1.344 5v6h4v-2h2v-4h-5zm1 1h4v2h-2v2h-2z"}]]);

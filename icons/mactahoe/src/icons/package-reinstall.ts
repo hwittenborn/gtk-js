@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const PackageReinstall = createGtkIcon("package-reinstall", [["rect",{"transform":"matrix(0 -1 -1 0 0 0)","x":"-15.998","y":"-16","width":"16","height":"16","rx":"3.002","ry":"3","fill":"currentColor"}],["rect",{"transform":"matrix(0,-1,-1,0,0,0)","x":"-14.998","y":"-15","width":"14","height":"14","rx":"2.6268","ry":"2.625","fill":"currentColor"}],["path",{"d":"M8 3a5 5 0 0 0-5 5 5 5 0 0 0 5 5 5 5 0 0 0 5-5h-2a3 3 0 0 1-3 3 3 3 0 0 1-3-3 3 3 0 0 1 3-3V3z","fill":"currentColor","paintOrder":"stroke fill markers"}],["path",{"d":"M12 5l3 3H9z","fill":"currentColor","paintOrder":"stroke fill markers"}]]);

@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const ConnectorOrthogonal = createGtkIcon("connector-orthogonal", [["path",{"d":"m9.5 2.998-2.5 0.0019531v9.002l-2-0.001953v1l3 0.001953v-9.0039h1.5a0.5 0.5 0 0 0 0.5-0.50195 0.5 0.5 0 0 0-0.5-0.49805z","fill":"currentColor","opacity":".5","strokeLinecap":"round"}],["path",{"d":"m10 2c-0.554 0-1 0.446-1 1v1c0 0.554 0.446 1 1 1h3c0.554 0 1-0.446 1-1v-1c0-0.554-0.446-1-1-1zm0 1h3v1h-3z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":".5"}],["path",{"d":"m2 11c-0.554 0-1 0.446-1 1v1c0 0.554 0.446 1 1 1h3c0.554 0 1-0.446 1-1v-1c0-0.554-0.446-1-1-1zm0 1h3v1h-3z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":".5"}]]);

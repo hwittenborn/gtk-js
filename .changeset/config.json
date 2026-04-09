@@ -6,8 +6,11 @@
     [
       "@gtk-js/gtk-css",
       "@gtk-js/icon-helpers",
-      "@gtk-js/gtk4-icons",
-      "@gtk-js/adwaita-icons",
+      "@gtk-js/icons-gtk4",
+      "@gtk-js/icons-adwaita",
+      "@gtk-js/icons-whitesur",
+      "@gtk-js/icons-mactahoe",
+      "@gtk-js/icons-fluent",
       "@gtk-js/gtk4",
       "@gtk-js/adwaita"
     ]

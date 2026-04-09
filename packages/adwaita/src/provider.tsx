@@ -1,5 +1,5 @@
-import * as adwaitaIcons from "@gtk-js/adwaita-icons";
 import { GtkProvider, type GtkProviderProps } from "@gtk-js/gtk4";
+import * as adwaitaIcons from "@gtk-js/icons-adwaita";
 import { AdwaitaTheme } from "@gtk-js/theme-adwaita";
 import { type ReactNode, useMemo } from "react";
 

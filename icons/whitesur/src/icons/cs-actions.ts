@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const CsActions = createGtkIcon("cs-actions", [["rect",{"width":"56","height":"56","x":"4","y":"4","fill":"currentColor","rx":"13","ry":"13"}],["path",{"fill":"currentColor","fillRule":"evenodd","d":"M22 15c-3.324 0-6 2.676-6 6v24c0 3.324 2.676 6 6 6h20c3.324 0 6-2.676 6-6V21c0-3.324-2.676-6-6-6zm1 10h18a1 1 0 1 1 0 2H23a1 1 0 1 1 0-2m0 8h18a1 1 0 1 1 0 2H23a1 1 0 1 1 0-2m0 8h18a1 1 0 1 1 0 2H23a1 1 0 1 1 0-2"}],["path",{"fill":"currentColor","fillRule":"evenodd","d":"M22 14c-3.324 0-6 2.676-6 6v24c0 3.324 2.676 6 6 6h20c3.324 0 6-2.676 6-6V20c0-3.324-2.676-6-6-6zm1 10h18a1 1 0 1 1 0 2H23a1 1 0 1 1 0-2m0 8h18a1 1 0 1 1 0 2H23a1 1 0 1 1 0-2m0 8h18a1 1 0 1 1 0 2H23a1 1 0 1 1 0-2"}]]);

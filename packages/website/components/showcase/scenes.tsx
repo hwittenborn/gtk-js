@@ -1,14 +1,6 @@
 "use client";
 
 import {
-  EditCopy,
-  MediaPlaybackPause,
-  MediaPlaybackStart,
-  MediaSeekBackward,
-  MediaSeekForward,
-  ObjectSelect,
-} from "@gtk-js/adwaita-icons";
-import {
   GtkBox,
   GtkButton,
   GtkHeaderBar,
@@ -21,6 +13,14 @@ import {
   IconProvider,
   useIcons,
 } from "@gtk-js/gtk4";
+import {
+  EditCopy,
+  MediaPlaybackPause,
+  MediaPlaybackStart,
+  MediaSeekBackward,
+  MediaSeekForward,
+  ObjectSelect,
+} from "@gtk-js/icons-adwaita";
 import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { SyntaxHighlight } from "./syntax-highlight";

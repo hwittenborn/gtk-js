@@ -11,7 +11,7 @@
     "build:css": "bun build.ts"
   },
   "dependencies": {
-    "@gtk-js/gtk4-icons": "workspace:*",
+    "@gtk-js/icons-gtk4": "workspace:*",
     "@gtk-js/icon-helpers": "workspace:*"
   },
   "devDependencies": {

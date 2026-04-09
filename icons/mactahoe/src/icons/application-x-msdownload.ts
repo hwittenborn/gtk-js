@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const ApplicationXMsdownload = createGtkIcon("application-x-msdownload", [["path",{"fill":"currentColor","d":"m36.001.996-25 .004c-1.108 0-2 .892-2 2v55.999c0 1.108.892 2 2 2H53c1.108 0 2-.892 2-2V19.997c0-.535-.181-1.245-.557-2.002H40c-1.108 0-2-.892-2-2V1.423a5 5 0 0 0-2-.426z"}],["path",{"fill":"currentColor","d":"M37.977 1.419v14.575c0 1.108.892 2 2 2h14.465a7.6 7.6 0 0 0-1.445-2l-13-13c-.63-.797-1.33-1.279-2-1.574z"}],["path",{"fill":"currentColor","d":"m21.071 35.802-.01-7.801 8.752-1.304v9.105zm10.202-9.338 11.663-1.862v11.2H31.273zm11.666 10.938-.003 11.2-11.663-1.8v-9.4zM29.815 46.6l-8.745-1.316v-7.886h8.742v9.199z"}]]);

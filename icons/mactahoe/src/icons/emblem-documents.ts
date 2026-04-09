@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const EmblemDocuments = createGtkIcon("emblem-documents", [["path",{"d":"M1.919 3.102l.595.595L3.903 2.11","fill":"none","stroke":"currentColor","strokeWidth":".529","strokeLinecap":"square"}],["rect",{"ry":".265","rx":".265","y":"-5.821","x":"-295.148","height":"3.704","width":"4.498","transform":"matrix(0 -1 -1 0 0 0)","fill":"currentColor"}],["rect",{"transform":"matrix(0 -1 -1 0 0 0)","width":"4.498","height":"3.704","x":"-295.942","y":"-4.762","rx":".265","ry":".265","fill":"currentColor"}],["path",{"d":"M1.852 292.502v.265h1.323v-.265zm0 .53v.264H3.97v-.265zm0 .528v.265H3.97v-.265zm0 .53v.264H3.97v-.264z","opacity":".2"}]]);

@@ -1,5 +1,5 @@
 import { type GtkTheme } from "@gtk-js/gtk-css";
-import * as defaultIcons from "@gtk-js/gtk4-icons";
+import * as defaultIcons from "@gtk-js/icons-gtk4";
 import {
   type CSSProperties,
   createContext,
@@ -18,7 +18,7 @@ export interface GtkProviderProps {
   cssHref?: string;
   /** Theme CSS as a string (injected via <style> tag). Ignored if theme is set. Takes priority over cssHref. */
   cssText?: string;
-  /** Icon set to use. Pass the full export of an icon package (e.g. @gtk-js/gtk4-icons). */
+  /** Icon set to use. Pass the full export of an icon package (e.g. @gtk-js/icons-gtk4). */
   icons?: IconMap;
   /** Style applied to the root scoping div. */
   style?: CSSProperties;

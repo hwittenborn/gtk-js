@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const PreferencesDesktopThemeWindowdecorations = createGtkIcon("preferences-desktop-theme-windowdecorations", [["rect",{"width":"56.002","height":"56.002","x":"4","y":"3.969","fill":"currentColor","rx":"13.002","ry":"13.002"}],["path",{"d":"M32 3.969v15.03h28.002v-2.028A12.974 12.974 0 0 0 47 3.969z","opacity":".5"}],["path",{"fillRule":"evenodd","d":"M4 18h56v1H4z","opacity":".15"}],["path",{"fill":"currentColor","d":"M9 21c-1.108 0-2 .892-2 2v24c0 5.54 4.46 10 10 10h30c5.54 0 10-4.46 10-10V23c0-1.108-.892-2-2-2z","opacity":".5"}],["circle",{"cx":"13","cy":"12","r":"2","fillRule":"evenodd","opacity":".5"}],["circle",{"cx":"51","cy":"12","r":"2","fill":"currentColor","fillRule":"evenodd","opacity":".75"}]]);

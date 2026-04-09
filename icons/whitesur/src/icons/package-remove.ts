@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const PackageRemove = createGtkIcon("package-remove", [["rect",{"transform":"matrix(0 -1 -1 0 0 0)","x":"-1052.4","y":"-16","width":"16","height":"16","rx":"3.002","ry":"3","fill":"currentColor"}],["rect",{"transform":"matrix(0,-1,-1,0,0,0)","x":"-1051.4","y":"-15","width":"14","height":"14","rx":"2.002","ry":"2","fill":"currentColor"}],["path",{"d":"m3.05 1040.8 3.536 3.535-3.536 3.536 1.414 1.414 3.536-3.536 3.536 3.536 1.414-1.414-3.536-3.536 3.536-3.535-1.414-1.415-3.536 3.536-3.536-3.535-1.414 1.414z","fill":"currentColor"}]]);

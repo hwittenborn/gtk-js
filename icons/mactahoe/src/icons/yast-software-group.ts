@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const YastSoftwareGroup = createGtkIcon("yast-software-group", [["rect",{"width":"56","height":"56","x":"4","y":"4","fill":"currentColor","rx":"13.002","ry":"13.002"}],["circle",{"cx":"32","cy":"32","r":"30.001","fill":"none"}],["path",{"fill":"currentColor","d":"M28 4v29l2-2 2 2 2-2s2 2 2 1.943V4z","opacity":".75"}],["path",{"fill":"currentColor","d":"M17.002 4A12.974 12.974 0 0 0 4 17.002v29.996A12.974 12.974 0 0 0 17.002 60H25V4z","opacity":".25"}],["path",{"fill":"currentColor","d":"M16 36a6 6 0 0 0-6 6 6 6 0 0 0 6 6 6 6 0 0 0 6-6 6 6 0 0 0-6-6m-3 3h2v2h2v-2h2v4h-2v2h-2v-2h-2z","opacity":".75"}]]);

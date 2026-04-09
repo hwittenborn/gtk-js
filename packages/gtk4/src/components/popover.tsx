@@ -33,6 +33,14 @@ export interface GtkPopoverProps extends HTMLAttributes<HTMLDivElement> {
    * offsetParent (the nearest positioned ancestor).
    */
   pointingTo?: RefObject<HTMLElement | null>;
+  /**
+   * Element that opens/toggles the popover (e.g. the button that owns it).
+   * Clicks on this element are excluded from outside-click detection so
+   * the anchor can own the toggle without the popover fighting it.
+   * Matches GTK's GtkMenuButton behavior where the anchor is not treated
+   * as "outside" the popover for autohide purposes.
+   */
+  anchorRef?: RefObject<Element | null>;
   /** Callback when the popover should close. */
   onClosed?: () => void;
 }
@@ -62,6 +70,7 @@ export const GtkPopover = forwardRef<HTMLDivElement, GtkPopoverProps>(function G
     autohide = true,
     portal = false,
     pointingTo,
+    anchorRef,
     onClosed,
     className,
     style,
@@ -109,7 +118,6 @@ export const GtkPopover = forwardRef<HTMLDivElement, GtkPopoverProps>(function G
       x = anchorRect.right;
       y = anchorRect.top + anchorRect.height / 2 - popHeight / 2;
     } else {
-      // left
       x = anchorRect.left - popWidth;
       y = anchorRect.top + anchorRect.height / 2 - popHeight / 2;
     }
@@ -177,8 +185,11 @@ export const GtkPopover = forwardRef<HTMLDivElement, GtkPopoverProps>(function G
     if (!visible || !autohide) return;
 
     const handleClickOutside = (e: MouseEvent) => {
+      if (!(e.target instanceof Node)) return;
+
+      const target = e.target;
       const el = resolvedRef.current;
-      if (el && !el.contains(e.target as Node)) {
+      if (el && !el.contains(target) && !anchorRef?.current?.contains(target)) {
         onClosed?.();
       }
     };
@@ -197,7 +208,7 @@ export const GtkPopover = forwardRef<HTMLDivElement, GtkPopoverProps>(function G
       document.removeEventListener("pointerdown", handleClickOutside);
       document.removeEventListener("keydown", handleEscape);
     };
-  }, [visible, autohide, onClosed, resolvedRef]);
+  }, [visible, autohide, onClosed, resolvedRef, anchorRef]);
 
   if (!visible) return null;
 

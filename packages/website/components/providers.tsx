@@ -9,7 +9,7 @@ import {
   MediaSeekBackward,
   MediaSeekForward,
   ObjectSelect,
-} from "@gtk-js/adwaita-icons";
+} from "@gtk-js/icons-adwaita";
 import type { ReactNode } from "react";
 
 const icons = {

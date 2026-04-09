@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const Scanner = createGtkIcon("scanner", [["rect",{"x":"1238","y":"48.003","width":"6","height":"1","rx":"0","ry":"0","fill":"currentColor","overflow":"visible"}],["path",{"d":"m3 0c-0.554 0-1 0.446-1 1v14c0 0.554 0.446 1 1 1h10c0.554 0 1-0.446 1-1v-14c0-0.554-0.446-1-1-1h-10zm0 1h10v14h-10v-14z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"2"}],["circle",{"cx":"11.5","cy":"13.5","r":".5","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"2"}],["rect",{"x":"1238","y":"48.003","width":"6","height":"1","rx":"0","ry":"0","fill":"currentColor","overflow":"visible"}]]);

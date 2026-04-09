@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const TextXChdr = createGtkIcon("text-x-chdr", [["path",{"d":"M5 2v12h1v-3.5C6 9.115 7.115 8 8.5 8S11 9.115 11 10.5V14h1v-3.5C12 8.561 10.439 7 8.5 7c-.983 0-1.865.404-2.5 1.053v-6.05z","fill":"currentColor"}]]);

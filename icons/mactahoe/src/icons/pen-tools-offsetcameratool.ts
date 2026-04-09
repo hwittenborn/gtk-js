@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const PenToolsOffsetcameratool = createGtkIcon("pen-tools-offsetcameratool", [["path",{"d":"m8 3-2.1211 2.1211 0.70703 0.70703 0.91406-0.91406v6.1719l-0.91406-0.91406-0.70703 0.70703 2.1211 2.1211 2.1211-2.1211-0.70703-0.70703-0.91406 0.91406v-6.1719l0.91406 0.91406 0.70703-0.70703-2.1211-2.1211z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"1.7888"}],["path",{"d":"m13 8-2.1211-2.1211-0.70703 0.70703 0.91406 0.91406h-6.1719l0.91406-0.91406-0.70703-0.70703-2.1211 2.1211 2.1211 2.1211 0.70703-0.70703-0.91406-0.91406h6.1719l-0.91406 0.91406 0.70703 0.70703 1.4141-1.4141z","fill":"currentColor","strokeLinecap":"round","strokeLinejoin":"round","strokeWidth":"1.7888"}]]);

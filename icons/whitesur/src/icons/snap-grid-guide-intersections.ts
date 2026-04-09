@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const SnapGridGuideIntersections = createGtkIcon("snap-grid-guide-intersections", [["path",{"d":"M 4 2 L 4 6 L 6 4 L 4 2 z M 7 2 L 7 9 L 8 9 L 8 2 L 7 2 z M 11 2 L 9 4 L 11 6 L 11 2 z M 13.449219 5.5 L 8.3632812 9.0019531 L 9.0058594 9.0019531 L 9.0058594 9.7773438 L 14.005859 6.3398438 L 13.449219 5.5 z M 6.0058594 10.625 L 2.3027344 13.179688 L 2.3066406 13.181641 L 2.8613281 14.001953 L 6.9335938 11.201172 L 6.5058594 11.201172 L 6.5058594 11.001953 L 6.0058594 11.001953 L 6.0058594 10.625 z M 7 12 L 7 14 L 8 14 L 8 12 L 7 12 z "}],["path",{"d":"m 5,8 0,4 5,0 0,-4 z m 1,1 3,0 0,2 -3,0 z"}]]);

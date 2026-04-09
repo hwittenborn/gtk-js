@@ -1,0 +1,3 @@
+import { createGtkIcon } from "@gtk-js/icon-helpers";
+
+export const AlignVerticalCenter = createGtkIcon("align-vertical-center", [["path",{"d":"M 3 3 L 3 7.5 L 2 7.5 L 2 8.5 L 3 8.5 L 3 13 L 7 13 L 7 8.5 L 9 8.5 L 9 11 L 13 11 L 13 8.5 L 14 8.5 L 14 7.5 L 13 7.5 L 13 5 L 9 5 L 9 7.5 L 7 7.5 L 7 3 L 3 3 z M 4 4 L 6 4 L 6 12 L 4 12 L 4 4 z M 10 6 L 12 6 L 12 10 L 10 10 L 10 6 z "}]]);
