@@ -281,10 +281,11 @@ export function ShowcasePage() {
 
       <div style={{ textAlign: "center", padding: "64px 24px 32px" }}>
         <h1 style={{ fontSize: "2.5rem", fontWeight: 800, margin: "0 0 8px" }}>
-          GTK4 &amp; Adwaita for the Web
+          The GNOME UI stack for React
         </h1>
         <p style={{ fontSize: "1.1rem", opacity: 0.7, margin: "0 0 32px" }}>
-          Pixel-faithful GNOME desktop components, powered by React
+          GTK4/Adwaita components, icons, themes, and more. All usable in your browser, Electron,
+          and wherever else you run React.
         </p>
         <div style={{ display: "flex", gap: 12, justifyContent: "center" }}>
           <Link href="/docs/getting-started" style={{ textDecoration: "none" }}>
