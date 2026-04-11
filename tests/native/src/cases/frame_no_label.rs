@@ -1,4 +1,3 @@
-use gtk::prelude::*;
 use relm4::prelude::*;
 
 pub struct FrameNoLabel;
