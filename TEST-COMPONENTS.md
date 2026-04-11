@@ -101,6 +101,12 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] discrete-default
   - [x] discrete-inverted
   - [x] disabled
+- [x] GtkScale
+  - [x] default
+- [x] GtkScrollBar
+  - [x] default
+- [x] GtkCalendar
+  - [x] default
 - [x] GtkSpinner
   - [x] default
   - [x] spinning
@@ -155,15 +161,15 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
 
 ---
 
-### Cycle 4 — Value Controls & Indicators
+### ~~Cycle 4 — Value Controls & Indicators~~ ✓ Complete
 
 **Goal:** Cover widgets that represent a continuous or ranged value — either for user manipulation (scale, spin) or passive display (progress, level). GtkCalendar is included here because it is a self-contained date-picker with no children; it fits "ranged value" more than any other category. GtkScrollBar is here rather than with GtkScrolledWindow because it is a standalone visual indicator of position within a range.
 
-- [ ] GtkScale
+- [x] GtkScale
 - [x] GtkProgressBar
 - [x] GtkLevelBar
-- [ ] GtkScrollBar
-- [ ] GtkCalendar
+- [x] GtkScrollBar
+- [x] GtkCalendar
 
 ---
 
