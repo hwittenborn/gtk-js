@@ -3,15 +3,20 @@ import {
   GtkButton,
   GtkCheckButton,
   GtkEditableLabel,
+  GtkEntry,
   GtkImage,
   GtkLabel,
   GtkLevelBar,
   GtkLinkButton,
   GtkMenuButton,
+  GtkPasswordEntry,
   GtkProgressBar,
+  GtkSearchEntry,
   GtkSeparator,
+  GtkSpinButton,
   GtkSpinner,
   GtkSwitch,
+  GtkTextView,
   GtkToggleButton,
   GtkWindowTitle,
 } from "@gtk-js/adwaita";
@@ -63,6 +68,66 @@ const cases: Record<string, () => React.ReactElement> = {
   ),
   "editable-label-disabled": () => (
     <GtkEditableLabel text="Disabled" disabled data-testid="target" />
+  ),
+
+  // GtkEntry cases — ref callback puts data-testid on the outer .gtk-entry div,
+  // since forwardRef<HTMLInputElement> gives the inner <input>.
+  "entry-default": () => (
+    <GtkEntry text="Hello" ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")} />
+  ),
+  "entry-placeholder": () => (
+    <GtkEntry
+      placeholderText="Enter text..."
+      ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+    />
+  ),
+  "entry-flat": () => (
+    <GtkEntry
+      hasFrame={false}
+      ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+    />
+  ),
+  "entry-disabled": () => (
+    <GtkEntry
+      text="Hello"
+      disabled
+      ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+    />
+  ),
+  "entry-primary-icon": () => (
+    <GtkEntry
+      text="Hello"
+      primaryIconName="edit-find-symbolic"
+      ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+    />
+  ),
+
+  // GtkPasswordEntry cases
+  "password-entry-default": () => (
+    <GtkPasswordEntry ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")} />
+  ),
+  "password-entry-peek-icon": () => (
+    <GtkPasswordEntry
+      showPeekIcon
+      ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+    />
+  ),
+  "password-entry-disabled": () => (
+    <GtkPasswordEntry
+      disabled
+      ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+    />
+  ),
+
+  // GtkSearchEntry cases
+  "search-entry-default": () => (
+    <GtkSearchEntry ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")} />
+  ),
+  "search-entry-disabled": () => (
+    <GtkSearchEntry
+      disabled
+      ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+    />
   ),
 
   // GtkImage cases
@@ -188,11 +253,23 @@ const cases: Record<string, () => React.ReactElement> = {
   "spinner-disabled-not-spinning": () => <GtkSpinner disabled data-testid="target" />,
   "spinner-disabled-spinning": () => <GtkSpinner spinning disabled data-testid="target" />,
 
+  // GtkSpinButton cases
+  "spin-button-default": () => <GtkSpinButton min={0} max={100} value={50} data-testid="target" />,
+  "spin-button-vertical": () => (
+    <GtkSpinButton min={0} max={100} value={50} orientation="vertical" data-testid="target" />
+  ),
+
   // GtkSwitch cases
   "switch-off-default": () => <GtkSwitch data-testid="target" />,
   "switch-on-default": () => <GtkSwitch active data-testid="target" />,
   "switch-off-disabled": () => <GtkSwitch disabled data-testid="target" />,
   "switch-on-disabled": () => <GtkSwitch active disabled data-testid="target" />,
+
+  // GtkTextView cases
+  "text-view-default": () => <GtkTextView data-testid="target" />,
+  "text-view-monospace": () => <GtkTextView monospace data-testid="target" />,
+  "text-view-non-editable": () => <GtkTextView editable={false} data-testid="target" />,
+  "text-view-disabled": () => <GtkTextView disabled data-testid="target" />,
 
   // GtkToggleButton cases
   "toggle-text-default": () => <GtkToggleButton label="Toggle" data-testid="target" />,

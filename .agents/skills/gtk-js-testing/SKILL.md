@@ -14,6 +14,15 @@ Tests live in `tests/` and compare native GTK4/Adwaita rendering (Rust/relm4) ag
 - `bun test packages/gtk-css` — run CSS transform unit tests only
 - Tests run against both Chromium and Firefox (2 tests per case)
 
+`bun test` must always be redirected to a file:
+
+```sh
+bun test > /tmp/out.txt 2>&1
+# then read /tmp/out.txt
+```
+
+Other commands (`bun run check`, `bun run fix`, `bun run build`, etc.) can be run directly.
+
 ## Adding a new test case
 
 Three places need changes for each case. **Read the existing files to discover current patterns, available helpers, types, and naming conventions** — don't rely solely on this doc:
@@ -22,11 +31,28 @@ Three places need changes for each case. **Read the existing files to discover c
 
 Create a Rust file with a `SimpleComponent` rendering the widget via relm4. Read existing cases in this directory for the exact pattern, then register it:
 - Add `pub mod <case_name>;` in `tests/native/src/cases/mod.rs`
-- Add a `Command` enum variant and match arm in `tests/native/src/main.rs`
+- In `tests/native/src/main.rs`, add to **three** places: `Command` enum variant, `case_name()` match arm, `create_widget_for_case()` match arm, **and** the `is_known_case()` `matches!()` list. Missing `is_known_case()` causes the HTTP server to return 404 for all requests to that case, making all 32 test runs fail silently with "Unknown case".
 
 ### 2. Web side (`tests/client.tsx`)
 
 Add a case entry mapping the kebab-case name to a React element with `data-testid="target"`. Read `tests/client.tsx` for the import and case map pattern.
+
+**NEVER add `data-testid` handling to source components in `packages/`.** All test plumbing stays in `tests/`.
+
+For composite widgets where the component's `ref` points to an inner element (not the outer container), use a `ref` callback to set `data-testid` on the correct element:
+
+```tsx
+// GtkEntry: forwardRef<HTMLInputElement> → ref gives the inner <input>.
+// parentElement is the outer .gtk-entry div, which is the correct GTK CSS node to compare.
+"entry-default": () => (
+  <GtkEntry
+    text="Hello"
+    ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+  />
+),
+```
+
+This keeps source components clean while ensuring the harness compares the right DOM node against the native widget.
 
 ### 3. Test file (`tests/cases/`)
 

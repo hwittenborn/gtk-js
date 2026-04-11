@@ -55,6 +55,11 @@ enum Command {
     EditableLabelDisplayEmpty,
     EditableLabelEditingActive,
     EditableLabelDisabled,
+    EntryDefault,
+    EntryDisabled,
+    EntryFlat,
+    EntryPlaceholder,
+    EntryPrimaryIcon,
     ImageDefault,
     ImageNormalIcons,
     ImageLargeIcons,
@@ -83,6 +88,9 @@ enum Command {
     MenuButtonFlat,
     MenuButtonCircular,
     MenuButtonDisabled,
+    PasswordEntryDefault,
+    PasswordEntryDisabled,
+    PasswordEntryPeekIcon,
     #[clap(name = "progressbar-horizontal-50")]
     ProgressbarHorizontal50,
     #[clap(name = "progressbar-horizontal-0")]
@@ -98,9 +106,13 @@ enum Command {
     ProgressbarFractionSmall,
     RadioButtonDefault,
     RadioButtonChecked,
+    SearchEntryDefault,
+    SearchEntryDisabled,
     SeparatorHorizontalDefault,
     SeparatorVertical,
     SeparatorSpacerHorizontal,
+    SpinButtonDefault,
+    SpinButtonVertical,
     SpinnerDefault,
     SpinnerSpinning,
     SpinnerSpinningCustomSize,
@@ -110,6 +122,10 @@ enum Command {
     SwitchOnDefault,
     SwitchOffDisabled,
     SwitchOnDisabled,
+    TextViewDefault,
+    TextViewDisabled,
+    TextViewMonospace,
+    TextViewNonEditable,
     ToggleTextDefault,
     ToggleTextChecked,
     ToggleTextFlat,
@@ -174,6 +190,11 @@ impl Command {
             Self::EditableLabelDisplayEmpty => Some("editable-label-display-empty"),
             Self::EditableLabelEditingActive => Some("editable-label-editing-active"),
             Self::EditableLabelDisabled => Some("editable-label-disabled"),
+            Self::EntryDefault => Some("entry-default"),
+            Self::EntryDisabled => Some("entry-disabled"),
+            Self::EntryFlat => Some("entry-flat"),
+            Self::EntryPlaceholder => Some("entry-placeholder"),
+            Self::EntryPrimaryIcon => Some("entry-primary-icon"),
             Self::ImageDefault => Some("image-default"),
             Self::ImageNormalIcons => Some("image-normal-icons"),
             Self::ImageLargeIcons => Some("image-large-icons"),
@@ -201,6 +222,9 @@ impl Command {
             Self::MenuButtonFlat => Some("menu-button-flat"),
             Self::MenuButtonCircular => Some("menu-button-circular"),
             Self::MenuButtonDisabled => Some("menu-button-disabled"),
+            Self::PasswordEntryDefault => Some("password-entry-default"),
+            Self::PasswordEntryDisabled => Some("password-entry-disabled"),
+            Self::PasswordEntryPeekIcon => Some("password-entry-peek-icon"),
             Self::ProgressbarHorizontal50 => Some("progressbar-horizontal-50"),
             Self::ProgressbarHorizontal0 => Some("progressbar-horizontal-0"),
             Self::ProgressbarHorizontal100 => Some("progressbar-horizontal-100"),
@@ -211,9 +235,13 @@ impl Command {
             Self::ProgressbarFractionSmall => Some("progressbar-fraction-small"),
             Self::RadioButtonDefault => Some("radio-button-default"),
             Self::RadioButtonChecked => Some("radio-button-checked"),
+            Self::SearchEntryDefault => Some("search-entry-default"),
+            Self::SearchEntryDisabled => Some("search-entry-disabled"),
             Self::SeparatorHorizontalDefault => Some("separator-horizontal-default"),
             Self::SeparatorVertical => Some("separator-vertical"),
             Self::SeparatorSpacerHorizontal => Some("separator-spacer-horizontal"),
+            Self::SpinButtonDefault => Some("spin-button-default"),
+            Self::SpinButtonVertical => Some("spin-button-vertical"),
             Self::SpinnerDefault => Some("spinner-default"),
             Self::SpinnerSpinning => Some("spinner-spinning"),
             Self::SpinnerSpinningCustomSize => Some("spinner-spinning-custom-size"),
@@ -223,6 +251,10 @@ impl Command {
             Self::SwitchOnDefault => Some("switch-on-default"),
             Self::SwitchOffDisabled => Some("switch-off-disabled"),
             Self::SwitchOnDisabled => Some("switch-on-disabled"),
+            Self::TextViewDefault => Some("text-view-default"),
+            Self::TextViewDisabled => Some("text-view-disabled"),
+            Self::TextViewMonospace => Some("text-view-monospace"),
+            Self::TextViewNonEditable => Some("text-view-non-editable"),
             Self::ToggleTextDefault => Some("toggle-text-default"),
             Self::ToggleTextChecked => Some("toggle-text-checked"),
             Self::ToggleTextFlat => Some("toggle-text-flat"),
@@ -295,6 +327,11 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "editable-label-disabled" => {
             widget_case!(cases::editable_label_disabled::EditableLabelDisabled, false)
         }
+        "entry-default" => widget_case!(cases::entry_default::EntryDefault, false),
+        "entry-disabled" => widget_case!(cases::entry_disabled::EntryDisabled, false),
+        "entry-flat" => widget_case!(cases::entry_flat::EntryFlat, false),
+        "entry-placeholder" => widget_case!(cases::entry_placeholder::EntryPlaceholder, false),
+        "entry-primary-icon" => widget_case!(cases::entry_primary_icon::EntryPrimaryIcon, false),
         "image-default" => widget_case!(cases::image_default::ImageDefault, false),
         "image-normal-icons" => widget_case!(cases::image_normal_icons::ImageNormalIcons, false),
         "image-large-icons" => widget_case!(cases::image_large_icons::ImageLargeIcons, false),
@@ -357,6 +394,18 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "menu-button-disabled" => {
             widget_case!(cases::menu_button_disabled::MenuButtonDisabled, true)
         }
+        "password-entry-default" => {
+            widget_case!(cases::password_entry_default::PasswordEntryDefault, false)
+        }
+        "password-entry-disabled" => {
+            widget_case!(cases::password_entry_disabled::PasswordEntryDisabled, false)
+        }
+        "password-entry-peek-icon" => {
+            widget_case!(
+                cases::password_entry_peek_icon::PasswordEntryPeekIcon,
+                false
+            )
+        }
         "progressbar-horizontal-50" => {
             widget_case!(
                 cases::progressbar_horizontal_50::ProgressbarHorizontal50,
@@ -402,6 +451,12 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "radio-button-checked" => {
             widget_case!(cases::radio_button_checked::RadioButtonChecked, false)
         }
+        "search-entry-default" => {
+            widget_case!(cases::search_entry_default::SearchEntryDefault, false)
+        }
+        "search-entry-disabled" => {
+            widget_case!(cases::search_entry_disabled::SearchEntryDisabled, false)
+        }
         "separator-horizontal-default" => {
             widget_case!(
                 cases::separator_horizontal_default::SeparatorHorizontalDefault,
@@ -414,6 +469,12 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
                 cases::separator_spacer_horizontal::SeparatorSpacerHorizontal,
                 false
             )
+        }
+        "spin-button-default" => {
+            widget_case!(cases::spin_button_default::SpinButtonDefault, false)
+        }
+        "spin-button-vertical" => {
+            widget_case!(cases::spin_button_vertical::SpinButtonVertical, false)
         }
         "spinner-default" => widget_case!(cases::spinner_default::SpinnerDefault, false),
         "spinner-spinning" => widget_case!(cases::spinner_spinning::SpinnerSpinning, false),
@@ -439,6 +500,12 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "switch-on-default" => widget_case!(cases::switch_on_default::SwitchOnDefault, false),
         "switch-off-disabled" => widget_case!(cases::switch_off_disabled::SwitchOffDisabled, false),
         "switch-on-disabled" => widget_case!(cases::switch_on_disabled::SwitchOnDisabled, false),
+        "text-view-default" => widget_case!(cases::text_view_default::TextViewDefault, false),
+        "text-view-disabled" => widget_case!(cases::text_view_disabled::TextViewDisabled, false),
+        "text-view-monospace" => widget_case!(cases::text_view_monospace::TextViewMonospace, false),
+        "text-view-non-editable" => {
+            widget_case!(cases::text_view_non_editable::TextViewNonEditable, false)
+        }
         "toggle-text-default" => widget_case!(cases::toggle_text_default::ToggleTextDefault, false),
         "toggle-text-checked" => widget_case!(cases::toggle_text_checked::ToggleTextChecked, false),
         "toggle-text-flat" => widget_case!(cases::toggle_text_flat::ToggleTextFlat, false),
@@ -492,6 +559,11 @@ fn is_known_case(name: &str) -> bool {
             | "editable-label-display-empty"
             | "editable-label-editing-active"
             | "editable-label-disabled"
+            | "entry-default"
+            | "entry-disabled"
+            | "entry-flat"
+            | "entry-placeholder"
+            | "entry-primary-icon"
             | "image-default"
             | "image-normal-icons"
             | "image-large-icons"
@@ -519,6 +591,9 @@ fn is_known_case(name: &str) -> bool {
             | "menu-button-flat"
             | "menu-button-circular"
             | "menu-button-disabled"
+            | "password-entry-default"
+            | "password-entry-disabled"
+            | "password-entry-peek-icon"
             | "progressbar-horizontal-50"
             | "progressbar-horizontal-0"
             | "progressbar-horizontal-100"
@@ -529,9 +604,13 @@ fn is_known_case(name: &str) -> bool {
             | "progressbar-fraction-small"
             | "radio-button-default"
             | "radio-button-checked"
+            | "search-entry-default"
+            | "search-entry-disabled"
             | "separator-horizontal-default"
             | "separator-vertical"
             | "separator-spacer-horizontal"
+            | "spin-button-default"
+            | "spin-button-vertical"
             | "spinner-default"
             | "spinner-spinning"
             | "spinner-spinning-custom-size"
@@ -541,6 +620,10 @@ fn is_known_case(name: &str) -> bool {
             | "switch-on-default"
             | "switch-off-disabled"
             | "switch-on-disabled"
+            | "text-view-default"
+            | "text-view-disabled"
+            | "text-view-monospace"
+            | "text-view-non-editable"
             | "toggle-text-default"
             | "toggle-text-checked"
             | "toggle-text-flat"

@@ -58,11 +58,32 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] large-icons
   - [x] pixel-size-24
   - [x] no-icon-name
+- [x] GtkEntry
+  - [x] default
+  - [x] placeholder
+  - [x] flat
+  - [x] disabled
+  - [x] primary-icon
+- [x] GtkPasswordEntry
+  - [x] default
+  - [x] peek-icon
+  - [x] disabled
+- [x] GtkSearchEntry
+  - [x] default
+  - [x] disabled
 - [x] GtkEditableLabel
   - [x] display-default
   - [x] display-empty
   - [x] editing-active
   - [x] disabled
+- [x] GtkTextView
+  - [x] default
+  - [x] monospace
+  - [x] non-editable
+  - [x] disabled
+- [x] GtkSpinButton
+  - [x] default
+  - [x] vertical
 - [x] GtkProgressBar
   - [x] horizontal-50
   - [x] horizontal-0
@@ -121,16 +142,16 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
 
 ---
 
-### Cycle 3 — Text & Number Input
+### ~~Cycle 3 — Text & Number Input~~ ✓ Complete
 
 **Goal:** Cover widgets that accept typed user input. This cycle is the first to involve the GTK input framework in earnest: cursor rendering, placeholder text, entry borders, focus halos, and the number-spinner increment/decrement controls. The password and search entries are variations of the base entry and should share most infrastructure, so they're grouped here to amortize the setup cost.
 
-- [ ] GtkEntry
-- [ ] GtkPasswordEntry
-- [ ] GtkSearchEntry
+- [x] GtkEntry
+- [x] GtkPasswordEntry
+- [x] GtkSearchEntry
 - [x] GtkEditableLabel
-- [ ] GtkTextView
-- [ ] GtkSpinButton
+- [x] GtkTextView
+- [x] GtkSpinButton
 
 ---
 

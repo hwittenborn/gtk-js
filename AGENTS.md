@@ -80,16 +80,34 @@ GTK uses `content-box` sizing — `min-height` refers to content only, padding i
 - GtkLabel needs `display: inline-flex; align-items: center` to match GTK's default `yalign=0.5`.
 - GtkImage needs `display: inline-flex` to form a proper box for circular `border-radius`.
 
+## Testing Rules
+
+**Never add test-specific code to source components.** No `data-testid` props, no test IDs, no test hooks in `packages/`. All test plumbing belongs in `tests/`.
+
+When a component's `ref` points to an inner element (e.g. `GtkEntry` is a `forwardRef<HTMLInputElement>` so the `ref` gives the inner `<input>`, not the outer `.gtk-entry` div), place `data-testid="target"` on the correct container using a `ref` callback **in `tests/client.tsx`**:
+
+```tsx
+// GtkEntry: ref gives the inner <input>, parentElement is the outer .gtk-entry div
+"entry-default": () => (
+  <GtkEntry
+    text="Hello"
+    ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
+  />
+),
+```
+
+Do NOT modify the source component to accept or forward `data-testid`.
+
 ## Running Tests
 
-Always pipe test output to a file, then read it. Never rely on direct terminal output for test runs:
+Always redirect `bun test` to a file:
 
 ```sh
 bun test > /tmp/out.txt 2>&1
 # then read /tmp/out.txt
 ```
 
-`bun test` streams large JSON snapshots on failure that overflow terminal buffers. Same applies to any long-running test command.
+Other commands (`bun run check`, `bun run fix`, `bun run build`, etc.) can be run directly.
 
 ## Updating Upstream
 
