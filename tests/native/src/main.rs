@@ -37,6 +37,20 @@ enum Command {
         #[arg(long)]
         port_file: Option<PathBuf>,
     },
+    BoxHorizontalDefault,
+    BoxVerticalDefault,
+    BoxSpacing,
+    BoxHomogeneous,
+    CenterBoxDefault,
+    ExpanderDefault,
+    ExpanderExpanded,
+    FlowBoxDefault,
+    FrameDefault,
+    FrameNoLabel,
+    GridDefault,
+    OverlayDefault,
+    PanedHorizontal,
+    PanedVertical,
     ButtonTextDefault,
     ButtonTextFlat,
     ButtonTextSuggested,
@@ -175,6 +189,20 @@ impl Command {
     fn case_name(&self) -> Option<&'static str> {
         match self {
             Self::Serve { .. } => None,
+            Self::BoxHorizontalDefault => Some("box-horizontal-default"),
+            Self::BoxVerticalDefault => Some("box-vertical-default"),
+            Self::BoxSpacing => Some("box-spacing"),
+            Self::BoxHomogeneous => Some("box-homogeneous"),
+            Self::CenterBoxDefault => Some("center-box-default"),
+            Self::ExpanderDefault => Some("expander-default"),
+            Self::ExpanderExpanded => Some("expander-expanded"),
+            Self::FlowBoxDefault => Some("flow-box-default"),
+            Self::FrameDefault => Some("frame-default"),
+            Self::FrameNoLabel => Some("frame-no-label"),
+            Self::GridDefault => Some("grid-default"),
+            Self::OverlayDefault => Some("overlay-default"),
+            Self::PanedHorizontal => Some("paned-horizontal"),
+            Self::PanedVertical => Some("paned-vertical"),
             Self::ButtonTextDefault => Some("button-text-default"),
             Self::ButtonTextFlat => Some("button-text-flat"),
             Self::ButtonTextSuggested => Some("button-text-suggested"),
@@ -276,6 +304,24 @@ impl Command {
 
 fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
     match name {
+        "box-horizontal-default" => {
+            widget_case!(cases::box_horizontal_default::BoxHorizontalDefault, false)
+        }
+        "box-vertical-default" => {
+            widget_case!(cases::box_vertical_default::BoxVerticalDefault, false)
+        }
+        "box-spacing" => widget_case!(cases::box_spacing::BoxSpacing, false),
+        "box-homogeneous" => widget_case!(cases::box_homogeneous::BoxHomogeneous, false),
+        "center-box-default" => widget_case!(cases::center_box_default::CenterBoxDefault, false),
+        "expander-default" => widget_case!(cases::expander_default::ExpanderDefault, false),
+        "expander-expanded" => widget_case!(cases::expander_expanded::ExpanderExpanded, false),
+        "flow-box-default" => widget_case!(cases::flow_box_default::FlowBoxDefault, false),
+        "frame-default" => widget_case!(cases::frame_default::FrameDefault, false),
+        "frame-no-label" => widget_case!(cases::frame_no_label::FrameNoLabel, false),
+        "grid-default" => widget_case!(cases::grid_default::GridDefault, false),
+        "overlay-default" => widget_case!(cases::overlay_default::OverlayDefault, false),
+        "paned-horizontal" => widget_case!(cases::paned_horizontal::PanedHorizontal, false),
+        "paned-vertical" => widget_case!(cases::paned_vertical::PanedVertical, false),
         "button-text-default" => widget_case!(cases::button_text_default::ButtonTextDefault, false),
         "button-text-flat" => widget_case!(cases::button_text_flat::ButtonTextFlat, false),
         "button-text-suggested" => {
@@ -550,7 +596,21 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
 fn is_known_case(name: &str) -> bool {
     matches!(
         name,
-        "button-text-default"
+        "box-horizontal-default"
+            | "box-vertical-default"
+            | "box-spacing"
+            | "box-homogeneous"
+            | "center-box-default"
+            | "expander-default"
+            | "expander-expanded"
+            | "flow-box-default"
+            | "frame-default"
+            | "frame-no-label"
+            | "grid-default"
+            | "overlay-default"
+            | "paned-horizontal"
+            | "paned-vertical"
+            | "button-text-default"
             | "button-text-flat"
             | "button-text-suggested"
             | "button-text-destructive"

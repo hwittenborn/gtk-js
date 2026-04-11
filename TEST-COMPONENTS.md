@@ -103,7 +103,7 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] disabled
 - [x] GtkScale
   - [x] default
-- [x] GtkScrollBar
+- [x] GtkScrollbar
   - [x] default
 - [x] GtkCalendar
   - [x] default
@@ -123,6 +123,28 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] long-text
   - [x] no-subtitle
   - [x] both-empty
+- [x] GtkBox
+  - [x] horizontal-default
+  - [x] vertical-default
+  - [x] spacing
+  - [x] homogeneous
+- [x] GtkCenterBox
+  - [x] default
+- [x] GtkGrid
+  - [x] default
+- [x] GtkFlowBox
+  - [x] default
+- [x] GtkPaned
+  - [x] horizontal
+  - [x] vertical
+- [x] GtkFrame
+  - [x] default
+  - [x] no-label
+- [x] GtkExpander
+  - [x] default
+  - [x] expanded
+- [x] GtkOverlay
+  - [x] default
 
 ---
 
@@ -163,28 +185,28 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
 
 ### ~~Cycle 4 — Value Controls & Indicators~~ ✓ Complete
 
-**Goal:** Cover widgets that represent a continuous or ranged value — either for user manipulation (scale, spin) or passive display (progress, level). GtkCalendar is included here because it is a self-contained date-picker with no children; it fits "ranged value" more than any other category. GtkScrollBar is here rather than with GtkScrolledWindow because it is a standalone visual indicator of position within a range.
+**Goal:** Cover widgets that represent a continuous or ranged value — either for user manipulation (scale, spin) or passive display (progress, level). GtkCalendar is included here because it is a self-contained date-picker with no children; it fits "ranged value" more than any other category. GtkScrollbar is here rather than with GtkScrolledWindow because it is a standalone visual indicator of position within a range.
 
 - [x] GtkScale
 - [x] GtkProgressBar
 - [x] GtkLevelBar
-- [x] GtkScrollBar
+- [x] GtkScrollbar
 - [x] GtkCalendar
 
 ---
 
-### Cycle 5 — Layout Containers
+### ~~Cycle 5 — Layout Containers~~ ✓ Complete
 
 **Goal:** Cover structural container widgets that exist solely to arrange their children — they have no meaningful interactive content of their own. The test strategy here is to populate each container with a small fixed set of child widgets and compare the resulting layout geometry (child positions, gaps, alignment) between native and web. GtkOverlay and GtkExpander are included here even though they are slightly interactive, because their primary role is structural containment.
 
-- [ ] GtkBox
-- [ ] GtkCenterBox
-- [ ] GtkGrid
-- [ ] GtkFlowBox
-- [ ] GtkPaned
-- [ ] GtkFrame
-- [ ] GtkExpander
-- [ ] GtkOverlay
+- [x] GtkBox
+- [x] GtkCenterBox
+- [x] GtkGrid
+- [x] GtkFlowBox
+- [x] GtkPaned
+- [x] GtkFrame
+- [x] GtkExpander
+- [x] GtkOverlay
 
 ---
 
