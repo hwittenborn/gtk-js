@@ -123,6 +123,28 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] long-text
   - [x] no-subtitle
   - [x] both-empty
+- [x] GtkBox
+  - [x] horizontal-default
+  - [x] vertical-default
+  - [x] spacing
+  - [x] homogeneous
+- [x] GtkCenterBox
+  - [x] default
+- [x] GtkGrid
+  - [x] default
+- [x] GtkFlowBox
+  - [x] default
+- [x] GtkPaned
+  - [x] horizontal
+  - [x] vertical
+- [x] GtkFrame
+  - [x] default
+  - [x] no-label
+- [x] GtkExpander
+  - [x] default
+  - [x] expanded
+- [x] GtkOverlay
+  - [x] default
 
 ---
 
@@ -173,18 +195,18 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
 
 ---
 
-### Cycle 5 — Layout Containers
+### ~~Cycle 5 — Layout Containers~~ ✓ Complete
 
 **Goal:** Cover structural container widgets that exist solely to arrange their children — they have no meaningful interactive content of their own. The test strategy here is to populate each container with a small fixed set of child widgets and compare the resulting layout geometry (child positions, gaps, alignment) between native and web. GtkOverlay and GtkExpander are included here even though they are slightly interactive, because their primary role is structural containment.
 
-- [ ] GtkBox
-- [ ] GtkCenterBox
-- [ ] GtkGrid
-- [ ] GtkFlowBox
-- [ ] GtkPaned
-- [ ] GtkFrame
-- [ ] GtkExpander
-- [ ] GtkOverlay
+- [x] GtkBox
+- [x] GtkCenterBox
+- [x] GtkGrid
+- [x] GtkFlowBox
+- [x] GtkPaned
+- [x] GtkFrame
+- [x] GtkExpander
+- [x] GtkOverlay
 
 ---
 

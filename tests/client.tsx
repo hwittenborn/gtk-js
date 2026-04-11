@@ -1,15 +1,24 @@
 import {
   AdwaitaProvider,
+  GtkBox,
   GtkButton,
   GtkCalendar,
+  GtkCenterBox,
   GtkCheckButton,
   GtkEditableLabel,
   GtkEntry,
+  GtkExpander,
+  GtkFlowBox,
+  GtkFlowBoxChild,
+  GtkFrame,
+  GtkGrid,
   GtkImage,
   GtkLabel,
   GtkLevelBar,
   GtkLinkButton,
   GtkMenuButton,
+  GtkOverlay,
+  GtkPaned,
   GtkPasswordEntry,
   GtkProgressBar,
   GtkScale,
@@ -303,6 +312,125 @@ const cases: Record<string, () => React.ReactElement> = {
   ),
   "window-title-no-subtitle": () => <GtkWindowTitle title="Title" data-testid="target" />,
   "window-title-both-empty": () => <GtkWindowTitle title="" data-testid="target" />,
+
+  // GtkBox cases
+  "box-horizontal-default": () => (
+    <GtkBox orientation="horizontal" data-testid="target">
+      <GtkLabel label="A" />
+      <GtkLabel label="B" />
+      <GtkLabel label="C" />
+    </GtkBox>
+  ),
+  "box-vertical-default": () => (
+    <GtkBox orientation="vertical" data-testid="target">
+      <GtkLabel label="A" />
+      <GtkLabel label="B" />
+      <GtkLabel label="C" />
+    </GtkBox>
+  ),
+  "box-spacing": () => (
+    <GtkBox orientation="horizontal" spacing={6} data-testid="target">
+      <GtkLabel label="A" />
+      <GtkLabel label="B" />
+      <GtkLabel label="C" />
+    </GtkBox>
+  ),
+  "box-homogeneous": () => (
+    <GtkBox orientation="horizontal" homogeneous style={{ width: "200px" }} data-testid="target">
+      <GtkLabel label="A" />
+      <GtkLabel label="B" />
+      <GtkLabel label="C" />
+    </GtkBox>
+  ),
+
+  // GtkCenterBox cases
+  "center-box-default": () => (
+    <GtkCenterBox
+      style={{ width: "300px" }}
+      startWidget={<GtkLabel label="Start" />}
+      centerWidget={<GtkLabel label="Center" />}
+      endWidget={<GtkLabel label="End" />}
+      data-testid="target"
+    />
+  ),
+
+  // GtkGrid cases
+  "grid-default": () => (
+    <GtkGrid columnHomogeneous data-testid="target">
+      <GtkLabel label="TL" />
+      <GtkLabel label="TR" />
+      <GtkLabel label="BL" />
+      <GtkLabel label="BR" />
+    </GtkGrid>
+  ),
+
+  // GtkFlowBox cases
+  "flow-box-default": () => (
+    <GtkFlowBox selectionMode="none" data-testid="target">
+      <GtkFlowBoxChild>
+        <GtkLabel label="One" />
+      </GtkFlowBoxChild>
+      <GtkFlowBoxChild>
+        <GtkLabel label="Two" />
+      </GtkFlowBoxChild>
+      <GtkFlowBoxChild>
+        <GtkLabel label="Three" />
+      </GtkFlowBoxChild>
+      <GtkFlowBoxChild>
+        <GtkLabel label="Four" />
+      </GtkFlowBoxChild>
+    </GtkFlowBox>
+  ),
+
+  // GtkPaned cases
+  "paned-horizontal": () => (
+    <GtkPaned
+      orientation="horizontal"
+      position={100}
+      startChild={<GtkLabel label="Start" />}
+      endChild={<GtkLabel label="End" />}
+      data-testid="target"
+    />
+  ),
+  "paned-vertical": () => (
+    <GtkPaned
+      orientation="vertical"
+      position={60}
+      startChild={<GtkLabel label="Start" />}
+      endChild={<GtkLabel label="End" />}
+      data-testid="target"
+    />
+  ),
+
+  // GtkFrame cases
+  "frame-default": () => (
+    <GtkFrame label="Frame" data-testid="target">
+      <GtkLabel label="Content" />
+    </GtkFrame>
+  ),
+  "frame-no-label": () => (
+    <GtkFrame data-testid="target">
+      <GtkLabel label="Content" />
+    </GtkFrame>
+  ),
+
+  // GtkExpander cases
+  "expander-default": () => <GtkExpander label="Expander" data-testid="target" />,
+  "expander-expanded": () => (
+    <GtkExpander label="Expander" expanded data-testid="target">
+      <GtkLabel label="Content" />
+    </GtkExpander>
+  ),
+
+  // GtkOverlay cases
+  "overlay-default": () => (
+    <GtkOverlay
+      child={<GtkLabel label="Base" />}
+      overlays={[<GtkLabel label="Overlay" />]}
+      style={{ width: "200px", height: "100px" }}
+      data-testid="target"
+    />
+  ),
 
   // Expected-failure cases: intentionally broken for testing the comparison
   "button-text-default-wrong-padding": () => (
