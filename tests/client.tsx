@@ -1,6 +1,7 @@
 import {
   AdwaitaProvider,
   GtkButton,
+  GtkCalendar,
   GtkCheckButton,
   GtkEditableLabel,
   GtkEntry,
@@ -11,6 +12,8 @@ import {
   GtkMenuButton,
   GtkPasswordEntry,
   GtkProgressBar,
+  GtkScale,
+  GtkScrollbar,
   GtkSearchEntry,
   GtkSeparator,
   GtkSpinButton,
@@ -42,6 +45,9 @@ const cases: Record<string, () => React.ReactElement> = {
   "button-pill": () => <GtkButton label="Button" className="pill" data-testid="target" />,
   "button-disabled": () => <GtkButton label="Button" disabled data-testid="target" />,
 
+  // GtkCalendar cases
+  "calendar-default": () => <GtkCalendar year={2024} month={0} day={15} data-testid="target" />,
+
   // GtkCheckButton cases
   "check-button-default": () => <GtkCheckButton label="Checkbox" data-testid="target" />,
   "check-button-checked": () => <GtkCheckButton label="Checkbox" active data-testid="target" />,
@@ -57,6 +63,9 @@ const cases: Record<string, () => React.ReactElement> = {
   "radio-button-checked": () => (
     <GtkCheckButton label="Radio" group="test" active data-testid="target" />
   ),
+
+  // GtkScale cases
+  "scale-default": () => <GtkScale min={0} max={100} value={50} step={1} data-testid="target" />,
 
   // GtkEditableLabel cases
   "editable-label-display-default": () => (
@@ -128,6 +137,11 @@ const cases: Record<string, () => React.ReactElement> = {
       disabled
       ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
     />
+  ),
+
+  // GtkScrollbar cases
+  "scrollbar-default": () => (
+    <GtkScrollbar orientation="vertical" value={0} pageSize={0.2} data-testid="target" />
   ),
 
   // GtkImage cases

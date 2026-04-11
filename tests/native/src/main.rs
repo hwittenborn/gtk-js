@@ -45,6 +45,7 @@ enum Command {
     ButtonCircular,
     ButtonPill,
     ButtonDisabled,
+    CalendarDefault,
     CheckButtonDefault,
     CheckButtonChecked,
     CheckButtonIndeterminate,
@@ -106,8 +107,10 @@ enum Command {
     ProgressbarFractionSmall,
     RadioButtonDefault,
     RadioButtonChecked,
+    ScaleDefault,
     SearchEntryDefault,
     SearchEntryDisabled,
+    ScrollbarDefault,
     SeparatorHorizontalDefault,
     SeparatorVertical,
     SeparatorSpacerHorizontal,
@@ -180,6 +183,7 @@ impl Command {
             Self::ButtonCircular => Some("button-circular"),
             Self::ButtonPill => Some("button-pill"),
             Self::ButtonDisabled => Some("button-disabled"),
+            Self::CalendarDefault => Some("calendar-default"),
             Self::CheckButtonDefault => Some("check-button-default"),
             Self::CheckButtonChecked => Some("check-button-checked"),
             Self::CheckButtonIndeterminate => Some("check-button-indeterminate"),
@@ -235,8 +239,10 @@ impl Command {
             Self::ProgressbarFractionSmall => Some("progressbar-fraction-small"),
             Self::RadioButtonDefault => Some("radio-button-default"),
             Self::RadioButtonChecked => Some("radio-button-checked"),
+            Self::ScaleDefault => Some("scale-default"),
             Self::SearchEntryDefault => Some("search-entry-default"),
             Self::SearchEntryDisabled => Some("search-entry-disabled"),
+            Self::ScrollbarDefault => Some("scrollbar-default"),
             Self::SeparatorHorizontalDefault => Some("separator-horizontal-default"),
             Self::SeparatorVertical => Some("separator-vertical"),
             Self::SeparatorSpacerHorizontal => Some("separator-spacer-horizontal"),
@@ -282,6 +288,7 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "button-circular" => widget_case!(cases::button_circular::ButtonCircular, false),
         "button-pill" => widget_case!(cases::button_pill::ButtonPill, false),
         "button-disabled" => widget_case!(cases::button_disabled::ButtonDisabled, false),
+        "calendar-default" => widget_case!(cases::calendar_default::CalendarDefault, false),
         "check-button-default" => {
             widget_case!(cases::check_button_default::CheckButtonDefault, false)
         }
@@ -451,12 +458,14 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "radio-button-checked" => {
             widget_case!(cases::radio_button_checked::RadioButtonChecked, false)
         }
+        "scale-default" => widget_case!(cases::scale_default::ScaleDefault, false),
         "search-entry-default" => {
             widget_case!(cases::search_entry_default::SearchEntryDefault, false)
         }
         "search-entry-disabled" => {
             widget_case!(cases::search_entry_disabled::SearchEntryDisabled, false)
         }
+        "scrollbar-default" => widget_case!(cases::scrollbar_default::ScrollbarDefault, false),
         "separator-horizontal-default" => {
             widget_case!(
                 cases::separator_horizontal_default::SeparatorHorizontalDefault,
@@ -549,6 +558,7 @@ fn is_known_case(name: &str) -> bool {
             | "button-circular"
             | "button-pill"
             | "button-disabled"
+            | "calendar-default"
             | "check-button-default"
             | "check-button-checked"
             | "check-button-indeterminate"
@@ -604,8 +614,10 @@ fn is_known_case(name: &str) -> bool {
             | "progressbar-fraction-small"
             | "radio-button-default"
             | "radio-button-checked"
+            | "scale-default"
             | "search-entry-default"
             | "search-entry-disabled"
+            | "scrollbar-default"
             | "separator-horizontal-default"
             | "separator-vertical"
             | "separator-spacer-horizontal"
