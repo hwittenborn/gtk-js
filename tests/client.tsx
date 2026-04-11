@@ -356,7 +356,7 @@ const cases: Record<string, () => React.ReactElement> = {
 
   // GtkGrid cases
   "grid-default": () => (
-    <GtkGrid columnHomogeneous data-testid="target">
+    <GtkGrid columnHomogeneous style={{ gridTemplateColumns: "1fr 1fr" }} data-testid="target">
       <GtkLabel label="TL" />
       <GtkLabel label="TR" />
       <GtkLabel label="BL" />
