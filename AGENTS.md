@@ -80,34 +80,15 @@ GTK uses `content-box` sizing — `min-height` refers to content only, padding i
 - GtkLabel needs `display: inline-flex; align-items: center` to match GTK's default `yalign=0.5`.
 - GtkImage needs `display: inline-flex` to form a proper box for circular `border-radius`.
 
-## Testing Rules
+## Debugging & Fixing Principles
 
-**Never add test-specific code to source components.** No `data-testid` props, no test IDs, no test hooks in `packages/`. All test plumbing belongs in `tests/`.
+- **Treat the root cause, not symptoms.** When a widget renders incorrectly, don't patch around it — find what's actually wrong. Cross-reference the upstream C source and SCSS to understand the intended behavior, then fix the underlying issue.
+- **Modifying source components is okay when they're wrong.** If a component in `packages/` doesn't match native GTK behavior (wrong CSS node structure, missing CSS class, incorrect default prop, bad layout manager), fix the component. Don't work around broken components in tests or the website.
+- **Validate the website visually.** After changes that affect rendering, check the website (`packages/website/`) using Chrome MCP, Playwright MCP, or similar browser tools — but only if they are installed. Don't skip visual verification just because tests pass.
 
-When a component's `ref` points to an inner element (e.g. `GtkEntry` is a `forwardRef<HTMLInputElement>` so the `ref` gives the inner `<input>`, not the outer `.gtk-entry` div), place `data-testid="target"` on the correct container using a `ref` callback **in `tests/client.tsx`**:
+## Testing
 
-```tsx
-// GtkEntry: ref gives the inner <input>, parentElement is the outer .gtk-entry div
-"entry-default": () => (
-  <GtkEntry
-    text="Hello"
-    ref={(el) => el?.parentElement?.setAttribute("data-testid", "target")}
-  />
-),
-```
-
-Do NOT modify the source component to accept or forward `data-testid`.
-
-## Running Tests
-
-Always redirect `bun test` to a file:
-
-```sh
-bun test > /tmp/out.txt 2>&1
-# then read /tmp/out.txt
-```
-
-Other commands (`bun run check`, `bun run fix`, `bun run build`, etc.) can be run directly.
+Use the `gtk-js-testing` skill for all testing details: running tests, adding test cases, debugging failures, and test conventions.
 
 ## Updating Upstream
 
