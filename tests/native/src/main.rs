@@ -331,13 +331,19 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "paned-horizontal" => widget_case!(cases::paned_horizontal::PanedHorizontal, false),
         "paned-vertical" => widget_case!(cases::paned_vertical::PanedVertical, false),
         "button-valign-center-hbox" => {
-            widget_case!(cases::button_valign_center_hbox::ButtonValignCenterHbox, true)
+            widget_case!(
+                cases::button_valign_center_hbox::ButtonValignCenterHbox,
+                true
+            )
         }
         "button-valign-end-hbox" => {
             widget_case!(cases::button_valign_end_hbox::ButtonValignEndHbox, true)
         }
         "button-halign-center-vbox" => {
-            widget_case!(cases::button_halign_center_vbox::ButtonHalignCenterVbox, true)
+            widget_case!(
+                cases::button_halign_center_vbox::ButtonHalignCenterVbox,
+                true
+            )
         }
         "button-halign-end-vbox" => {
             widget_case!(cases::button_halign_end_vbox::ButtonHalignEndVbox, true)
