@@ -1,7 +1,8 @@
 import { forwardRef, type HTMLAttributes, useCallback, useMemo, useState } from "react";
 import { useIcon } from "../icon-context.tsx";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkDropDownProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkDropDownProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** List of items (strings for simple mode). */
   items: string[];
   /** Index of the selected item. */
@@ -31,6 +32,8 @@ export const GtkDropDown = forwardRef<HTMLDivElement, GtkDropDownProps>(function
     enableSearch = false,
     showArrow = true,
     onSelected,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -70,7 +73,7 @@ export const GtkDropDown = forwardRef<HTMLDivElement, GtkDropDownProps>(function
   const selectedText = items[selected] ?? "(None)";
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       <button
         type="button"
         className={`gtk-button toggle ${open ? "has-open-popup" : ""}`}

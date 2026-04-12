@@ -1,7 +1,13 @@
 import { forwardRef, type HTMLAttributes } from "react";
-import type { GtkEllipsizeMode, GtkJustification, GtkWrapMode } from "../types.ts";
+import {
+  alignAttrs,
+  type GtkAlignProps,
+  type GtkEllipsizeMode,
+  type GtkJustification,
+  type GtkWrapMode,
+} from "../types.ts";
 
-export interface GtkLabelProps extends HTMLAttributes<HTMLSpanElement> {
+export interface GtkLabelProps extends HTMLAttributes<HTMLSpanElement>, GtkAlignProps {
   /** Text content. */
   label: string;
   /** Text justification. Default: "left". */
@@ -47,6 +53,8 @@ export const GtkLabel = forwardRef<HTMLSpanElement, GtkLabelProps>(function GtkL
     lines = -1,
     xalign = 0.5,
     yalign = 0.5,
+    halign,
+    valign,
     className,
     style,
     ...rest
@@ -98,7 +106,13 @@ export const GtkLabel = forwardRef<HTMLSpanElement, GtkLabelProps>(function GtkL
   }
 
   return (
-    <span ref={ref} className={classes.join(" ")} style={cssStyle} {...rest}>
+    <span
+      ref={ref}
+      className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
+      style={cssStyle}
+      {...rest}
+    >
       {text}
     </span>
   );

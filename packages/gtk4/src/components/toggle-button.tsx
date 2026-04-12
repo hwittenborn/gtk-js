@@ -5,9 +5,11 @@ import React, {
   useCallback,
   useState,
 } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
 export interface GtkToggleButtonProps
-  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children">,
+    GtkAlignProps {
   /** Whether the button is pressed in. */
   active?: boolean;
   /** Text label. */
@@ -41,6 +43,8 @@ export const GtkToggleButton = forwardRef<HTMLButtonElement, GtkToggleButtonProp
       onToggled,
       group,
       children,
+      halign,
+      valign,
       className,
       onKeyDown,
       onKeyUp,
@@ -97,6 +101,7 @@ export const GtkToggleButton = forwardRef<HTMLButtonElement, GtkToggleButtonProp
         ref={ref}
         className={classes.join(" ")}
         aria-pressed={active}
+        {...alignAttrs(halign, valign)}
         data-checked={active || undefined}
         onClick={handleClick}
         onKeyDown={handleKeyDown}

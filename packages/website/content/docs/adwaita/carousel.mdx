@@ -1,0 +1,32 @@
+---
+title: AdwCarousel
+description: A swipeable/scrollable page container.
+---
+
+import Example from "./examples/carousel";
+
+## Preview
+
+<PreviewFile file="content/docs/adwaita/examples/carousel.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+carousel[.horizontal|.vertical]
+```
+
+## Props
+
+<AutoTypeTable
+  path="../adwaita/src/components/carousel.tsx"
+  name="AdwCarouselProps"
+/>
+
+## Behavior
+
+- Pages snap into place using CSS scroll-snap.
+- Use `AdwCarouselIndicatorDots` or `AdwCarouselIndicatorLines` to show page position.
+
+[Adwaita Documentation →](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.Carousel.html)

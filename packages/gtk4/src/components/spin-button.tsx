@@ -7,9 +7,14 @@ import React, {
   useState,
 } from "react";
 import { useIcon } from "../icon-context.tsx";
-import type { GtkOrientation, GtkSpinButtonUpdatePolicy } from "../types.ts";
+import {
+  alignAttrs,
+  type GtkAlignProps,
+  type GtkOrientation,
+  type GtkSpinButtonUpdatePolicy,
+} from "../types.ts";
 
-export interface GtkSpinButtonProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkSpinButtonProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Current value. */
   value?: number;
   /** Minimum value. Default: 0. */
@@ -64,6 +69,8 @@ export const GtkSpinButton = forwardRef<HTMLDivElement, GtkSpinButtonProps>(func
     updatePolicy = "always",
     activatesDefault = false,
     onValueChanged,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -185,6 +192,7 @@ export const GtkSpinButton = forwardRef<HTMLDivElement, GtkSpinButtonProps>(func
       aria-valuemin={min}
       aria-valuemax={max}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       {...rest}
     >
       <input

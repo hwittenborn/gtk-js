@@ -1,7 +1,7 @@
 import React, { forwardRef, type HTMLAttributes, useCallback, useRef, useState } from "react";
-import type { GtkOrientation } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkOrientation } from "../types.ts";
 
-export interface GtkScrollbarProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkScrollbarProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Scrollbar direction. Default: "vertical". */
   orientation?: GtkOrientation;
   /** Current scroll position (0.0 to 1.0). */
@@ -26,7 +26,16 @@ export interface GtkScrollbarProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.Scrollbar.html
  */
 export const GtkScrollbar = forwardRef<HTMLDivElement, GtkScrollbarProps>(function GtkScrollbar(
-  { orientation = "vertical", value = 0, pageSize = 0.2, onValueChanged, className, ...rest },
+  {
+    orientation = "vertical",
+    value = 0,
+    pageSize = 0.2,
+    onValueChanged,
+    halign,
+    valign,
+    className,
+    ...rest
+  },
   ref,
 ) {
   const troughRef = useRef<HTMLDivElement>(null);
@@ -83,7 +92,7 @@ export const GtkScrollbar = forwardRef<HTMLDivElement, GtkScrollbarProps>(functi
   }, []);
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       <div className="gtk-range">
         <div
           ref={troughRef}

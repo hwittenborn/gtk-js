@@ -6,9 +6,9 @@ import React, {
   useCallback,
   useState,
 } from "react";
-import type { GtkSelectionMode } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkSelectionMode } from "../types.ts";
 
-export interface GtkListBoxRowProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkListBoxRowProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Whether the row can be activated (click/keyboard). Default: true. */
   activatable?: boolean;
   /** Whether the row can be selected. Default: true. */
@@ -24,7 +24,7 @@ export interface GtkListBoxRowProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.ListBoxRow.html
  */
 export const GtkListBoxRow = forwardRef<HTMLDivElement, GtkListBoxRowProps>(function GtkListBoxRow(
-  { activatable = true, selectable = true, children, className, ...rest },
+  { activatable = true, selectable = true, children, halign, valign, className, ...rest },
   ref,
 ) {
   const classes = ["gtk-row", "gtk-bin-layout"];
@@ -36,6 +36,7 @@ export const GtkListBoxRow = forwardRef<HTMLDivElement, GtkListBoxRowProps>(func
       ref={ref}
       role="listitem"
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       data-selectable={selectable || undefined}
       {...rest}
     >
@@ -44,7 +45,7 @@ export const GtkListBoxRow = forwardRef<HTMLDivElement, GtkListBoxRowProps>(func
   );
 });
 
-export interface GtkListBoxProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkListBoxProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Selection behavior. Default: "single". */
   selectionMode?: GtkSelectionMode;
   /** Activate on single click instead of double. Default: true. */
@@ -76,6 +77,8 @@ export const GtkListBox = forwardRef<HTMLDivElement, GtkListBoxProps>(function G
     onRowActivated,
     onSelectedRowsChanged,
     children,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -122,7 +125,13 @@ export const GtkListBox = forwardRef<HTMLDivElement, GtkListBoxProps>(function G
   );
 
   return (
-    <div ref={ref} role="list" className={classes.join(" ")} {...rest}>
+    <div
+      ref={ref}
+      role="list"
+      className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
+      {...rest}
+    >
       {childCount === 0 && placeholder ? (
         <div className="gtk-placeholder">{placeholder}</div>
       ) : (

@@ -1,0 +1,29 @@
+---
+title: GtkDropDown
+description: A dropdown selection widget.
+---
+
+import Example from "./examples/drop-down";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/drop-down.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+dropdown
+  ├── button.toggle > box > stack + arrow
+  └── popover.menu > scrolledwindow > listview
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/drop-down.tsx"
+  name="GtkDropDownProps"
+/>
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.DropDown.html)

@@ -20,7 +20,7 @@ body:has([data-gtk-provider]) {
   box-sizing: content-box;
   font-family: Cantarell, sans-serif;
   font-size: inherit;
-  line-height: inherit;
+  line-height: normal;
   color: inherit;
   text-decoration: none;
   list-style: none;

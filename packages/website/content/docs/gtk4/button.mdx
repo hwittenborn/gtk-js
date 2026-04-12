@@ -3,20 +3,13 @@ title: GtkButton
 description: A widget that emits a signal when clicked.
 ---
 
-import { AutoTypeTable } from "fumadocs-typescript/ui";
+import Example from "./examples/button";
 
 ## Preview
 
-```tsx
-import { GtkButton } from "@gtk-js/adwaita";
-
-<GtkButton label="Default" />
-<GtkButton label="Suggested" className="suggested-action" />
-<GtkButton label="Destructive" className="destructive-action" />
-<GtkButton label="Flat" hasFrame={false} />
-<GtkButton label="Pill" className="pill" />
-<GtkButton label="C" className="circular" />
-```
+<PreviewFile file="content/docs/gtk4/examples/button.tsx">
+  <Example />
+</PreviewFile>
 
 ## CSS Node Tree
 
@@ -28,7 +21,7 @@ button[.flat][.text-button][.image-button][.image-text-button]
 ## Props
 
 <AutoTypeTable
-  path="packages/gtk4/src/components/button.tsx"
+  path="../gtk4/src/components/button.tsx"
   name="GtkButtonProps"
 />
 

@@ -1,0 +1,35 @@
+---
+title: AdwToastOverlay
+description: A container that displays toast notifications.
+---
+
+import Example from "./examples/toast-overlay";
+
+## Preview
+
+<PreviewFile file="content/docs/adwaita/examples/toast-overlay.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+toastoverlay
+  ├── [child]
+  └── toast
+```
+
+## Props
+
+<AutoTypeTable
+  path="../adwaita/src/components/toast-overlay.tsx"
+  name="AdwToastOverlayProps"
+/>
+
+## Behavior
+
+- Use a `toastRef` to call `addToast()` imperatively.
+- Toasts auto-dismiss after a configurable timeout (default 5s).
+- High-priority toasts interrupt the current toast.
+
+[Adwaita Documentation →](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.ToastOverlay.html)

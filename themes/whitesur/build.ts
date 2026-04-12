@@ -50,6 +50,18 @@ $scale: 'default';
 $shell_version: 'old';
 `;
 
+/**
+ * Adjust .gtk-switch min-width to match native GTK layout manager.
+ *
+ * Native GTK computes: switch_width = 2 × slider_measured_width (content + margin).
+ * The upstream SCSS sets switch min-width to 32px, but the native layout manager
+ * computes 2 × (18px slider + 1px margin) = 38px. We also need min-height: 20px
+ * to account for the slider's 18px height + 1px top + 1px bottom margin.
+ */
+function fixSwitchLayout(css: string): string {
+  return css.replace(/(\.gtk-switch\s*\{[^}]*?)min-width:\s*32px/, "$1min-width: 38px");
+}
+
 const results: Record<string, string> = {};
 
 for (const scheme of schemes) {
@@ -71,7 +83,8 @@ $accent_type: 'fixed';
     writeFileSync(`${sassDir}/_gtk-base-temp.scss`, gtkBaseContent);
 
     try {
-      const css = await compileGtkCSS(scssEntry, { scheme, assetMap });
+      let css = await compileGtkCSS(scssEntry, { scheme, assetMap });
+      css = fixSwitchLayout(css);
       const key = `${scheme}_${accent}`;
       results[key] = css;
       process.stdout.write(`  ${key}: ${css.length}b\n`);

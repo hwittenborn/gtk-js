@@ -1,4 +1,5 @@
 import React, { Children, forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
 export interface GtkGridChildProps {
   /** Starting column (0-based). */
@@ -11,7 +12,7 @@ export interface GtkGridChildProps {
   rowSpan?: number;
 }
 
-export interface GtkGridProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkGridProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Spacing between rows in pixels. Default: 0. */
   rowSpacing?: number;
   /** Spacing between columns in pixels. Default: 0. */
@@ -42,6 +43,8 @@ export const GtkGrid = forwardRef<HTMLDivElement, GtkGridProps>(function GtkGrid
     rowHomogeneous = false,
     columnHomogeneous = false,
     children,
+    halign,
+    valign,
     className,
     style,
     ...rest
@@ -73,7 +76,13 @@ export const GtkGrid = forwardRef<HTMLDivElement, GtkGridProps>(function GtkGrid
   };
 
   return (
-    <div ref={ref} className={classes.join(" ")} style={gridStyle} {...rest}>
+    <div
+      ref={ref}
+      className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
+      style={gridStyle}
+      {...rest}
+    >
       {Children.map(children, (child) => {
         if (!React.isValidElement(child)) return child;
         const props = child.props as GtkGridChildProps;

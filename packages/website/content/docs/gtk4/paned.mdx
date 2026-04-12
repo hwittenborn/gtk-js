@@ -1,0 +1,35 @@
+---
+title: GtkPaned
+description: A container with two children separated by a draggable handle.
+---
+
+import Example from "./examples/paned";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/paned.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+paned[.horizontal|.vertical]
+  ├── <start-child>
+  ├── separator[.wide]
+  └── <end-child>
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/paned.tsx"
+  name="GtkPanedProps"
+/>
+
+## Behavior
+
+- Drag the separator handle to resize the two panes.
+- `wideHandle` makes the separator easier to grab.
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.Paned.html)

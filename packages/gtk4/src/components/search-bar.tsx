@@ -1,7 +1,8 @@
 import { forwardRef, type HTMLAttributes, type ReactNode, useCallback } from "react";
 import { useIcon } from "../icon-context.tsx";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkSearchBarProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkSearchBarProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Whether search mode is active (bar visible). Default: false. */
   searchModeEnabled?: boolean;
   /** Whether to show a close button. Default: false. */
@@ -30,6 +31,8 @@ export const GtkSearchBar = forwardRef<HTMLDivElement, GtkSearchBarProps>(functi
     showCloseButton = false,
     child,
     onSearchModeChanged,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -45,11 +48,25 @@ export const GtkSearchBar = forwardRef<HTMLDivElement, GtkSearchBarProps>(functi
   }, [onSearchModeChanged]);
 
   if (!searchModeEnabled) {
-    return <div ref={ref} className={classes.join(" ")} style={{ display: "none" }} {...rest} />;
+    return (
+      <div
+        ref={ref}
+        className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
+        style={{ display: "none" }}
+        {...rest}
+      />
+    );
   }
 
   return (
-    <div ref={ref} className={classes.join(" ")} role="search" {...rest}>
+    <div
+      ref={ref}
+      className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
+      role="search"
+      {...rest}
+    >
       <div className="gtk-revealer">
         <div className="gtk-box gtk-box-layout horizontal" style={{ gap: 6 }}>
           {child}

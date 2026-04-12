@@ -1,0 +1,35 @@
+---
+title: GtkCheckButton
+description: A checkbox or radio button widget.
+---
+
+import Example from "./examples/check-button";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/check-button.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+checkbutton[.text-button][.grouped]
+  ├── check (or radio if grouped)
+  └── [label]
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/check-button.tsx"
+  name="GtkCheckButtonProps"
+/>
+
+## Behavior
+
+- Without a `group` prop, renders as a checkbox.
+- With a `group` prop, buttons sharing the same group act as radio buttons — only one can be active at a time.
+- Supports an `inconsistent` state for indeterminate/dash display.
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.CheckButton.html)

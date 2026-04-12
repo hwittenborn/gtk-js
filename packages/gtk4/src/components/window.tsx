@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkWindowProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkWindowProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** The titlebar widget (typically a GtkHeaderBar). */
   titlebar?: ReactNode;
   /** Main content of the window. */
@@ -26,7 +27,7 @@ export interface GtkWindowProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.Window.html
  */
 export const GtkWindow = forwardRef<HTMLDivElement, GtkWindowProps>(function GtkWindow(
-  { titlebar, children, className, style, maximized, ...rest },
+  { titlebar, children, halign, valign, className, style, maximized, ...rest },
   ref,
 ) {
   const classes = ["gtk-window", "background", "csd"];
@@ -34,7 +35,13 @@ export const GtkWindow = forwardRef<HTMLDivElement, GtkWindowProps>(function Gtk
   if (className) classes.push(className);
 
   return (
-    <div ref={ref} className={classes.join(" ")} style={style} {...rest}>
+    <div
+      ref={ref}
+      className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
+      style={style}
+      {...rest}
+    >
       {titlebar && <div className="titlebar">{titlebar}</div>}
       <div className="gtk-box gtk-box-layout vertical" style={{ flex: 1 }}>
         {children}

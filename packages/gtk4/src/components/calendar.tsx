@@ -1,7 +1,8 @@
 import React, { forwardRef, type HTMLAttributes, useCallback, useMemo, useState } from "react";
 import { useIcon } from "../icon-context.tsx";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkCalendarProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkCalendarProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Selected year. Default: current year. */
   year?: number;
   /** Selected month (0-11). Default: current month. */
@@ -69,6 +70,8 @@ export const GtkCalendar = forwardRef<HTMLDivElement, GtkCalendarProps>(function
     showDayNames = true,
     showWeekNumbers = false,
     onDaySelected,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -155,7 +158,7 @@ export const GtkCalendar = forwardRef<HTMLDivElement, GtkCalendarProps>(function
   if (className) classes.push(className);
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       {showHeading && (
         <div className="gtk-header">
           <button className="gtk-button flat" type="button" onClick={() => navigate(0, -1)}>

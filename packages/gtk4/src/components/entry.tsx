@@ -1,9 +1,10 @@
 import React, { forwardRef, type InputHTMLAttributes, useCallback } from "react";
 import { useIcon } from "../icon-context.tsx";
-import type { GtkInputPurpose } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkInputPurpose } from "../types.ts";
 
 export interface GtkEntryProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "children" | "type"> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "children" | "type">,
+    GtkAlignProps {
   /** Current text value. */
   text?: string;
   /** Placeholder text when empty. */
@@ -72,6 +73,8 @@ export const GtkEntry = forwardRef<HTMLInputElement, GtkEntryProps>(function Gtk
     onChanged,
     onActivate,
     onIconPress,
+    halign,
+    valign,
     className,
     onChange,
     onKeyDown,
@@ -107,7 +110,7 @@ export const GtkEntry = forwardRef<HTMLInputElement, GtkEntryProps>(function Gtk
   const inputType = !visibility ? "password" : purposeToInputType[inputPurpose];
 
   return (
-    <div className={classes.join(" ")}>
+    <div className={classes.join(" ")} {...alignAttrs(halign, valign)}>
       {PrimaryIcon && (
         <span className="gtk-image left" onClick={() => onIconPress?.("primary")}>
           <PrimaryIcon size={16} />

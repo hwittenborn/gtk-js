@@ -23,7 +23,7 @@ import {
 } from "@gtk-js/icons-adwaita";
 import { createContext, type ReactNode, useContext, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import { SyntaxHighlight } from "./syntax-highlight";
+import { SyntaxHighlight } from "../gtk-demo/syntax-highlight";
 
 export interface SceneStep {
   /** Code snippet shown in the typing panel for this step */

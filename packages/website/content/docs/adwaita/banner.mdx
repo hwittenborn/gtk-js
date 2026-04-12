@@ -1,0 +1,31 @@
+---
+title: AdwBanner
+description: A notification bar that slides down from top.
+---
+
+import Example from "./examples/banner";
+
+## Preview
+
+<PreviewFile file="content/docs/adwaita/examples/banner.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+banner
+  └── revealer
+      └── widget
+          ├── label.heading
+          └── button (conditional)
+```
+
+## Props
+
+<AutoTypeTable
+  path="../adwaita/src/components/banner.tsx"
+  name="AdwBannerProps"
+/>
+
+[Adwaita Documentation →](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.Banner.html)

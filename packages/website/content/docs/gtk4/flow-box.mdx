@@ -1,0 +1,33 @@
+---
+title: GtkFlowBox
+description: A reflowing grid of children.
+---
+
+import Example from "./examples/flow-box";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/flow-box.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+flowbox
+  └── flowboxchild (per child)
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/flow-box.tsx"
+  name="GtkFlowBoxProps"
+/>
+
+## Behavior
+
+- Children wrap to the next row/column when they exceed the available space.
+- Supports single, multiple, and no selection modes.
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.FlowBox.html)

@@ -6,8 +6,9 @@ import React, {
   useRef,
   useState,
 } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkEditableLabelProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkEditableLabelProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Current text. */
   text?: string;
   /** Whether currently in edit mode. */
@@ -36,6 +37,8 @@ export const GtkEditableLabel = forwardRef<HTMLDivElement, GtkEditableLabelProps
       editing: controlledEditing,
       onChanged,
       onEditingChanged,
+      halign,
+      valign,
       className,
       ...rest
     },
@@ -105,7 +108,7 @@ export const GtkEditableLabel = forwardRef<HTMLDivElement, GtkEditableLabelProps
     if (className) classes.push(className);
 
     return (
-      <div ref={ref} className={classes.join(" ")} {...rest}>
+      <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
         <div className="gtk-stack">
           {editing ? (
             <input

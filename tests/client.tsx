@@ -39,6 +39,28 @@ const caseName = window.location.pathname.slice(1);
 const isGallery = caseName === "gallery";
 
 const cases: Record<string, () => React.ReactElement> = {
+  // halign/valign alignment cases
+  "button-valign-center-hbox": () => (
+    <GtkBox orientation="horizontal">
+      <GtkButton label="Button" valign="center" data-testid="target" />
+    </GtkBox>
+  ),
+  "button-valign-end-hbox": () => (
+    <GtkBox orientation="horizontal">
+      <GtkButton label="Button" valign="end" data-testid="target" />
+    </GtkBox>
+  ),
+  "button-halign-center-vbox": () => (
+    <GtkBox orientation="vertical">
+      <GtkButton label="Button" halign="center" data-testid="target" />
+    </GtkBox>
+  ),
+  "button-halign-end-vbox": () => (
+    <GtkBox orientation="vertical">
+      <GtkButton label="Button" halign="end" data-testid="target" />
+    </GtkBox>
+  ),
+
   "button-text-default": () => <GtkButton label="Button" data-testid="target" />,
   "button-text-flat": () => <GtkButton label="Button" hasFrame={false} data-testid="target" />,
   "button-text-suggested": () => (

@@ -7,7 +7,7 @@ import React, {
   useCallback,
   useState,
 } from "react";
-import type { GtkPositionType } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkPositionType } from "../types.ts";
 
 export interface GtkNotebookPageProps {
   /** Tab label text. */
@@ -26,7 +26,7 @@ export function GtkNotebookPage(_props: GtkNotebookPageProps): ReactElement | nu
   return null;
 }
 
-export interface GtkNotebookProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkNotebookProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Current page index. Default: 0. */
   page?: number;
   /** Whether to show tabs. Default: true. */
@@ -63,6 +63,8 @@ export const GtkNotebook = forwardRef<HTMLDivElement, GtkNotebookProps>(function
     tabPos = "top",
     onSwitchPage,
     children,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -123,7 +125,7 @@ export const GtkNotebook = forwardRef<HTMLDivElement, GtkNotebookProps>(function
   const content = <div className="gtk-stack">{pages[currentPage]?.element}</div>;
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       {(isTop || tabPos === "left") && header}
       {content}
       {(isBottom || tabPos === "right") && header}

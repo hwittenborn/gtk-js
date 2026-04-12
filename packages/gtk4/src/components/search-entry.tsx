@@ -7,9 +7,11 @@ import React, {
   useState,
 } from "react";
 import { useIcon } from "../icon-context.tsx";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
 export interface GtkSearchEntryProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "children" | "type"> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "children" | "type">,
+    GtkAlignProps {
   /** Placeholder text. */
   placeholderText?: string;
   /** Debounce delay in ms before firing onSearchChanged. Default: 150. */
@@ -46,6 +48,8 @@ export const GtkSearchEntry = forwardRef<HTMLInputElement, GtkSearchEntryProps>(
       onStopSearch,
       onNextMatch,
       onPreviousMatch,
+      halign,
+      valign,
       className,
       onChange,
       onKeyDown,
@@ -105,7 +109,7 @@ export const GtkSearchEntry = forwardRef<HTMLInputElement, GtkSearchEntryProps>(
     if (className) classes.push(className);
 
     return (
-      <div className={classes.join(" ")} role="searchbox">
+      <div className={classes.join(" ")} {...alignAttrs(halign, valign)} role="searchbox">
         <span className="gtk-image left">{SearchIcon && <SearchIcon size={16} />}</span>
         <input
           ref={ref}

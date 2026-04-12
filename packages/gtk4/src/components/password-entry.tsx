@@ -1,8 +1,10 @@
 import React, { forwardRef, type InputHTMLAttributes, useCallback, useState } from "react";
 import { useIcon } from "../icon-context.tsx";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
 export interface GtkPasswordEntryProps
-  extends Omit<InputHTMLAttributes<HTMLInputElement>, "children" | "type"> {
+  extends Omit<InputHTMLAttributes<HTMLInputElement>, "children" | "type">,
+    GtkAlignProps {
   /** Placeholder text. */
   placeholderText?: string;
   /** Whether to show the peek (show/hide) icon. Default: false. */
@@ -33,6 +35,8 @@ export const GtkPasswordEntry = forwardRef<HTMLInputElement, GtkPasswordEntryPro
       activatesDefault = false,
       onChanged,
       onActivate,
+      halign,
+      valign,
       className,
       onChange,
       onKeyDown,
@@ -78,7 +82,7 @@ export const GtkPasswordEntry = forwardRef<HTMLInputElement, GtkPasswordEntryPro
     }, []);
 
     return (
-      <div className={classes.join(" ")}>
+      <div className={classes.join(" ")} {...alignAttrs(halign, valign)}>
         <input
           ref={ref}
           className="gtk-text"

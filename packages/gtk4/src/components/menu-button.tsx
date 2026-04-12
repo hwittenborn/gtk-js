@@ -1,8 +1,10 @@
 import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useState } from "react";
 import { useIcon } from "../icon-context.tsx";
-import type { GtkArrowType } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkArrowType } from "../types.ts";
 
-export interface GtkMenuButtonProps extends Omit<HTMLAttributes<HTMLDivElement>, "popover"> {
+export interface GtkMenuButtonProps
+  extends Omit<HTMLAttributes<HTMLDivElement>, "popover">,
+    GtkAlignProps {
   /** Popover content to show when clicked. */
   popover?: ReactNode;
   /** Icon name for the button. */
@@ -56,6 +58,8 @@ export const GtkMenuButton = forwardRef<HTMLDivElement, GtkMenuButtonProps>(func
     canShrink = false,
     primary = false,
     disabled,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -90,6 +94,7 @@ export const GtkMenuButton = forwardRef<HTMLDivElement, GtkMenuButtonProps>(func
     <div
       ref={ref}
       className={rootClasses.join(" ")}
+      {...alignAttrs(halign, valign)}
       aria-disabled={disabled || undefined}
       {...rest}
     >

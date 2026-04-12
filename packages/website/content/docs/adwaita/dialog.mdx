@@ -1,0 +1,32 @@
+---
+title: AdwDialog
+description: An adaptive dialog (floating on desktop, bottom-sheet on mobile).
+---
+
+import Example from "./examples/dialog";
+
+## Preview
+
+<PreviewFile file="content/docs/adwaita/examples/dialog.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+dialog[.floating|.bottom-sheet]
+```
+
+## Props
+
+<AutoTypeTable
+  path="../adwaita/src/components/dialog.tsx"
+  name="AdwDialogProps"
+/>
+
+## Behavior
+
+- Closes on Escape key when `canClose` is true.
+- Click outside the dialog dismisses it.
+
+[Adwaita Documentation →](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.Dialog.html)

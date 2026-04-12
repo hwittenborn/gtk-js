@@ -6,7 +6,7 @@ import React, {
   type ReactNode,
   useState,
 } from "react";
-import type { GtkStackTransitionType } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkStackTransitionType } from "../types.ts";
 
 export interface GtkStackPageProps {
   /** Unique name for this page. */
@@ -27,7 +27,7 @@ export function GtkStackPage(_props: GtkStackPageProps): ReactElement | null {
   return null; // Rendered by GtkStack
 }
 
-export interface GtkStackProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkStackProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Name of the visible child. */
   visibleChildName?: string;
   /** Transition type. Default: "none". */
@@ -61,6 +61,8 @@ export const GtkStack = forwardRef<HTMLDivElement, GtkStackProps>(function GtkSt
     vhomogeneous = true,
     onVisibleChildChanged,
     children,
+    halign,
+    valign,
     className,
     style,
     ...rest
@@ -93,6 +95,7 @@ export const GtkStack = forwardRef<HTMLDivElement, GtkStackProps>(function GtkSt
     <div
       ref={ref}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       style={{ position: "relative", ...transitionStyle, ...style }}
       {...rest}
     >
@@ -101,7 +104,7 @@ export const GtkStack = forwardRef<HTMLDivElement, GtkStackProps>(function GtkSt
   );
 });
 
-export interface GtkStackSwitcherProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkStackSwitcherProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** The associated GtkStack's pages. Pass the same children as GtkStack. */
   pages: Array<{ name: string; title?: string; iconName?: string; needsAttention?: boolean }>;
   /** Currently active page name. */
@@ -118,12 +121,21 @@ export interface GtkStackSwitcherProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.StackSwitcher.html
  */
 export const GtkStackSwitcher = forwardRef<HTMLDivElement, GtkStackSwitcherProps>(
-  function GtkStackSwitcher({ pages, activePageName, onPageChanged, className, ...rest }, ref) {
+  function GtkStackSwitcher(
+    { pages, activePageName, onPageChanged, halign, valign, className, ...rest },
+    ref,
+  ) {
     const classes = ["gtk-stackswitcher", "gtk-box-layout", "horizontal", "linked"];
     if (className) classes.push(className);
 
     return (
-      <div ref={ref} role="tablist" className={classes.join(" ")} {...rest}>
+      <div
+        ref={ref}
+        role="tablist"
+        className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
+        {...rest}
+      >
         {pages.map((page) => {
           const isActive = page.name === activePageName;
           const btnClasses = ["gtk-button", "toggle"];

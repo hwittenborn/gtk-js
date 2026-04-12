@@ -1,8 +1,8 @@
 import { forwardRef, type HTMLAttributes } from "react";
 import { useIcon } from "../icon-context.tsx";
-import type { GtkIconSize } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkIconSize } from "../types.ts";
 
-export interface GtkImageProps extends HTMLAttributes<HTMLSpanElement> {
+export interface GtkImageProps extends HTMLAttributes<HTMLSpanElement>, GtkAlignProps {
   /** Icon name loaded from the provider's icon set. */
   iconName?: string;
   /** Explicit pixel size. Overrides iconSize when >= 0. Default: -1 (use iconSize). */
@@ -19,7 +19,7 @@ export interface GtkImageProps extends HTMLAttributes<HTMLSpanElement> {
  * @see https://docs.gtk.org/gtk4/class.Image.html
  */
 export const GtkImage = forwardRef<HTMLSpanElement, GtkImageProps>(function GtkImage(
-  { iconName, pixelSize = -1, iconSize = "inherit", className, ...rest },
+  { iconName, pixelSize = -1, iconSize = "inherit", halign, valign, className, ...rest },
   ref,
 ) {
   const Icon = useIcon(iconName ?? "");
@@ -32,7 +32,7 @@ export const GtkImage = forwardRef<HTMLSpanElement, GtkImageProps>(function GtkI
   const size = pixelSize >= 0 ? pixelSize : iconSize === "large" ? 32 : 16;
 
   return (
-    <span ref={ref} className={classes.join(" ")} {...rest}>
+    <span ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       {Icon && <Icon size={size} />}
     </span>
   );

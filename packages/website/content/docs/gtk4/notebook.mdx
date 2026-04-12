@@ -1,0 +1,36 @@
+---
+title: GtkNotebook
+description: A tabbed container widget.
+---
+
+import Example from "./examples/notebook";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/notebook.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+notebook[.frame]
+  ├── header[.top|.bottom|.left|.right]
+  │   └── tabs
+  │       └── tab[:checked] (per page)
+  └── stack (page content)
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/notebook.tsx"
+  name="GtkNotebookProps"
+/>
+
+## Behavior
+
+- Use `GtkNotebookPage` children to declare each tab and its content.
+- Tabs can be positioned at top, bottom, left, or right via `tabPos`.
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.Notebook.html)

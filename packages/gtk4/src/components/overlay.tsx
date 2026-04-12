@@ -1,5 +1,5 @@
-import React, { forwardRef, type HTMLAttributes, type ReactNode } from "react";
-import type { GtkAlign } from "../types.ts";
+import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { alignAttrs, type GtkAlign, type GtkAlignProps } from "../types.ts";
 
 export interface GtkOverlayChildProps {
   /** Whether this overlay child contributes to size measurement. Default: false. */
@@ -12,29 +12,13 @@ export interface GtkOverlayChildProps {
   valign?: GtkAlign;
 }
 
-export interface GtkOverlayProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkOverlayProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** The main content child (rendered first, determines base size). */
   child?: ReactNode;
   /** Overlay children rendered on top. */
   overlays?: ReactNode[];
   children?: ReactNode;
 }
-
-const _alignToCSS = (align: GtkAlign | undefined): React.CSSProperties => {
-  if (!align) return {};
-  switch (align) {
-    case "start":
-      return { justifySelf: "start", alignSelf: "start" };
-    case "end":
-      return { justifySelf: "end", alignSelf: "end" };
-    case "center":
-      return { justifySelf: "center", alignSelf: "center" };
-    case "fill":
-      return { justifySelf: "stretch", alignSelf: "stretch" };
-    default:
-      return {};
-  }
-};
 
 /**
  * GtkOverlay — A container that places children on top of each other.
@@ -46,7 +30,7 @@ const _alignToCSS = (align: GtkAlign | undefined): React.CSSProperties => {
  * @see https://docs.gtk.org/gtk4/class.Overlay.html
  */
 export const GtkOverlay = forwardRef<HTMLDivElement, GtkOverlayProps>(function GtkOverlay(
-  { child, overlays, children, className, style, ...rest },
+  { child, overlays, children, halign, valign, className, style, ...rest },
   ref,
 ) {
   const classes = ["gtk-overlay"];
@@ -56,6 +40,7 @@ export const GtkOverlay = forwardRef<HTMLDivElement, GtkOverlayProps>(function G
     <div
       ref={ref}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       style={{
         display: "grid",
         gridTemplate: "1fr / 1fr",

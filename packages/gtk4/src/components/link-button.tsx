@@ -1,6 +1,9 @@
 import React, { type AnchorHTMLAttributes, forwardRef, useCallback, useState } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkLinkButtonProps extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href"> {
+export interface GtkLinkButtonProps
+  extends Omit<AnchorHTMLAttributes<HTMLAnchorElement>, "href">,
+    GtkAlignProps {
   /** The URI to open when clicked. */
   uri: string;
   /** Text label. Defaults to the URI if not provided. */
@@ -20,7 +23,17 @@ export interface GtkLinkButtonProps extends Omit<AnchorHTMLAttributes<HTMLAnchor
  */
 export const GtkLinkButton = forwardRef<HTMLAnchorElement, GtkLinkButtonProps>(
   function GtkLinkButton(
-    { uri, label, visited: controlledVisited, onActivateLink, className, onClick, ...rest },
+    {
+      uri,
+      label,
+      visited: controlledVisited,
+      onActivateLink,
+      halign,
+      valign,
+      className,
+      onClick,
+      ...rest
+    },
     ref,
   ) {
     const [internalVisited, setInternalVisited] = useState(false);
@@ -49,6 +62,7 @@ export const GtkLinkButton = forwardRef<HTMLAnchorElement, GtkLinkButtonProps>(
         target="_blank"
         rel="noopener noreferrer"
         className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
         data-visited={visited || undefined}
         role="link"
         onClick={handleClick}
