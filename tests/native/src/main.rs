@@ -37,6 +37,7 @@ enum Command {
         #[arg(long)]
         port_file: Option<PathBuf>,
     },
+    ActionbarDefault,
     BoxHorizontalDefault,
     BoxVerticalDefault,
     BoxSpacing,
@@ -46,6 +47,9 @@ enum Command {
     ExpanderExpanded,
     FlowBoxDefault,
     FrameDefault,
+    HeaderbarDefault,
+    HeaderbarStartEnd,
+    HeaderbarWithTitle,
     FrameNoLabel,
     GridDefault,
     OverlayDefault,
@@ -136,6 +140,8 @@ enum Command {
     StackDefault,
     SearchEntryDefault,
     SearchEntryDisabled,
+    SearchbarDefault,
+    SearchbarWithCloseButton,
     ScrollbarDefault,
     SeparatorHorizontalDefault,
     SeparatorVertical,
@@ -201,6 +207,7 @@ impl Command {
     fn case_name(&self) -> Option<&'static str> {
         match self {
             Self::Serve { .. } => None,
+            Self::ActionbarDefault => Some("actionbar-default"),
             Self::BoxHorizontalDefault => Some("box-horizontal-default"),
             Self::BoxVerticalDefault => Some("box-vertical-default"),
             Self::BoxSpacing => Some("box-spacing"),
@@ -210,6 +217,9 @@ impl Command {
             Self::ExpanderExpanded => Some("expander-expanded"),
             Self::FlowBoxDefault => Some("flow-box-default"),
             Self::FrameDefault => Some("frame-default"),
+            Self::HeaderbarDefault => Some("headerbar-default"),
+            Self::HeaderbarStartEnd => Some("headerbar-start-end"),
+            Self::HeaderbarWithTitle => Some("headerbar-with-title"),
             Self::FrameNoLabel => Some("frame-no-label"),
             Self::GridDefault => Some("grid-default"),
             Self::OverlayDefault => Some("overlay-default"),
@@ -294,6 +304,8 @@ impl Command {
             Self::StackDefault => Some("stack-default"),
             Self::SearchEntryDefault => Some("search-entry-default"),
             Self::SearchEntryDisabled => Some("search-entry-disabled"),
+            Self::SearchbarDefault => Some("searchbar-default"),
+            Self::SearchbarWithCloseButton => Some("searchbar-with-close-button"),
             Self::ScrollbarDefault => Some("scrollbar-default"),
             Self::SeparatorHorizontalDefault => Some("separator-horizontal-default"),
             Self::SeparatorVertical => Some("separator-vertical"),
@@ -328,6 +340,9 @@ impl Command {
 
 fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
     match name {
+        "actionbar-default" => {
+            widget_case!(cases::actionbar_default::ActionbarDefault, false)
+        }
         "box-horizontal-default" => {
             widget_case!(cases::box_horizontal_default::BoxHorizontalDefault, false)
         }
@@ -342,6 +357,15 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "expander-expanded" => widget_case!(cases::expander_expanded::ExpanderExpanded, false),
         "flow-box-default" => widget_case!(cases::flow_box_default::FlowBoxDefault, false),
         "frame-default" => widget_case!(cases::frame_default::FrameDefault, false),
+        "headerbar-default" => {
+            widget_case!(cases::headerbar_default::HeaderbarDefault, false)
+        }
+        "headerbar-start-end" => {
+            widget_case!(cases::headerbar_start_end::HeaderbarStartEnd, false)
+        }
+        "headerbar-with-title" => {
+            widget_case!(cases::headerbar_with_title::HeaderbarWithTitle, false)
+        }
         "frame-no-label" => widget_case!(cases::frame_no_label::FrameNoLabel, false),
         "grid-default" => widget_case!(cases::grid_default::GridDefault, false),
         "listbox-default" => widget_case!(cases::listbox_default::ListboxDefault, false),
@@ -553,10 +577,7 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         }
         "scale-default" => widget_case!(cases::scale_default::ScaleDefault, false),
         "scrolled-window-default" => {
-            widget_case!(
-                cases::scrolled_window_default::ScrolledWindowDefault,
-                false
-            )
+            widget_case!(cases::scrolled_window_default::ScrolledWindowDefault, false)
         }
         "scrolled-window-frame" => {
             widget_case!(cases::scrolled_window_frame::ScrolledWindowFrame, false)
@@ -567,6 +588,15 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         }
         "search-entry-disabled" => {
             widget_case!(cases::search_entry_disabled::SearchEntryDisabled, false)
+        }
+        "searchbar-default" => {
+            widget_case!(cases::searchbar_default::SearchbarDefault, false)
+        }
+        "searchbar-with-close-button" => {
+            widget_case!(
+                cases::searchbar_with_close_button::SearchbarWithCloseButton,
+                false
+            )
         }
         "scrollbar-default" => widget_case!(cases::scrollbar_default::ScrollbarDefault, false),
         "separator-horizontal-default" => {
@@ -653,7 +683,8 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
 fn is_known_case(name: &str) -> bool {
     matches!(
         name,
-        "box-horizontal-default"
+        "actionbar-default"
+            | "box-horizontal-default"
             | "box-vertical-default"
             | "box-spacing"
             | "box-homogeneous"
@@ -664,6 +695,9 @@ fn is_known_case(name: &str) -> bool {
             | "flow-box-default"
             | "frame-default"
             | "frame-no-label"
+            | "headerbar-default"
+            | "headerbar-start-end"
+            | "headerbar-with-title"
             | "grid-default"
             | "listbox-default"
             | "listbox-separators"
@@ -746,6 +780,8 @@ fn is_known_case(name: &str) -> bool {
             | "stack-default"
             | "search-entry-default"
             | "search-entry-disabled"
+            | "searchbar-default"
+            | "searchbar-with-close-button"
             | "scrollbar-default"
             | "separator-horizontal-default"
             | "separator-vertical"

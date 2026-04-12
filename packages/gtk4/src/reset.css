@@ -82,3 +82,16 @@ body:has([data-gtk-provider]) {
   display: inline-flex;
   align-items: center;
 }
+
+/* GtkEntry / GtkSearchEntry: the entry's custom size_allocate lays out children
+   (image.left, text, image.right) horizontally at the full widget height.
+   We replicate this with flexbox. The text node (input) fills remaining width. */
+:where([data-gtk-provider] .gtk-entry) {
+  display: flex;
+  align-items: center;
+}
+
+:where([data-gtk-provider] .gtk-entry > .gtk-text) {
+  flex: 1;
+  min-width: 0;
+}
