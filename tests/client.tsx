@@ -5,6 +5,7 @@ import {
   GtkCalendar,
   GtkCenterBox,
   GtkCheckButton,
+  GtkDropDown,
   GtkEditableLabel,
   GtkEntry,
   GtkExpander,
@@ -16,17 +17,25 @@ import {
   GtkLabel,
   GtkLevelBar,
   GtkLinkButton,
+  GtkListBox,
+  GtkListBoxRow,
   GtkMenuButton,
+  GtkNotebook,
+  GtkNotebookPage,
   GtkOverlay,
   GtkPaned,
   GtkPasswordEntry,
+  GtkPopover,
   GtkProgressBar,
   GtkScale,
   GtkScrollbar,
+  GtkScrolledWindow,
   GtkSearchEntry,
   GtkSeparator,
   GtkSpinButton,
   GtkSpinner,
+  GtkStack,
+  GtkStackPage,
   GtkSwitch,
   GtkTextView,
   GtkToggleButton,
@@ -452,6 +461,90 @@ const cases: Record<string, () => React.ReactElement> = {
       style={{ width: "200px", height: "100px" }}
       data-testid="target"
     />
+  ),
+
+  // GtkScrolledWindow cases
+  "scrolled-window-default": () => (
+    <GtkScrolledWindow style={{ width: "200px", height: "150px" }} data-testid="target">
+      <GtkLabel label="Scrollable content" />
+    </GtkScrolledWindow>
+  ),
+  "scrolled-window-frame": () => (
+    <GtkScrolledWindow hasFrame style={{ width: "200px", height: "150px" }} data-testid="target">
+      <GtkLabel label="Scrollable content" />
+    </GtkScrolledWindow>
+  ),
+
+  // GtkStack cases
+  "stack-default": () => (
+    <GtkStack visibleChildName="page1" data-testid="target">
+      <GtkStackPage name="page1" title="Page 1">
+        <GtkLabel label="First" />
+      </GtkStackPage>
+      <GtkStackPage name="page2" title="Page 2">
+        <GtkLabel label="Second" />
+      </GtkStackPage>
+    </GtkStack>
+  ),
+
+  // GtkNotebook cases
+  "notebook-default": () => (
+    <GtkNotebook page={0} data-testid="target">
+      <GtkNotebookPage tabLabel="Tab 1">
+        <GtkLabel label="Page 1 content" />
+      </GtkNotebookPage>
+      <GtkNotebookPage tabLabel="Tab 2">
+        <GtkLabel label="Page 2 content" />
+      </GtkNotebookPage>
+    </GtkNotebook>
+  ),
+
+  // GtkPopover cases
+  "popover-default": () => (
+    <GtkBox data-testid="target">
+      <GtkLabel label="Anchor" />
+      <GtkPopover
+        visible
+        autohide={false}
+        portal={false}
+        style={{ position: "relative", zIndex: "auto", top: "auto", left: "auto" }}
+      >
+        <GtkLabel label="Popover content" />
+      </GtkPopover>
+    </GtkBox>
+  ),
+
+  // GtkDropDown cases
+  "dropdown-default": () => (
+    <GtkDropDown items={["Option 1", "Option 2", "Option 3"]} selected={0} data-testid="target" />
+  ),
+
+  // GtkListBox cases
+  "listbox-default": () => (
+    <GtkListBox selectionMode="none" data-testid="target">
+      <GtkListBoxRow>
+        <GtkLabel label="Row 1" />
+      </GtkListBoxRow>
+      <GtkListBoxRow>
+        <GtkLabel label="Row 2" />
+      </GtkListBoxRow>
+      <GtkListBoxRow>
+        <GtkLabel label="Row 3" />
+      </GtkListBoxRow>
+    </GtkListBox>
+  ),
+  "listbox-separators": () => (
+    <GtkListBox selectionMode="none" showSeparators data-testid="target">
+      <GtkListBoxRow>
+        <GtkLabel label="Row 1" />
+      </GtkListBoxRow>
+      <GtkListBoxRow>
+        <GtkLabel label="Row 2" />
+      </GtkListBoxRow>
+      <GtkListBoxRow>
+        <GtkLabel label="Row 3" />
+      </GtkListBoxRow>
+    </GtkListBox>
   ),
 
   // Expected-failure cases: intentionally broken for testing the comparison
