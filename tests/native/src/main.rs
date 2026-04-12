@@ -51,6 +51,10 @@ enum Command {
     OverlayDefault,
     PanedHorizontal,
     PanedVertical,
+    ButtonValignCenterHbox,
+    ButtonValignEndHbox,
+    ButtonHalignCenterVbox,
+    ButtonHalignEndVbox,
     ButtonTextDefault,
     ButtonTextFlat,
     ButtonTextSuggested,
@@ -203,6 +207,10 @@ impl Command {
             Self::OverlayDefault => Some("overlay-default"),
             Self::PanedHorizontal => Some("paned-horizontal"),
             Self::PanedVertical => Some("paned-vertical"),
+            Self::ButtonValignCenterHbox => Some("button-valign-center-hbox"),
+            Self::ButtonValignEndHbox => Some("button-valign-end-hbox"),
+            Self::ButtonHalignCenterVbox => Some("button-halign-center-vbox"),
+            Self::ButtonHalignEndVbox => Some("button-halign-end-vbox"),
             Self::ButtonTextDefault => Some("button-text-default"),
             Self::ButtonTextFlat => Some("button-text-flat"),
             Self::ButtonTextSuggested => Some("button-text-suggested"),
@@ -322,6 +330,24 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "overlay-default" => widget_case!(cases::overlay_default::OverlayDefault, false),
         "paned-horizontal" => widget_case!(cases::paned_horizontal::PanedHorizontal, false),
         "paned-vertical" => widget_case!(cases::paned_vertical::PanedVertical, false),
+        "button-valign-center-hbox" => {
+            widget_case!(
+                cases::button_valign_center_hbox::ButtonValignCenterHbox,
+                true
+            )
+        }
+        "button-valign-end-hbox" => {
+            widget_case!(cases::button_valign_end_hbox::ButtonValignEndHbox, true)
+        }
+        "button-halign-center-vbox" => {
+            widget_case!(
+                cases::button_halign_center_vbox::ButtonHalignCenterVbox,
+                true
+            )
+        }
+        "button-halign-end-vbox" => {
+            widget_case!(cases::button_halign_end_vbox::ButtonHalignEndVbox, true)
+        }
         "button-text-default" => widget_case!(cases::button_text_default::ButtonTextDefault, false),
         "button-text-flat" => widget_case!(cases::button_text_flat::ButtonTextFlat, false),
         "button-text-suggested" => {
@@ -610,6 +636,10 @@ fn is_known_case(name: &str) -> bool {
             | "overlay-default"
             | "paned-horizontal"
             | "paned-vertical"
+            | "button-valign-center-hbox"
+            | "button-valign-end-hbox"
+            | "button-halign-center-vbox"
+            | "button-halign-end-vbox"
             | "button-text-default"
             | "button-text-flat"
             | "button-text-suggested"

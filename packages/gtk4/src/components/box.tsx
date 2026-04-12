@@ -1,7 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
-import type { GtkOrientation } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkOrientation } from "../types.ts";
 
-export interface GtkBoxProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkBoxProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Layout direction. Default: "horizontal". */
   orientation?: GtkOrientation;
   /** Spacing between children in pixels. Default: 0. */
@@ -26,6 +26,8 @@ export const GtkBox = forwardRef<HTMLDivElement, GtkBoxProps>(function GtkBox(
     spacing = 0,
     homogeneous = false,
     children,
+    halign,
+    valign,
     className,
     style,
     ...rest
@@ -40,6 +42,7 @@ export const GtkBox = forwardRef<HTMLDivElement, GtkBoxProps>(function GtkBox(
     <div
       ref={ref}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       style={{ gap: spacing > 0 ? spacing : undefined, ...style }}
       {...rest}
     >

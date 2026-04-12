@@ -1,0 +1,37 @@
+---
+title: GtkListBox
+description: A vertical list of selectable rows.
+---
+
+import Example from "./examples/list-box";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/list-box.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+list[.separators][.boxed-list][.navigation-sidebar][.rich-list]
+  └── row[.activatable] (per child)
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/list-box.tsx"
+  name="GtkListBoxProps"
+/>
+
+## Style Classes
+
+| Class | Effect |
+|-------|--------|
+| `.boxed-list` | Rounded box with border |
+| `.separators` | Separator lines between rows |
+| `.rich-list` | Extra padding for rich content |
+| `.navigation-sidebar` | Navigation sidebar styling |
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.ListBox.html)

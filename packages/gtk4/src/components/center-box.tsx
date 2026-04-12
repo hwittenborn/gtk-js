@@ -1,7 +1,12 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
-import type { GtkBaselinePosition, GtkOrientation } from "../types.ts";
+import {
+  alignAttrs,
+  type GtkAlignProps,
+  type GtkBaselinePosition,
+  type GtkOrientation,
+} from "../types.ts";
 
-export interface GtkCenterBoxProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkCenterBoxProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Layout direction. Default: "horizontal". */
   orientation?: GtkOrientation;
   /** Baseline alignment position. Default: "center". */
@@ -31,6 +36,8 @@ export const GtkCenterBox = forwardRef<HTMLDivElement, GtkCenterBoxProps>(functi
     startWidget,
     centerWidget,
     endWidget,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -40,7 +47,7 @@ export const GtkCenterBox = forwardRef<HTMLDivElement, GtkCenterBoxProps>(functi
   if (className) classes.push(className);
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       <div className="gtk-center-layout-start">{startWidget}</div>
       <div className="gtk-center-layout-center">{centerWidget}</div>
       <div className="gtk-center-layout-end">{endWidget}</div>

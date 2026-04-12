@@ -1,8 +1,15 @@
 import React, { forwardRef, type TextareaHTMLAttributes, useCallback } from "react";
-import type { GtkInputPurpose, GtkJustification, GtkWrapMode } from "../types.ts";
+import {
+  alignAttrs,
+  type GtkAlignProps,
+  type GtkInputPurpose,
+  type GtkJustification,
+  type GtkWrapMode,
+} from "../types.ts";
 
 export interface GtkTextViewProps
-  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "wrap"> {
+  extends Omit<TextareaHTMLAttributes<HTMLTextAreaElement>, "wrap">,
+    GtkAlignProps {
   /** Whether text is editable. Default: true. */
   editable?: boolean;
   /** Whether the cursor is visible. Default: true. */
@@ -55,6 +62,8 @@ export const GtkTextView = forwardRef<HTMLTextAreaElement, GtkTextViewProps>(fun
     inputPurpose = "free-form",
     acceptsTab = false,
     onChanged,
+    halign,
+    valign,
     className,
     style,
     onChange,
@@ -125,6 +134,7 @@ export const GtkTextView = forwardRef<HTMLTextAreaElement, GtkTextViewProps>(fun
       wrap={cssWrap}
       style={cssStyle}
       disabled={disabled}
+      {...alignAttrs(halign, valign)}
       data-disabled={disabled || undefined}
       onChange={handleChange}
       onKeyDown={handleKeyDown}

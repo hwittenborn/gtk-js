@@ -1,0 +1,31 @@
+---
+title: AdwClamp
+description: A container that constrains its child to a maximum size.
+---
+
+import Example from "./examples/clamp";
+
+## Preview
+
+<PreviewFile file="content/docs/adwaita/examples/clamp.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+clamp[.small|.medium|.large]
+```
+
+## Props
+
+<AutoTypeTable
+  path="../adwaita/src/components/clamp.tsx"
+  name="AdwClampProps"
+/>
+
+## Behavior
+
+- Applies `.small`, `.medium`, or `.large` CSS classes based on the container's size relative to `tighteningThreshold` and `maximumSize`.
+
+[Adwaita Documentation →](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.Clamp.html)

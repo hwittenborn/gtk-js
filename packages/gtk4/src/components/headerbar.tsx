@@ -1,7 +1,8 @@
 import { forwardRef, type HTMLAttributes, type PointerEvent, type ReactNode } from "react";
 import { useIcon } from "../icon-context.tsx";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkHeaderBarProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkHeaderBarProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Widget displayed in the title position (center). */
   titleWidget?: ReactNode;
   /** Whether to show window controls (close/minimize/maximize). Default: true. */
@@ -129,6 +130,8 @@ export const GtkHeaderBar = forwardRef<HTMLDivElement, GtkHeaderBarProps>(functi
     decorationLayout = "appmenu:minimize,maximize,close",
     start,
     end,
+    halign,
+    valign,
     className,
     children,
     onWindowClose,
@@ -143,7 +146,7 @@ export const GtkHeaderBar = forwardRef<HTMLDivElement, GtkHeaderBarProps>(functi
   if (className) classes.push(className);
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       <div className="gtk-windowhandle gtk-bin-layout" onPointerDown={onWindowHandleDragStart}>
         <div className="gtk-box gtk-center-layout">
           <div className="gtk-box gtk-box-layout horizontal start gtk-center-layout-start">

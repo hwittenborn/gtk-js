@@ -1,7 +1,12 @@
 import { forwardRef, type HTMLAttributes, useCallback, useEffect, useRef, useState } from "react";
-import type { GtkEllipsizeMode, GtkOrientation } from "../types.ts";
+import {
+  alignAttrs,
+  type GtkAlignProps,
+  type GtkEllipsizeMode,
+  type GtkOrientation,
+} from "../types.ts";
 
-export interface GtkProgressBarProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkProgressBarProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Fraction completed (0.0 to 1.0). Default: 0. */
   fraction?: number;
   /** Amount to move per pulse() call (0.0 to 1.0). Default: 0.1. */
@@ -45,6 +50,8 @@ export const GtkProgressBar = forwardRef<HTMLDivElement, GtkProgressBarProps>(
       ellipsize = "none",
       orientation = "horizontal",
       pulseRef,
+      halign,
+      valign,
       className,
       ...rest
     },
@@ -139,6 +146,7 @@ export const GtkProgressBar = forwardRef<HTMLDivElement, GtkProgressBarProps>(
         aria-valuemax={1}
         aria-busy={pulsing}
         className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
         {...rest}
       >
         {showText && displayText && <span className="gtk-label text">{displayText}</span>}

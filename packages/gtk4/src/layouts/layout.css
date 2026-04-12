@@ -25,6 +25,34 @@
   flex: 1;
 }
 
+/* -- Widget alignment in horizontal BoxLayout: valign = cross-axis -- */
+.gtk-box-layout.horizontal > [data-valign="start"] {
+  align-self: flex-start;
+}
+.gtk-box-layout.horizontal > [data-valign="end"] {
+  align-self: flex-end;
+}
+.gtk-box-layout.horizontal > [data-valign="center"] {
+  align-self: center;
+}
+.gtk-box-layout.horizontal > [data-valign="baseline-center"] {
+  align-self: baseline;
+}
+.gtk-box-layout.horizontal > [data-valign="baseline-fill"] {
+  align-self: baseline;
+}
+
+/* -- Widget alignment in vertical BoxLayout: halign = cross-axis -- */
+.gtk-box-layout.vertical > [data-halign="start"] {
+  align-self: flex-start;
+}
+.gtk-box-layout.vertical > [data-halign="end"] {
+  align-self: flex-end;
+}
+.gtk-box-layout.vertical > [data-halign="center"] {
+  align-self: center;
+}
+
 /* === BinLayout === */
 /* Single-cell grid overlay. Used by GtkButton, GtkHeaderBar (outer), etc. */
 .gtk-bin-layout {
@@ -36,6 +64,26 @@
 .gtk-bin-layout > * {
   grid-column: 1;
   grid-row: 1;
+}
+
+/* -- Widget alignment in BinLayout (grid): both axes independent -- */
+.gtk-bin-layout > [data-halign="start"] {
+  justify-self: start;
+}
+.gtk-bin-layout > [data-halign="end"] {
+  justify-self: end;
+}
+.gtk-bin-layout > [data-halign="center"] {
+  justify-self: center;
+}
+.gtk-bin-layout > [data-valign="start"] {
+  align-self: start;
+}
+.gtk-bin-layout > [data-valign="end"] {
+  align-self: end;
+}
+.gtk-bin-layout > [data-valign="center"] {
+  align-self: center;
 }
 
 /* === CenterLayout === */
@@ -50,6 +98,26 @@
 .gtk-center-layout.vertical {
   grid-template-columns: 1fr;
   grid-template-rows: 1fr auto 1fr;
+}
+
+/* -- Widget alignment in CenterLayout (grid): both axes independent -- */
+.gtk-center-layout > [data-halign="start"] {
+  justify-self: start;
+}
+.gtk-center-layout > [data-halign="end"] {
+  justify-self: end;
+}
+.gtk-center-layout > [data-halign="center"] {
+  justify-self: center;
+}
+.gtk-center-layout > [data-valign="start"] {
+  align-self: start;
+}
+.gtk-center-layout > [data-valign="end"] {
+  align-self: end;
+}
+.gtk-center-layout > [data-valign="center"] {
+  align-self: center;
 }
 
 .gtk-center-layout-start {
@@ -159,14 +227,34 @@
 /* === GtkSwitch === */
 /*
  * GtkSwitch uses a custom layout manager (gtkswitch.c: gtk_switch_measure /
- * gtk_switch_allocate). Width = 2 × slider min-width = 40px content; height =
- * slider min-height = 20px content. Slider occupies one half, positioned left
- * (off) or right (on) via handle_pos (0=off, 1=on).
+ * gtk_switch_allocate). Native behavior:
+ *
+ *   // gtkswitch.c lines 374-378 — slider gets half-width, full-height allocation
+ *   gtk_widget_size_allocate(slider, {
+ *     x: round(handle_pos * (width / 2)),  y: 0,
+ *     width: width / 2,  height: height
+ *   });
+ *
+ *   // gtkwidget.c lines 4275-4278 — CSS margin is subtracted from allocation
+ *   adjusted.x += margin.left;  adjusted.y += margin.top;
+ *   adjusted.width -= margin.left + margin.right;
+ *   adjusted.height -= margin.top + margin.bottom;
+ *
+ * We replicate with absolute positioning using opposing insets (left+right,
+ * top+bottom) to define the allocation box. When an absolutely-positioned
+ * element has both left and right set, CSS margin SHRINKS the element inward
+ * — exactly matching how native GTK subtracts margin from the allocation.
+ *
+ * Unchecked: left:0 + right:50% → slider allocation = left half
+ * Checked:   left:50% + right:0 → slider allocation = right half
+ *
+ * Animation: native uses 100ms ease-out-cubic (gtkswitch.c line 186/202).
+ * left and right are both animatable CSS properties.
  */
 .gtk-switch {
   position: relative;
-  min-width: 40px; /* content-box: 2 × 20px slider min-width */
-  min-height: 20px; /* content-box: 20px slider min-height */
+  min-width: 40px; /* Adwaita default: 2 × 20px slider. Themes override. */
+  min-height: 20px; /* Adwaita default: 20px slider height. Themes override. */
 }
 
 .gtk-switch > .gtk-slider {
@@ -175,6 +263,9 @@
   bottom: 0;
   left: 0;
   right: 50%;
+  transition:
+    left 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94),
+    right 100ms cubic-bezier(0.25, 0.46, 0.45, 0.94);
 }
 
 .gtk-switch[data-checked] > .gtk-slider {

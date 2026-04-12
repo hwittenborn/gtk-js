@@ -6,9 +6,14 @@ import React, {
   useCallback,
   useState,
 } from "react";
-import type { GtkOrientation, GtkSelectionMode } from "../types.ts";
+import {
+  alignAttrs,
+  type GtkAlignProps,
+  type GtkOrientation,
+  type GtkSelectionMode,
+} from "../types.ts";
 
-export interface GtkFlowBoxChildProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkFlowBoxChildProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   children?: ReactNode;
 }
 
@@ -20,19 +25,25 @@ export interface GtkFlowBoxChildProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.FlowBoxChild.html
  */
 export const GtkFlowBoxChild = forwardRef<HTMLDivElement, GtkFlowBoxChildProps>(
-  function GtkFlowBoxChild({ children, className, ...rest }, ref) {
+  function GtkFlowBoxChild({ children, halign, valign, className, ...rest }, ref) {
     const classes = ["gtk-flowboxchild", "gtk-bin-layout"];
     if (className) classes.push(className);
 
     return (
-      <div ref={ref} role="gridcell" className={classes.join(" ")} {...rest}>
+      <div
+        ref={ref}
+        role="gridcell"
+        className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
+        {...rest}
+      >
         {children}
       </div>
     );
   },
 );
 
-export interface GtkFlowBoxProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkFlowBoxProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** All children get equal size. Default: false. */
   homogeneous?: boolean;
   /** Spacing between columns. Default: 0. */
@@ -75,6 +86,8 @@ export const GtkFlowBox = forwardRef<HTMLDivElement, GtkFlowBoxProps>(function G
     orientation = "horizontal",
     onChildActivated,
     children,
+    halign,
+    valign,
     className,
     style,
     ...rest
@@ -123,7 +136,14 @@ export const GtkFlowBox = forwardRef<HTMLDivElement, GtkFlowBoxProps>(function G
   );
 
   return (
-    <div ref={ref} role="grid" className={classes.join(" ")} style={flowStyle} {...rest}>
+    <div
+      ref={ref}
+      role="grid"
+      className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
+      style={flowStyle}
+      {...rest}
+    >
       {Children.map(children, (child, index) => {
         if (!React.isValidElement(child)) return child;
         const isSelected = selectedIndices.has(index);

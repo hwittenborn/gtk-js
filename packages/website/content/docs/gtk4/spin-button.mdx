@@ -1,0 +1,36 @@
+---
+title: GtkSpinButton
+description: A numeric input with increment/decrement buttons.
+---
+
+import Example from "./examples/spin-button";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/spin-button.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+spinbutton[.horizontal|.vertical]
+  ├── text
+  ├── button.down
+  └── button.up
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/spin-button.tsx"
+  name="GtkSpinButtonProps"
+/>
+
+## Keyboard
+
+- **Arrow Up/Down** — increment/decrement by step
+- **Page Up/Down** — increment/decrement by page step
+- **Home / End** — jump to min / max
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.SpinButton.html)

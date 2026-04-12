@@ -6,9 +6,9 @@ import React, {
   useRef,
   useState,
 } from "react";
-import type { GtkOrientation } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkOrientation } from "../types.ts";
 
-export interface GtkPanedProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkPanedProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Separator position in pixels from start. */
   position?: number;
   /** Whether a wide (thick) handle is shown. Default: false. */
@@ -54,6 +54,8 @@ export const GtkPaned = forwardRef<HTMLDivElement, GtkPanedProps>(function GtkPa
     startChild,
     endChild,
     onPositionChanged,
+    halign,
+    valign,
     className,
     style,
     ...rest
@@ -125,7 +127,13 @@ export const GtkPaned = forwardRef<HTMLDivElement, GtkPanedProps>(function GtkPa
   };
 
   return (
-    <div ref={ref ?? containerRef} className={classes.join(" ")} style={containerStyle} {...rest}>
+    <div
+      ref={ref ?? containerRef}
+      className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
+      style={containerStyle}
+      {...rest}
+    >
       <div style={startStyle}>{startChild}</div>
       <div
         className={separatorClasses.join(" ")}

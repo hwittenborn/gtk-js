@@ -1,7 +1,8 @@
 import { forwardRef, type HTMLAttributes, type ReactNode, useCallback, useState } from "react";
 import { useIcon } from "../icon-context.tsx";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkExpanderProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkExpanderProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Whether the child is visible. Default: false. */
   expanded?: boolean;
   /** Text label for the header. */
@@ -40,6 +41,8 @@ export const GtkExpander = forwardRef<HTMLDivElement, GtkExpanderProps>(function
     useMarkup = false,
     children,
     onExpandedChanged,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -63,7 +66,7 @@ export const GtkExpander = forwardRef<HTMLDivElement, GtkExpanderProps>(function
   if (className) classes.push(className);
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       <div className="gtk-box gtk-box-layout vertical">
         <div
           className="title"

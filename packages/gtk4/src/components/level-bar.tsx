@@ -1,12 +1,17 @@
 import { forwardRef, type HTMLAttributes, useMemo } from "react";
-import type { GtkLevelBarMode, GtkOrientation } from "../types.ts";
+import {
+  alignAttrs,
+  type GtkAlignProps,
+  type GtkLevelBarMode,
+  type GtkOrientation,
+} from "../types.ts";
 
 export interface GtkLevelBarOffset {
   name: string;
   value: number;
 }
 
-export interface GtkLevelBarProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkLevelBarProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Current value. Default: 0. */
   value?: number;
   /** Minimum value. Default: 0. */
@@ -49,6 +54,8 @@ export const GtkLevelBar = forwardRef<HTMLDivElement, GtkLevelBarProps>(function
     inverted = false,
     orientation = "horizontal",
     offsets,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -87,6 +94,7 @@ export const GtkLevelBar = forwardRef<HTMLDivElement, GtkLevelBarProps>(function
         aria-valuemin={minValue}
         aria-valuemax={maxValue}
         className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
         {...rest}
       >
         <div
@@ -114,6 +122,7 @@ export const GtkLevelBar = forwardRef<HTMLDivElement, GtkLevelBarProps>(function
       aria-valuemin={minValue}
       aria-valuemax={maxValue}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       {...rest}
     >
       <div className="gtk-trough">

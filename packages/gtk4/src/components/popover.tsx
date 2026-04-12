@@ -9,13 +9,13 @@ import React, {
   useRef,
 } from "react";
 import { createPortal } from "react-dom";
-import type { GtkPositionType } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkPositionType } from "../types.ts";
 
 // GTK constants from gtkpopover.c lines 162-163
 const TAIL_GAP_WIDTH = 24;
 const VIEWPORT_MARGIN = 4;
 
-export interface GtkPopoverProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkPopoverProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Content of the popover. */
   children?: ReactNode;
   /** Whether the popover is visible. */
@@ -72,6 +72,8 @@ export const GtkPopover = forwardRef<HTMLDivElement, GtkPopoverProps>(function G
     pointingTo,
     anchorRef,
     onClosed,
+    halign,
+    valign,
     className,
     style,
     ...rest
@@ -230,6 +232,7 @@ export const GtkPopover = forwardRef<HTMLDivElement, GtkPopoverProps>(function G
     <div
       ref={resolvedRef}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       data-position={position}
       style={positionStyle}
       {...rest}

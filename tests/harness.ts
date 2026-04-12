@@ -413,7 +413,48 @@ export function compare(native: WidgetSnapshot, web: WidgetSnapshot): CompareRes
     }
   }
 
-  checkSides("padding", native.padding, web.padding, checkNumber);
+  // Padding + transparent-border inset normalization.
+  // Some widgets (e.g., GtkSwitch) use CSS transparent borders to emulate GTK
+  // padding behavior with absolute positioning. When border widths differ and
+  // both sides have transparent (or zero) border, compare padding + border_width
+  // as a combined inset instead of comparing them separately.
+  const sides = ["top", "right", "bottom", "left"] as const;
+  function isBorderTransparent(colors: SideColors, side: (typeof sides)[number]): boolean {
+    const c = colors[side];
+    return c === null || c.a === 0;
+  }
+  function needsInsetNormalization(side: (typeof sides)[number]): boolean {
+    const nBorder = native.border_widths[side];
+    const wBorder = web.border_widths[side];
+    if (numbersMatch(nBorder, wBorder)) return false;
+    // Only normalize when combined insets match (a true padding↔border swap)
+    // and both borders are transparent. This avoids false positives where one
+    // side genuinely adds a border the other doesn't have (e.g., GtkSpinner).
+    const nInset = native.padding[side] + nBorder;
+    const wInset = web.padding[side] + wBorder;
+    if (!numbersMatch(nInset, wInset)) return false;
+    return (
+      (nBorder === 0 || isBorderTransparent(native.border_colors, side)) &&
+      (wBorder === 0 || isBorderTransparent(web.border_colors, side))
+    );
+  }
+
+  const normalizeInset = sides.some(needsInsetNormalization);
+  if (normalizeInset) {
+    for (const side of sides) {
+      if (needsInsetNormalization(side)) {
+        const nInset = native.padding[side] + native.border_widths[side];
+        const wInset = web.padding[side] + web.border_widths[side];
+        checkNumber(`inset.${side}`, nInset, wInset);
+      } else {
+        checkNumber(`padding.${side}`, native.padding[side], web.padding[side]);
+        checkNumber(`border_widths.${side}`, native.border_widths[side], web.border_widths[side]);
+      }
+    }
+  } else {
+    checkSides("padding", native.padding, web.padding, checkNumber);
+    checkSides("border_widths", native.border_widths, web.border_widths, checkNumber);
+  }
 
   // GTK clamps border-radius to min(width,height)/2 at paint time,
   // but browsers keep the literal CSS value (e.g. 9999px from Adwaita SCSS).
@@ -451,8 +492,6 @@ export function compare(native: WidgetSnapshot, web: WidgetSnapshot): CompareRes
     normalizeTransparent(native.background_color),
     normalizeTransparent(web.background_color),
   );
-
-  checkSides("border_widths", native.border_widths, web.border_widths, checkNumber);
 
   checkColor("color", native.color, web.color);
 

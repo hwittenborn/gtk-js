@@ -294,48 +294,239 @@ function extractBalancedParens(
   return null;
 }
 
+/**
+ * Split a string by commas, respecting nested parentheses.
+ * e.g. "rgba(0, 0, 0, 0.87), 0.15" → ["rgba(0, 0, 0, 0.87)", "0.15"]
+ */
+function splitArgs(s: string): string[] {
+  const args: string[] = [];
+  let depth = 0;
+  let start = 0;
+  for (let i = 0; i < s.length; i++) {
+    if (s[i] === "(") depth++;
+    if (s[i] === ")") depth--;
+    if (s[i] === "," && depth === 0) {
+      args.push(s.slice(start, i).trim());
+      start = i + 1;
+    }
+  }
+  args.push(s.slice(start).trim());
+  return args;
+}
+
+/** Parse a hex color (#RGB, #RRGGBB, #RRGGBBAA) to [r, g, b] or null. */
+function parseHex(hex: string): [number, number, number] | null {
+  const m = hex.match(/^#([0-9a-fA-F]+)$/);
+  if (!m) return null;
+  const h = m[1]!;
+  if (h.length === 3) {
+    return [parseInt(h[0]! + h[0]!, 16), parseInt(h[1]! + h[1]!, 16), parseInt(h[2]! + h[2]!, 16)];
+  }
+  if (h.length === 6 || h.length === 8) {
+    return [parseInt(h.slice(0, 2), 16), parseInt(h.slice(2, 4), 16), parseInt(h.slice(4, 6), 16)];
+  }
+  return null;
+}
+
+/** Named CSS colors used in GTK themes. */
+const NAMED_COLORS: Record<string, [number, number, number]> = {
+  black: [0, 0, 0],
+  white: [255, 255, 255],
+  red: [255, 0, 0],
+  green: [0, 128, 0],
+  blue: [0, 0, 255],
+  transparent: [0, 0, 0],
+};
+
+/** Try to resolve a color string to RGB. Returns null for dynamic values. */
+function resolveRGB(color: string): [number, number, number] | null {
+  const lower = color.toLowerCase();
+  if (NAMED_COLORS[lower]) return NAMED_COLORS[lower]!;
+  return parseHex(color);
+}
+
+/**
+ * Convert a GTK alpha(color, opacity) call to web CSS.
+ * - alpha(#hex, 0.5)       → rgba(r, g, b, 0.5)
+ * - alpha(currentColor, 0.5) → color-mix(in srgb, currentColor 50%, transparent)
+ * - alpha(color)            → color (single-arg form is identity in GTK)
+ */
+function convertAlpha(content: string): string {
+  const args = splitArgs(content);
+  if (args.length === 1) return args[0]!; // single-arg: identity
+  if (args.length !== 2) {
+    throw new Error(`gtk-css: unexpected alpha() arguments: alpha(${content})`);
+  }
+
+  const color = args[0]!;
+  const opacity = args[1]!;
+  const opacityNum = parseFloat(opacity);
+
+  // Special case: named color "transparent"
+  if (color.toLowerCase() === "transparent") return "transparent";
+
+  const rgb = resolveRGB(color);
+  if (rgb) {
+    return `rgba(${rgb[0]}, ${rgb[1]}, ${rgb[2]}, ${opacity})`;
+  }
+
+  // Dynamic color (currentColor, var(), rgba(), etc.)
+  const pct = isNaN(opacityNum) ? opacity : `${Math.round(opacityNum * 100)}%`;
+  return `color-mix(in srgb, ${color} ${pct}, transparent)`;
+}
+
+/**
+ * Convert a GTK mix(color1, color2, factor) call to web CSS.
+ * GTK: mix(c1, c2, f) = f of c2 blended into c1.
+ * Web: color-mix(in srgb, c2 <f*100>%, c1)
+ */
+function convertMix(content: string): string {
+  const args = splitArgs(content);
+  if (args.length !== 3) {
+    throw new Error(`gtk-css: unexpected mix() arguments: mix(${content})`);
+  }
+
+  const color1 = args[0]!;
+  const color2 = args[1]!;
+  const factor = args[2]!;
+
+  // Special case: mixing with transparent preserves transparency
+  if (color1.toLowerCase() === "transparent" && color2.toLowerCase() === "transparent") {
+    return "transparent";
+  }
+
+  const factorNum = parseFloat(factor);
+  const pct = isNaN(factorNum) ? factor : `${Math.round(factorNum * 100)}%`;
+  return `color-mix(in srgb, ${color2} ${pct}, ${color1})`;
+}
+
+/**
+ * Convert a GTK shade(color, factor) call to web CSS.
+ * factor > 1 = lighten (multiply RGB channels), factor < 1 = darken.
+ * For hex colors: pre-compute. For dynamic colors: approximate with color-mix.
+ */
+function convertShade(content: string): string {
+  const args = splitArgs(content);
+  if (args.length !== 2) {
+    throw new Error(`gtk-css: unexpected shade() arguments: shade(${content})`);
+  }
+
+  const color = args[0]!;
+  const factor = parseFloat(args[1]!);
+  if (isNaN(factor)) {
+    throw new Error(`gtk-css: non-numeric shade() factor: shade(${content})`);
+  }
+
+  // Special case: transparent is rgba(0,0,0,0) — shading it still produces transparent
+  if (color.toLowerCase() === "transparent") return "transparent";
+
+  const rgb = resolveRGB(color);
+  if (rgb) {
+    // Pre-compute: multiply each channel by factor, clamp to 0-255
+    const r = Math.min(255, Math.max(0, Math.round(rgb[0] * factor)));
+    const g = Math.min(255, Math.max(0, Math.round(rgb[1] * factor)));
+    const b = Math.min(255, Math.max(0, Math.round(rgb[2] * factor)));
+    return `rgb(${r}, ${g}, ${b})`;
+  }
+
+  // Dynamic color: approximate with color-mix (uses srgb; fixColorMixGamut converts to oklab later)
+  if (factor >= 1) {
+    // Lighten: mix with white. shade(c, 1.2) ≈ 20% toward white
+    const pct = Math.round((1 - 1 / factor) * 100);
+    return `color-mix(in srgb, ${color}, white ${pct}%)`;
+  }
+  // Darken: mix with black. shade(c, 0.8) ≈ 20% toward black
+  const pct = Math.round((1 - factor) * 100);
+  return `color-mix(in srgb, ${color}, black ${pct}%)`;
+}
+
+/**
+ * Replace all occurrences of a GTK color function in a CSS value string.
+ * Uses balanced-paren matching so nested functions (e.g. alpha(rgba(...), 0.5)) work.
+ */
+function replaceColorFunction(
+  val: string,
+  funcName: string,
+  converter: (content: string) => string,
+): string {
+  let result = "";
+  let i = 0;
+  const needle = funcName + "(";
+  const needleLen = needle.length;
+
+  while (i < val.length) {
+    const match = val.indexOf(needle, i);
+    if (match === -1) {
+      result += val.slice(i);
+      break;
+    }
+
+    // Guard: must not be preceded by a letter or hyphen (part of another function name)
+    if (match > 0 && /[a-z-]/i.test(val[match - 1]!)) {
+      result += val.slice(i, match + needleLen);
+      i = match + needleLen;
+      continue;
+    }
+
+    // Extract balanced parens
+    const parenStart = match + funcName.length;
+    const parens = extractBalancedParens(val, parenStart);
+    if (!parens) {
+      result += val.slice(i, match + needleLen);
+      i = match + needleLen;
+      continue;
+    }
+
+    result += val.slice(i, match);
+    result += converter(parens.content);
+    i = parens.end;
+  }
+
+  return result;
+}
+
+/**
+ * PostCSS plugin: Convert GTK-specific color functions to web CSS equivalents.
+ * - alpha(color, opacity) → rgba() or color-mix()
+ * - mix(color1, color2, factor) → color-mix()
+ * - shade(color, factor) → pre-computed rgb() or color-mix()
+ *
+ * Must run BEFORE fixColorMixGamut (which converts color-mix srgb→oklab).
+ */
+const convertGtkColorFunctions: Plugin = {
+  postcssPlugin: "gtk-convert-color-functions",
+  Declaration(decl) {
+    const val = decl.value;
+    if (!val.includes("alpha(") && !val.includes("mix(") && !val.includes("shade(")) return;
+
+    let result = val;
+    if (result.includes("alpha(")) result = replaceColorFunction(result, "alpha", convertAlpha);
+    if (result.includes("shade(")) result = replaceColorFunction(result, "shade", convertShade);
+    if (result.includes("mix(")) result = replaceColorFunction(result, "mix", convertMix);
+
+    if (result !== val) {
+      decl.value = result;
+    }
+  },
+};
+
 const replaceImageFunction: Plugin = {
   postcssPlugin: "gtk-replace-image-function",
   Declaration(decl) {
     if (!decl.value.includes("image(")) return;
 
-    // Find each `image(` that isn't part of another function name
-    let result = "";
-    let i = 0;
-    const val = decl.value;
-
-    while (i < val.length) {
-      const match = val.indexOf("image(", i);
-      if (match === -1) {
-        result += val.slice(i);
-        break;
-      }
-
-      // Check it's not part of another word (e.g. background-image)
-      if (match > 0 && /[a-z-]/i.test(val[match - 1]!)) {
-        result += val.slice(i, match + 6);
-        i = match + 6;
-        continue;
-      }
-
-      // Extract balanced parens content
-      const parens = extractBalancedParens(val, match + 5);
-      if (!parens) {
-        result += val.slice(i, match + 6);
-        i = match + 6;
-        continue;
-      }
-
-      // GTK's image(color) creates a solid-color image layer.
-      // Convert to linear-gradient(color, color) which is the web equivalent.
-      // This preserves layering behavior: background-image layers ON TOP of
-      // background-color, so hover overlays work correctly.
-      result += val.slice(i, match);
-      result += `linear-gradient(${parens.content}, ${parens.content})`;
-      i = parens.end;
+    // GTK's image(color) creates a solid-color image layer.
+    // Convert to linear-gradient(color, color) which is the web equivalent.
+    // This preserves layering behavior: background-image layers ON TOP of
+    // background-color, so hover overlays work correctly.
+    const result = replaceColorFunction(
+      decl.value,
+      "image",
+      (content) => `linear-gradient(${content}, ${content})`,
+    );
+    if (result !== decl.value) {
+      decl.value = result;
     }
-
-    decl.value = result;
   },
 };
 
@@ -402,6 +593,33 @@ const fixColorMixGamut: Plugin = {
 };
 
 /**
+ * PostCSS plugin: Convert .gtk-switch padding to transparent border.
+ *
+ * In native GTK, padding on the switch reduces the child allocation — the slider
+ * knob is inset from the track edge. With CSS absolute positioning (used in
+ * layout.css), the containing block is the padding edge (inside border, outside
+ * padding), so padding does NOT shrink the space for absolutely-positioned children.
+ *
+ * Border DOES shrink it: the containing block for position:absolute is the
+ * padding edge, which is inside the border. So converting padding to transparent
+ * border achieves the same visual inset while correctly constraining the slider.
+ */
+const fixSwitchPadding: Plugin = {
+  postcssPlugin: "gtk-fix-switch-padding",
+  Declaration(decl) {
+    if (decl.prop !== "padding") return;
+    if (!decl.parent || decl.parent.type !== "rule") return;
+    const rule = decl.parent;
+    if (!rule.selector.includes(".gtk-switch")) return;
+    if (rule.selector.includes(">")) return;
+
+    // Replace padding with transparent border of the same width
+    decl.prop = "border";
+    decl.value = `${decl.value} solid transparent`;
+  },
+};
+
+/**
  * The complete GTK → web CSS PostCSS transformation pipeline.
  * Pass a custom asset plugin to replace -gtk-scaled() with embedded data URIs.
  */
@@ -411,10 +629,12 @@ export function buildGtkToWeb(assetPlugin?: Plugin) {
     remapPseudoClasses,
     handleGtkProperties,
     fixGtkTransitionRefs,
+    convertGtkColorFunctions,
     replaceImageFunction,
     fixColorMixGamut,
     removeGtkRecolor,
     assetPlugin ?? removeGtkAssetFunctions,
+    fixSwitchPadding,
   ]);
 }
 

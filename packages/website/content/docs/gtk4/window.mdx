@@ -1,0 +1,35 @@
+---
+title: GtkWindow
+description: A top-level window.
+---
+
+import Example from "./examples/window";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/window.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+window.background.csd
+  ├── .titlebar
+  └── box (vertical content area)
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/window.tsx"
+  name="GtkWindowProps"
+/>
+
+## Behavior
+
+- On the web, the window takes the size of its content by default. Use `style` or `className` to control sizing.
+- The `.csd` class enables client-side decorations (border-radius, shadow).
+- The `maximized` prop removes border-radius and shadows, matching native window manager behavior.
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.Window.html)

@@ -5,8 +5,9 @@ import React, {
   useCallback,
   useState,
 } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkCheckButtonProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkCheckButtonProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Whether the check/radio is active. */
   active?: boolean;
   /** Text label displayed next to the indicator. */
@@ -42,6 +43,8 @@ export const GtkCheckButton = forwardRef<HTMLDivElement, GtkCheckButtonProps>(
       children,
       group,
       onToggled,
+      halign,
+      valign,
       className,
       onClick,
       ...rest
@@ -94,6 +97,7 @@ export const GtkCheckButton = forwardRef<HTMLDivElement, GtkCheckButtonProps>(
         aria-checked={inconsistent ? "mixed" : active}
         tabIndex={0}
         className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
         data-checked={active || undefined}
         data-indeterminate={inconsistent || undefined}
         onClick={handleClick}

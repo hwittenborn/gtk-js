@@ -1,18 +1,12 @@
 "use client";
 
-import { GtkBox, GtkButton, GtkLabel, GtkPopover, GtkProvider, type IconMap } from "@gtk-js/gtk4";
-import * as adwaitaIcons from "@gtk-js/icons-adwaita";
-import { ApplicationsSystem } from "@gtk-js/icons-adwaita";
-import * as fluentIcons from "@gtk-js/icons-fluent";
-import * as mactahoeIcons from "@gtk-js/icons-mactahoe";
-import * as whitesurIcons from "@gtk-js/icons-whitesur";
-import { AdwaitaTheme } from "@gtk-js/theme-adwaita";
-import { FluentTheme } from "@gtk-js/theme-fluent";
-import { MacTahoeTheme } from "@gtk-js/theme-mactahoe";
-import { WhiteSurTheme } from "@gtk-js/theme-whitesur";
+import { GtkButton, GtkProvider } from "@gtk-js/gtk4";
 import Link from "next/link";
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
+import { SyntaxHighlight } from "../gtk-demo/syntax-highlight";
+import { ThemeControls } from "../gtk-demo/theme-controls";
+import { useThemePicker } from "../gtk-demo/use-theme-picker";
 import {
   AudioProvider,
   type CodeBadgeState,
@@ -20,7 +14,6 @@ import {
   type SpinnerState,
   windowSteps,
 } from "./scenes";
-import { SyntaxHighlight } from "./syntax-highlight";
 
 const CHARS_PER_SEC = 120;
 const START_DELAY_MS = 800;
@@ -79,78 +72,6 @@ function useSteppedTyping() {
   return { displayCode, cursor: done ? undefined : "▎", visibleSteps, loading: !done };
 }
 
-type ThemeName = "adwaita" | "whitesur" | "mactahoe" | "fluent";
-
-const THEME_ICONS = {
-  adwaita: adwaitaIcons,
-  whitesur: whitesurIcons,
-  mactahoe: mactahoeIcons,
-  fluent: fluentIcons,
-} satisfies Record<ThemeName, IconMap>;
-
-const THEME_LABELS: Record<ThemeName, string> = {
-  adwaita: "Adwaita",
-  whitesur: "Big Sur",
-  mactahoe: "Tahoe",
-  fluent: "Fluent",
-};
-
-const ADWAITA_ACCENT_PRESETS = [
-  "#3584e4", // GNOME blue (default)
-  "#9141ac", // purple
-  "#e66100", // orange
-  "#2ec27e", // green
-  "#e01b24", // red
-  "#f5c211", // yellow
-];
-
-const FLUENT_ACCENT_PRESETS = [
-  "#1A73E8", // Fluent blue (default)
-  "#9C27B0", // purple
-  "#E91E63", // pink
-  "#F44336", // red
-  "#FF9800", // orange
-  "#FFEB3B", // yellow
-  "#4CAF50", // green
-  "#009688", // teal
-  "#9E9E9E", // grey
-];
-
-function AccentPicker({
-  presets,
-  value,
-  onChange,
-}: {
-  presets: string[];
-  value: string;
-  onChange: (color: string) => void;
-}) {
-  return (
-    <GtkBox spacing={6} style={{ flexWrap: "wrap" }}>
-      {presets.map((color) => (
-        <button
-          key={color}
-          title={color}
-          aria-label={color}
-          aria-pressed={value === color}
-          onClick={() => onChange(color)}
-          style={{
-            width: 22,
-            height: 22,
-            borderRadius: "50%",
-            border: value === color ? "2px solid white" : "2px solid transparent",
-            boxShadow: value === color ? `0 0 0 2px ${color}` : "none",
-            background: color,
-            cursor: "pointer",
-            padding: 0,
-            transition: "box-shadow 150ms",
-          }}
-        />
-      ))}
-    </GtkBox>
-  );
-}
-
 export function ShowcasePage() {
   const codeRef = useRef<HTMLDivElement>(null);
   const { displayCode, cursor, visibleSteps, loading } = useSteppedTyping();
@@ -161,32 +82,8 @@ export function ShowcasePage() {
   const [spinnerState, setSpinnerState] = useState<SpinnerState>("spinning");
   const [codeBadge, setCodeBadge] = useState<CodeBadgeState>("visible");
 
-  // Theme state
-  const [themeName, setThemeName] = useState<ThemeName>("adwaita");
-  const [colorScheme, setColorScheme] = useState<"light" | "dark" | "auto">("auto");
-  const [adwaitaAccent, setAdwaitaAccent] = useState("#3584e4");
-  const [fluentAccent, setFluentAccent] = useState("#1A73E8");
-  const [fluentTitlebutton, setFluentTitlebutton] = useState<"circular" | "square">("square");
-  const [fluentWindow, setFluentWindow] = useState<"default" | "round">("default");
-  const [settingsOpen, setSettingsOpen] = useState(false);
-
-  const theme = useMemo(() => {
-    if (themeName === "whitesur") {
-      return new WhiteSurTheme({ colorScheme });
-    }
-    if (themeName === "mactahoe") {
-      return new MacTahoeTheme({ colorScheme });
-    }
-    if (themeName === "fluent") {
-      return new FluentTheme({
-        colorScheme,
-        titlebutton: fluentTitlebutton,
-        window: fluentWindow,
-        accentColor: fluentAccent,
-      });
-    }
-    return new AdwaitaTheme({ colorScheme, accentColor: adwaitaAccent });
-  }, [themeName, colorScheme, adwaitaAccent, fluentAccent, fluentTitlebutton, fluentWindow]);
+  // Theme state — extracted to shared hook
+  const { theme, icons, ...controls } = useThemePicker();
 
   // Committed theme lags behind `theme`: on change, content slides out over 400ms,
   // the CSS swaps while hidden, waits 1s, then slides back in. Changing theme resets.
@@ -211,8 +108,6 @@ export function ShowcasePage() {
     timers.push(setTimeout(() => setTransitionState("idle"), 1800));
     return () => timers.forEach(clearTimeout);
   }, [theme]);
-
-  const settingsButtonRef = useRef<HTMLButtonElement>(null);
 
   const dragRef = useRef<{ startX: number; startY: number; origX: number; origY: number } | null>(
     null,
@@ -290,7 +185,7 @@ export function ShowcasePage() {
   return (
     <GtkProvider
       theme={committedTheme}
-      icons={THEME_ICONS[themeName]}
+      icons={icons}
       style={{ minHeight: "100vh", transition: "background-color 700ms ease" }}
     >
       <div
@@ -304,121 +199,7 @@ export function ShowcasePage() {
         }}
       >
         <div style={{ display: "flex", justifyContent: "flex-end", padding: "16px 24px 0" }}>
-          <div style={{ position: "relative" }}>
-            <GtkButton
-              ref={settingsButtonRef}
-              hasFrame={false}
-              onClicked={() => setSettingsOpen((o) => !o)}
-            >
-              <ApplicationsSystem size={20} />
-            </GtkButton>
-            <GtkPopover
-              visible={settingsOpen}
-              onClosed={() => setSettingsOpen(false)}
-              anchorRef={settingsButtonRef}
-              position="bottom"
-              style={{ minWidth: 280 }}
-            >
-              <GtkBox orientation="vertical" spacing={12} style={{ padding: 12 }}>
-                {/* Theme picker */}
-                <GtkBox orientation="vertical" spacing={6}>
-                  <GtkLabel label="Theme" className="heading" />
-                  <GtkBox spacing={12}>
-                    {(
-                      [
-                        { label: "Linux", themes: ["adwaita"] },
-                        { label: "macOS", themes: ["whitesur", "mactahoe"] },
-                        { label: "Windows", themes: ["fluent"] },
-                      ] as { label: string; themes: ThemeName[] }[]
-                    ).map(({ label, themes }) => (
-                      <GtkBox key={label} orientation="vertical" spacing={4}>
-                        <GtkLabel label={label} className="caption-heading dimmed" />
-                        <GtkBox spacing={4}>
-                          {themes.map((t) => (
-                            <GtkButton
-                              key={t}
-                              label={THEME_LABELS[t]}
-                              className={themeName === t ? "suggested-action" : ""}
-                              onClicked={() => setThemeName(t)}
-                            />
-                          ))}
-                        </GtkBox>
-                      </GtkBox>
-                    ))}
-                  </GtkBox>
-                </GtkBox>
-
-                {/* Color scheme */}
-                <GtkBox orientation="vertical" spacing={6}>
-                  <GtkLabel label="Mode" className="caption-heading dimmed" />
-                  <GtkBox spacing={6}>
-                    {(["auto", "light", "dark"] as const).map((s) => (
-                      <GtkButton
-                        key={s}
-                        label={s.charAt(0).toUpperCase() + s.slice(1)}
-                        className={colorScheme === s ? "suggested-action" : ""}
-                        onClicked={() => setColorScheme(s)}
-                      />
-                    ))}
-                  </GtkBox>
-                </GtkBox>
-
-                {/* Accent (Adwaita only) */}
-                {themeName === "adwaita" && (
-                  <GtkBox orientation="vertical" spacing={6}>
-                    <GtkLabel label="Accent" className="caption-heading dimmed" />
-                    <AccentPicker
-                      presets={ADWAITA_ACCENT_PRESETS}
-                      value={adwaitaAccent}
-                      onChange={setAdwaitaAccent}
-                    />
-                  </GtkBox>
-                )}
-
-                {/* Fluent-specific controls */}
-                {themeName === "fluent" && (
-                  <>
-                    <GtkBox orientation="vertical" spacing={6}>
-                      <GtkLabel label="Accent" className="caption-heading dimmed" />
-                      <AccentPicker
-                        presets={FLUENT_ACCENT_PRESETS}
-                        value={fluentAccent}
-                        onChange={setFluentAccent}
-                      />
-                    </GtkBox>
-
-                    <GtkBox orientation="vertical" spacing={6}>
-                      <GtkLabel label="Buttons" className="caption-heading dimmed" />
-                      <GtkBox spacing={6}>
-                        {(["circular", "square"] as const).map((t) => (
-                          <GtkButton
-                            key={t}
-                            label={t.charAt(0).toUpperCase() + t.slice(1)}
-                            className={fluentTitlebutton === t ? "suggested-action" : ""}
-                            onClicked={() => setFluentTitlebutton(t)}
-                          />
-                        ))}
-                      </GtkBox>
-                    </GtkBox>
-
-                    <GtkBox orientation="vertical" spacing={6}>
-                      <GtkLabel label="Corners" className="caption-heading dimmed" />
-                      <GtkBox spacing={6}>
-                        {(["default", "round"] as const).map((w) => (
-                          <GtkButton
-                            key={w}
-                            label={w.charAt(0).toUpperCase() + w.slice(1)}
-                            className={fluentWindow === w ? "suggested-action" : ""}
-                            onClicked={() => setFluentWindow(w)}
-                          />
-                        ))}
-                      </GtkBox>
-                    </GtkBox>
-                  </>
-                )}
-              </GtkBox>
-            </GtkPopover>
-          </div>
+          <ThemeControls {...controls} />
         </div>
 
         <div style={{ textAlign: "center", padding: "64px 24px 32px" }}>
@@ -518,7 +299,7 @@ export function ShowcasePage() {
               createPortal(
                 <GtkProvider
                   theme={committedTheme}
-                  icons={THEME_ICONS[themeName]}
+                  icons={icons}
                   style={{ position: "fixed", inset: 0, zIndex: 9999 }}
                 >
                   <div

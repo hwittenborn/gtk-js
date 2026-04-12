@@ -3,16 +3,13 @@ title: GtkSwitch
 description: A toggle switch widget.
 ---
 
-import { AutoTypeTable } from "fumadocs-typescript/ui";
+import Example from "./examples/switch";
 
 ## Preview
 
-```tsx
-import { GtkSwitch } from "@gtk-js/adwaita";
-
-<GtkSwitch active={false} />
-<GtkSwitch active={true} />
-```
+<PreviewFile file="content/docs/gtk4/examples/switch.tsx">
+  <Example />
+</PreviewFile>
 
 ## CSS Node Tree
 
@@ -26,7 +23,7 @@ switch[:checked]
 ## Props
 
 <AutoTypeTable
-  path="packages/gtk4/src/components/switch.tsx"
+  path="../gtk4/src/components/switch.tsx"
   name="GtkSwitchProps"
 />
 

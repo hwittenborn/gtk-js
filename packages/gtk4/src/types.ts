@@ -16,6 +16,22 @@ export type GtkWrapMode = "word" | "char" | "word-char";
 /** Widget alignment within allocated space. */
 export type GtkAlign = "fill" | "start" | "end" | "center" | "baseline-fill" | "baseline-center";
 
+/** Alignment props available on all GtkWidget subclasses. */
+export interface GtkAlignProps {
+  /** Horizontal alignment within the parent's allocated space. Default: "fill". */
+  halign?: GtkAlign;
+  /** Vertical alignment within the parent's allocated space. Default: "fill". */
+  valign?: GtkAlign;
+}
+
+/** Convert halign/valign props to data attributes for layout CSS. */
+export function alignAttrs(halign?: GtkAlign, valign?: GtkAlign) {
+  return {
+    "data-halign": halign && halign !== "fill" ? halign : undefined,
+    "data-valign": valign && valign !== "fill" ? valign : undefined,
+  };
+}
+
 /** List selection behavior. */
 export type GtkSelectionMode = "none" | "single" | "browse" | "multiple";
 

@@ -1,0 +1,39 @@
+---
+title: GtkScale
+description: A slider widget for selecting a value from a range.
+---
+
+import Example from "./examples/scale";
+
+## Preview
+
+<PreviewFile file="content/docs/gtk4/examples/scale.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+scale[.horizontal|.vertical][.marks-before][.marks-after]
+  ├── value[.top|.bottom|.left|.right]
+  ├── marks
+  │   └── mark > indicator + [label]
+  └── trough
+      ├── highlight
+      └── slider
+```
+
+## Props
+
+<AutoTypeTable
+  path="../gtk4/src/components/scale.tsx"
+  name="GtkScaleProps"
+/>
+
+## Keyboard
+
+- **Arrow keys** — adjust value by step
+- **Shift + Arrow** — fine-tune (10× smaller step)
+- **Home / End** — jump to min / max
+
+[GTK4 Documentation →](https://docs.gtk.org/gtk4/class.Scale.html)

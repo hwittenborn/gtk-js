@@ -3,26 +3,13 @@ title: AdwActionRow
 description: A preferences list row with title, subtitle, and prefix/suffix slots.
 ---
 
-import { AutoTypeTable } from "fumadocs-typescript/ui";
+import Example from "./examples/action-row";
 
 ## Preview
 
-```tsx
-import { AdwActionRow, AdwPreferencesGroup } from "@gtk-js/adwaita";
-
-<AdwPreferencesGroup title="Account">
-  <AdwActionRow
-    title="Username"
-    subtitle="hwittenborn"
-  />
-  <AdwActionRow
-    title="Email"
-    subtitle="hunter@example.com"
-    activatable
-    onActivated={() => alert("Edit email")}
-  />
-</AdwPreferencesGroup>
-```
+<PreviewFile file="content/docs/adwaita/examples/action-row.tsx">
+  <Example />
+</PreviewFile>
 
 ## CSS Node Tree
 
@@ -39,7 +26,7 @@ row[.activatable]
 ## Props
 
 <AutoTypeTable
-  path="packages/adwaita/src/components/action-row.tsx"
+  path="../adwaita/src/components/action-row.tsx"
   name="AdwActionRowProps"
 />
 

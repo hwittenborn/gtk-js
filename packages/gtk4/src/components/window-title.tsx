@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkWindowTitleProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkWindowTitleProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** The main title text. */
   title: string;
   /** Optional subtitle text displayed below the title. */
@@ -18,7 +19,7 @@ export interface GtkWindowTitleProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.WindowTitle.html
  */
 export const GtkWindowTitle = forwardRef<HTMLDivElement, GtkWindowTitleProps>(
-  function GtkWindowTitle({ title, subtitle, className, ...rest }, ref) {
+  function GtkWindowTitle({ title, subtitle, halign, valign, className, ...rest }, ref) {
     const classes = ["gtk-windowtitle"];
     if (className) classes.push(className);
 
@@ -26,6 +27,7 @@ export const GtkWindowTitle = forwardRef<HTMLDivElement, GtkWindowTitleProps>(
       <div
         ref={ref}
         className={classes.join(" ") + " gtk-box-layout vertical"}
+        {...alignAttrs(halign, valign)}
         style={{ alignItems: "center" }}
         {...rest}
       >

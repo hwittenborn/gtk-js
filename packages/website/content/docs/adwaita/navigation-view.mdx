@@ -1,0 +1,33 @@
+---
+title: AdwNavigationView
+description: A stack-based navigation container.
+---
+
+import Example from "./examples/navigation-view";
+
+## Preview
+
+<PreviewFile file="content/docs/adwaita/examples/navigation-view.tsx">
+  <Example />
+</PreviewFile>
+
+## CSS Node Tree
+
+```
+navigation-view
+```
+
+## Props
+
+<AutoTypeTable
+  path="../adwaita/src/components/navigation-view.tsx"
+  name="AdwNavigationViewProps"
+/>
+
+## Behavior
+
+- Pages are pushed and popped from a navigation stack.
+- Escape key pops the current page when `popOnEscape` is true.
+- Use `useNavigation()` hook inside pages to access `push` and `pop`.
+
+[Adwaita Documentation →](https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.NavigationView.html)

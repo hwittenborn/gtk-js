@@ -5,8 +5,11 @@ import React, {
   useCallback,
   useState,
 } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkButtonProps extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children"> {
+export interface GtkButtonProps
+  extends Omit<ButtonHTMLAttributes<HTMLButtonElement>, "children">,
+    GtkAlignProps {
   /** Text label displayed in the button. Creates an internal GtkLabel. */
   label?: string;
   /** Icon name for the button. Creates an internal GtkImage. */
@@ -38,6 +41,8 @@ export const GtkButton = forwardRef<HTMLButtonElement, GtkButtonProps>(function 
     canShrink = false,
     onClicked,
     children,
+    halign,
+    valign,
     className,
     onKeyDown,
     onKeyUp,
@@ -92,6 +97,7 @@ export const GtkButton = forwardRef<HTMLButtonElement, GtkButtonProps>(function 
     <button
       ref={ref}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       onClick={handleClick}
       onKeyDown={handleKeyDown}
       onKeyUp={handleKeyUp}

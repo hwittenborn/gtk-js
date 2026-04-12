@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkActionBarProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkActionBarProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Whether the action bar is visible. Default: true. */
   revealed?: boolean;
   /** Start-side widgets. */
@@ -25,18 +26,26 @@ export interface GtkActionBarProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.ActionBar.html
  */
 export const GtkActionBar = forwardRef<HTMLDivElement, GtkActionBarProps>(function GtkActionBar(
-  { revealed = true, start, end, centerWidget, className, ...rest },
+  { revealed = true, start, end, centerWidget, halign, valign, className, ...rest },
   ref,
 ) {
   const classes = ["gtk-actionbar"];
   if (className) classes.push(className);
 
   if (!revealed) {
-    return <div ref={ref} className={classes.join(" ")} style={{ display: "none" }} {...rest} />;
+    return (
+      <div
+        ref={ref}
+        className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
+        style={{ display: "none" }}
+        {...rest}
+      />
+    );
   }
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       <div className="gtk-revealer">
         <div className="gtk-box gtk-center-layout">
           <div

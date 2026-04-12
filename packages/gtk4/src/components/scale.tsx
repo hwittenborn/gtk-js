@@ -1,5 +1,10 @@
 import React, { forwardRef, type HTMLAttributes, useCallback, useRef, useState } from "react";
-import type { GtkOrientation, GtkPositionType } from "../types.ts";
+import {
+  alignAttrs,
+  type GtkAlignProps,
+  type GtkOrientation,
+  type GtkPositionType,
+} from "../types.ts";
 
 export interface GtkScaleMark {
   value: number;
@@ -7,7 +12,7 @@ export interface GtkScaleMark {
   label?: string;
 }
 
-export interface GtkScaleProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkScaleProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Current value. */
   value?: number;
   /** Minimum value. Default: 0. */
@@ -62,6 +67,8 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
     digits = 1,
     marks,
     onValueChanged,
+    halign,
+    valign,
     className,
     ...rest
   },
@@ -201,6 +208,7 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
       aria-orientation={orientation}
       tabIndex={0}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       onKeyDown={handleKeyDown}
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}

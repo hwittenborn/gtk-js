@@ -1,7 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
-import type { GtkPolicyType } from "../types.ts";
+import { alignAttrs, type GtkAlignProps, type GtkPolicyType } from "../types.ts";
 
-export interface GtkScrolledWindowProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkScrolledWindowProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Horizontal scrollbar policy. Default: "automatic". */
   hscrollbarPolicy?: GtkPolicyType;
   /** Vertical scrollbar policy. Default: "automatic". */
@@ -46,6 +46,8 @@ export const GtkScrolledWindow = forwardRef<HTMLDivElement, GtkScrolledWindowPro
       maxContentWidth = -1,
       maxContentHeight = -1,
       children,
+      halign,
+      valign,
       className,
       style,
       ...rest
@@ -67,7 +69,13 @@ export const GtkScrolledWindow = forwardRef<HTMLDivElement, GtkScrolledWindowPro
     };
 
     return (
-      <div ref={ref} className={classes.join(" ")} style={cssStyle} {...rest}>
+      <div
+        ref={ref}
+        className={classes.join(" ")}
+        {...alignAttrs(halign, valign)}
+        style={cssStyle}
+        {...rest}
+      >
         {children}
       </div>
     );

@@ -1,6 +1,7 @@
 import React, { forwardRef, type HTMLAttributes, useCallback, useRef, useState } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkSwitchProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkSwitchProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** User-facing toggle state. */
   active?: boolean;
   /**
@@ -26,7 +27,16 @@ export interface GtkSwitchProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.Switch.html
  */
 export const GtkSwitch = forwardRef<HTMLDivElement, GtkSwitchProps>(function GtkSwitch(
-  { active: controlledActive, state: controlledState, onStateSet, className, onClick, ...rest },
+  {
+    active: controlledActive,
+    state: controlledState,
+    onStateSet,
+    halign,
+    valign,
+    className,
+    onClick,
+    ...rest
+  },
   ref,
 ) {
   const isControlled = controlledActive !== undefined;
@@ -107,6 +117,7 @@ export const GtkSwitch = forwardRef<HTMLDivElement, GtkSwitchProps>(function Gtk
       aria-checked={state}
       tabIndex={0}
       className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
       data-checked={state || undefined}
       onClick={handleClick}
       onPointerDown={handlePointerDown}

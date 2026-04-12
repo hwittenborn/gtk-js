@@ -1,6 +1,7 @@
 import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { alignAttrs, type GtkAlignProps } from "../types.ts";
 
-export interface GtkFrameProps extends HTMLAttributes<HTMLDivElement> {
+export interface GtkFrameProps extends HTMLAttributes<HTMLDivElement>, GtkAlignProps {
   /** Simple text label. Ignored if labelWidget is set. */
   label?: string;
   /** Custom widget displayed as the frame label. */
@@ -25,7 +26,7 @@ export interface GtkFrameProps extends HTMLAttributes<HTMLDivElement> {
  * @see https://docs.gtk.org/gtk4/class.Frame.html
  */
 export const GtkFrame = forwardRef<HTMLDivElement, GtkFrameProps>(function GtkFrame(
-  { label, labelWidget, labelXalign = 0, children, className, style, ...rest },
+  { label, labelWidget, labelXalign = 0, children, halign, valign, className, style, ...rest },
   ref,
 ) {
   const classes = ["gtk-frame"];
@@ -34,7 +35,13 @@ export const GtkFrame = forwardRef<HTMLDivElement, GtkFrameProps>(function GtkFr
   const labelContent = labelWidget ?? (label ? <span className="gtk-label">{label}</span> : null);
 
   return (
-    <div ref={ref} className={classes.join(" ")} style={{ overflow: "clip", ...style }} {...rest}>
+    <div
+      ref={ref}
+      className={classes.join(" ")}
+      {...alignAttrs(halign, valign)}
+      style={{ overflow: "clip", ...style }}
+      {...rest}
+    >
       {labelContent && (
         <div
           style={{ textAlign: labelXalign === 0 ? "start" : labelXalign === 1 ? "end" : "center" }}
