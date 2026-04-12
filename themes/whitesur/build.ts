@@ -55,8 +55,7 @@ $shell_version: 'old';
  *
  * Native GTK computes: switch_width = 2 × slider_measured_width (content + margin).
  * The upstream SCSS sets switch min-width to 32px, but the native layout manager
- * computes 2 × (18px slider + 1px margin) = 38px. We also need min-height: 20px
- * to account for the slider's 18px height + 1px top + 1px bottom margin.
+ * computes 2 × (18px slider + 1px margin) = 38px.
  */
 function fixSwitchLayout(css: string): string {
   return css.replace(/(\.gtk-switch\s*\{[^}]*?)min-width:\s*32px/, "$1min-width: 38px");

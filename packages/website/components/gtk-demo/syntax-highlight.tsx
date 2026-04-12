@@ -16,13 +16,13 @@ function getHighlighter() {
 }
 
 const CURSOR_ID = "sh-cursor";
-const CURSOR_HTML = `<span id="${CURSOR_ID}" style="font-style:normal;font-weight:normal;animation:blink 1s step-end infinite">▎</span>`;
 
 function injectCursor(html: string, cursor?: string): string {
   if (!cursor) return html;
+  const cursorHtml = `<span id="${CURSOR_ID}" style="font-style:normal;font-weight:normal;animation:blink 1s step-end infinite">${cursor}</span>`;
   const lastCode = html.lastIndexOf("</code>");
-  if (lastCode === -1) return html + CURSOR_HTML;
-  return html.slice(0, lastCode) + CURSOR_HTML + html.slice(lastCode);
+  if (lastCode === -1) return html + cursorHtml;
+  return html.slice(0, lastCode) + cursorHtml + html.slice(lastCode);
 }
 
 function stripBg(html: string): string {
