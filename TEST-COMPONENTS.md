@@ -145,6 +145,20 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] expanded
 - [x] GtkOverlay
   - [x] default
+- [x] GtkScrolledWindow
+  - [x] default
+  - [x] frame
+- [x] GtkStack
+  - [x] default
+- [x] GtkNotebook
+  - [x] default
+- [x] GtkPopover
+  - [x] default
+- [x] GtkDropDown
+  - [x] default
+- [x] GtkListBox
+  - [x] default
+  - [x] separators
 
 ---
 
@@ -210,16 +224,24 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
 
 ---
 
-### Cycle 6 — Navigation & Selection
+### ~~Cycle 6 — Navigation & Selection~~ ✓ Complete
 
 **Goal:** Cover widgets that either navigate between views or present a list of choices to the user. GtkStack and GtkNotebook switch visible content; GtkPopover and GtkDropDown present transient overlays; GtkListBox renders a selectable list. GtkScrolledWindow is included here because it is most commonly used as a viewport around a GtkListBox or other tall child, and testing them together covers the clipping/overflow interaction.
 
-- [ ] GtkScrolledWindow
-- [ ] GtkStack
-- [ ] GtkNotebook
-- [ ] GtkPopover
-- [ ] GtkDropDown
-- [ ] GtkListBox
+- [x] GtkScrolledWindow
+  - [x] default
+  - [x] frame
+- [x] GtkStack
+  - [x] default
+- [x] GtkNotebook
+  - [x] default
+- [x] GtkPopover
+  - [x] default (outer Box comparison; popup surface testing requires harness changes)
+- [x] GtkDropDown
+  - [x] default (inner toggle button compared via use_inner/childSelector)
+- [x] GtkListBox
+  - [x] default
+  - [x] separators
 
 ---
 

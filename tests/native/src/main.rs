@@ -55,6 +55,7 @@ enum Command {
     ButtonValignEndHbox,
     ButtonHalignCenterVbox,
     ButtonHalignEndVbox,
+    DropdownDefault,
     ButtonTextDefault,
     ButtonTextFlat,
     ButtonTextSuggested,
@@ -93,6 +94,8 @@ enum Command {
     LabelWidthChars,
     LabelXalign,
     LabelDisabled,
+    ListboxDefault,
+    ListboxSeparators,
     LevelbarContinuousDefault,
     LevelbarContinuousLow,
     LevelbarContinuousFull,
@@ -102,11 +105,13 @@ enum Command {
     LevelbarDisabled,
     LinkDefault,
     LinkVisited,
+    NotebookDefault,
     MenuButtonTextDefault,
     MenuButtonIcon,
     MenuButtonFlat,
     MenuButtonCircular,
     MenuButtonDisabled,
+    PopoverDefault,
     PasswordEntryDefault,
     PasswordEntryDisabled,
     PasswordEntryPeekIcon,
@@ -126,6 +131,9 @@ enum Command {
     RadioButtonDefault,
     RadioButtonChecked,
     ScaleDefault,
+    ScrolledWindowDefault,
+    ScrolledWindowFrame,
+    StackDefault,
     SearchEntryDefault,
     SearchEntryDisabled,
     ScrollbarDefault,
@@ -211,6 +219,7 @@ impl Command {
             Self::ButtonValignEndHbox => Some("button-valign-end-hbox"),
             Self::ButtonHalignCenterVbox => Some("button-halign-center-vbox"),
             Self::ButtonHalignEndVbox => Some("button-halign-end-vbox"),
+            Self::DropdownDefault => Some("dropdown-default"),
             Self::ButtonTextDefault => Some("button-text-default"),
             Self::ButtonTextFlat => Some("button-text-flat"),
             Self::ButtonTextSuggested => Some("button-text-suggested"),
@@ -248,6 +257,8 @@ impl Command {
             Self::LabelWidthChars => Some("label-width-chars"),
             Self::LabelXalign => Some("label-xalign"),
             Self::LabelDisabled => Some("label-disabled"),
+            Self::ListboxDefault => Some("listbox-default"),
+            Self::ListboxSeparators => Some("listbox-separators"),
             Self::LevelbarContinuousDefault => Some("levelbar-continuous-default"),
             Self::LevelbarContinuousLow => Some("levelbar-continuous-low"),
             Self::LevelbarContinuousFull => Some("levelbar-continuous-full"),
@@ -257,11 +268,13 @@ impl Command {
             Self::LevelbarDisabled => Some("levelbar-disabled"),
             Self::LinkDefault => Some("link-default"),
             Self::LinkVisited => Some("link-visited"),
+            Self::NotebookDefault => Some("notebook-default"),
             Self::MenuButtonTextDefault => Some("menu-button-text-default"),
             Self::MenuButtonIcon => Some("menu-button-icon"),
             Self::MenuButtonFlat => Some("menu-button-flat"),
             Self::MenuButtonCircular => Some("menu-button-circular"),
             Self::MenuButtonDisabled => Some("menu-button-disabled"),
+            Self::PopoverDefault => Some("popover-default"),
             Self::PasswordEntryDefault => Some("password-entry-default"),
             Self::PasswordEntryDisabled => Some("password-entry-disabled"),
             Self::PasswordEntryPeekIcon => Some("password-entry-peek-icon"),
@@ -276,6 +289,9 @@ impl Command {
             Self::RadioButtonDefault => Some("radio-button-default"),
             Self::RadioButtonChecked => Some("radio-button-checked"),
             Self::ScaleDefault => Some("scale-default"),
+            Self::ScrolledWindowDefault => Some("scrolled-window-default"),
+            Self::ScrolledWindowFrame => Some("scrolled-window-frame"),
+            Self::StackDefault => Some("stack-default"),
             Self::SearchEntryDefault => Some("search-entry-default"),
             Self::SearchEntryDisabled => Some("search-entry-disabled"),
             Self::ScrollbarDefault => Some("scrollbar-default"),
@@ -321,15 +337,20 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "box-spacing" => widget_case!(cases::box_spacing::BoxSpacing, false),
         "box-homogeneous" => widget_case!(cases::box_homogeneous::BoxHomogeneous, false),
         "center-box-default" => widget_case!(cases::center_box_default::CenterBoxDefault, false),
+        "dropdown-default" => widget_case!(cases::dropdown_default::DropdownDefault, true),
         "expander-default" => widget_case!(cases::expander_default::ExpanderDefault, false),
         "expander-expanded" => widget_case!(cases::expander_expanded::ExpanderExpanded, false),
         "flow-box-default" => widget_case!(cases::flow_box_default::FlowBoxDefault, false),
         "frame-default" => widget_case!(cases::frame_default::FrameDefault, false),
         "frame-no-label" => widget_case!(cases::frame_no_label::FrameNoLabel, false),
         "grid-default" => widget_case!(cases::grid_default::GridDefault, false),
+        "listbox-default" => widget_case!(cases::listbox_default::ListboxDefault, false),
+        "listbox-separators" => widget_case!(cases::listbox_separators::ListboxSeparators, false),
+        "notebook-default" => widget_case!(cases::notebook_default::NotebookDefault, false),
         "overlay-default" => widget_case!(cases::overlay_default::OverlayDefault, false),
         "paned-horizontal" => widget_case!(cases::paned_horizontal::PanedHorizontal, false),
         "paned-vertical" => widget_case!(cases::paned_vertical::PanedVertical, false),
+        "popover-default" => widget_case!(cases::popover_default::PopoverDefault, false),
         "button-valign-center-hbox" => {
             widget_case!(
                 cases::button_valign_center_hbox::ButtonValignCenterHbox,
@@ -531,6 +552,16 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
             widget_case!(cases::radio_button_checked::RadioButtonChecked, false)
         }
         "scale-default" => widget_case!(cases::scale_default::ScaleDefault, false),
+        "scrolled-window-default" => {
+            widget_case!(
+                cases::scrolled_window_default::ScrolledWindowDefault,
+                false
+            )
+        }
+        "scrolled-window-frame" => {
+            widget_case!(cases::scrolled_window_frame::ScrolledWindowFrame, false)
+        }
+        "stack-default" => widget_case!(cases::stack_default::StackDefault, false),
         "search-entry-default" => {
             widget_case!(cases::search_entry_default::SearchEntryDefault, false)
         }
@@ -627,15 +658,20 @@ fn is_known_case(name: &str) -> bool {
             | "box-spacing"
             | "box-homogeneous"
             | "center-box-default"
+            | "dropdown-default"
             | "expander-default"
             | "expander-expanded"
             | "flow-box-default"
             | "frame-default"
             | "frame-no-label"
             | "grid-default"
+            | "listbox-default"
+            | "listbox-separators"
+            | "notebook-default"
             | "overlay-default"
             | "paned-horizontal"
             | "paned-vertical"
+            | "popover-default"
             | "button-valign-center-hbox"
             | "button-valign-end-hbox"
             | "button-halign-center-vbox"
@@ -705,6 +741,9 @@ fn is_known_case(name: &str) -> bool {
             | "radio-button-default"
             | "radio-button-checked"
             | "scale-default"
+            | "scrolled-window-default"
+            | "scrolled-window-frame"
+            | "stack-default"
             | "search-entry-default"
             | "search-entry-disabled"
             | "scrollbar-default"
