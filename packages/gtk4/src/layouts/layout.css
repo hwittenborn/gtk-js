@@ -86,6 +86,14 @@
   align-self: center;
 }
 
+/* === GtkActionBar ===
+ * GtkActionBar defaults to halign=GTK_ALIGN_FILL in native GTK, meaning it
+ * always fills the full width allocated by its parent. On the web we must
+ * make this explicit so it stretches inside any flex/block container. */
+.gtk-actionbar {
+  width: 100%;
+}
+
 /* === CenterLayout === */
 /* True centering: center child is always centered relative to the full width,
    regardless of start/end sizes. Uses CSS grid with 1fr/auto/1fr columns. */
