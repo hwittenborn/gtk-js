@@ -32,12 +32,14 @@ const COLORS: [string, string, string][] = [
   ["#d8d7d3", "#c0bfbc", "#6e6d71"],
 ];
 
+// Matches GLib's g_str_hash: DJB2-add seeded at 5381, unsigned 32-bit result.
+// adw-avatar.c:143 uses g_str_hash(text) % NUMBER_OF_COLORS directly.
 function hashString(s: string): number {
-  let hash = 0;
+  let hash = 5381;
   for (let i = 0; i < s.length; i++) {
-    hash = ((hash << 5) - hash + s.charCodeAt(i)) | 0;
+    hash = ((hash << 5) + hash + s.charCodeAt(i)) >>> 0;
   }
-  return Math.abs(hash);
+  return hash;
 }
 
 function getInitials(text: string): string {

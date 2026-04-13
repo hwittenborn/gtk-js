@@ -1,5 +1,31 @@
 import {
+  AdwActionRow,
+  AdwAvatar,
   AdwaitaProvider,
+  AdwBanner,
+  AdwBreakpointBin,
+  AdwButtonContent,
+  AdwButtonRow,
+  AdwCarousel,
+  AdwClamp,
+  AdwComboRow,
+  AdwEntryRow,
+  AdwExpanderRow,
+  AdwHeaderBar,
+  AdwNavigationView,
+  AdwOverlaySplitView,
+  AdwPasswordEntryRow,
+  AdwPreferencesGroup,
+  AdwPreferencesPage,
+  AdwPreferencesRow,
+  AdwSpinRow,
+  AdwSplitButton,
+  AdwStatusPage,
+  AdwSwitchRow,
+  AdwToastOverlay,
+  AdwToggleGroup,
+  AdwToolbarView,
+  AdwViewSwitcher,
   GtkActionBar,
   GtkBox,
   GtkButton,
@@ -586,6 +612,337 @@ const cases: Record<string, () => React.ReactElement> = {
       searchModeEnabled
       showCloseButton
       child={<GtkSearchEntry />}
+      data-testid="target"
+    />
+  ),
+
+  // AdwAvatar cases
+  "avatar-default": () => <AdwAvatar size={48} data-testid="target" />,
+  "avatar-initials": () => (
+    <AdwAvatar size={48} text="Jane Doe" showInitials data-testid="target" />
+  ),
+  "avatar-small": () => <AdwAvatar size={24} text="Alice" showInitials data-testid="target" />,
+
+  // AdwBanner cases
+  "banner-revealed": () => <AdwBanner title="This is a banner" revealed data-testid="target" />,
+  "banner-with-button": () => (
+    <AdwBanner title="Update available" buttonLabel="Update" revealed data-testid="target" />
+  ),
+
+  // AdwStatusPage cases
+  "status-page-default": () => (
+    <AdwStatusPage
+      iconName="dialog-information-symbolic"
+      title="Nothing Here"
+      description="There are no items to display"
+      data-testid="target"
+    />
+  ),
+  "status-page-no-icon": () => (
+    <AdwStatusPage
+      title="No Results"
+      description="Try a different search term"
+      data-testid="target"
+    />
+  ),
+
+  // AdwClamp cases
+  "clamp-default": () => (
+    <AdwClamp maximumSize={600} tighteningThreshold={400} data-testid="target">
+      <GtkLabel label="Clamped content" />
+    </AdwClamp>
+  ),
+
+  // AdwCarousel cases
+  "carousel-default": () => (
+    <AdwCarousel data-testid="target">
+      <GtkLabel label="Page 1" />
+      <GtkLabel label="Page 2" />
+      <GtkLabel label="Page 3" />
+    </AdwCarousel>
+  ),
+
+  // AdwToastOverlay cases
+  "toast-overlay-default": () => (
+    <AdwToastOverlay data-testid="target">
+      <GtkLabel label="Content under toasts" />
+    </AdwToastOverlay>
+  ),
+
+  // AdwButtonContent cases
+  "button-content-icon-label": () => (
+    <AdwButtonContent iconName="open-menu-symbolic" label="Open" data-testid="target" />
+  ),
+  "button-content-label-only": () => <AdwButtonContent label="Open" data-testid="target" />,
+  "button-content-icon-only": () => (
+    <AdwButtonContent iconName="open-menu-symbolic" data-testid="target" />
+  ),
+
+  // AdwSplitButton cases
+  "split-button-text-default": () => <AdwSplitButton label="Button" data-testid="target" />,
+  "split-button-icon": () => <AdwSplitButton iconName="open-menu-symbolic" data-testid="target" />,
+  "split-button-flat": () => (
+    <AdwSplitButton label="Button" className="flat" data-testid="target" />
+  ),
+
+  // AdwButtonRow cases — inside GtkListBox to match native structure
+  "button-row-default": () => (
+    <GtkListBox selectionMode="none">
+      <AdwButtonRow title="Delete" data-testid="target" />
+    </GtkListBox>
+  ),
+  "button-row-start-icon": () => (
+    <GtkListBox selectionMode="none">
+      <AdwButtonRow title="Delete" startIconName="edit-delete-symbolic" data-testid="target" />
+    </GtkListBox>
+  ),
+  "button-row-destructive": () => (
+    <GtkListBox selectionMode="none">
+      <AdwButtonRow title="Delete" className="destructive-action" data-testid="target" />
+    </GtkListBox>
+  ),
+
+  // AdwToggleGroup cases
+  "toggle-group-text-default": () => (
+    <AdwToggleGroup
+      active={0}
+      toggles={[
+        { name: "first", label: "First" },
+        { name: "second", label: "Second" },
+        { name: "third", label: "Third" },
+      ]}
+      data-testid="target"
+    />
+  ),
+  "toggle-group-icon": () => (
+    <AdwToggleGroup
+      active={0}
+      toggles={[
+        { name: "list", iconName: "view-list-symbolic" },
+        { name: "grid", iconName: "view-grid-symbolic" },
+      ]}
+      data-testid="target"
+    />
+  ),
+  "toggle-group-homogeneous": () => (
+    <AdwToggleGroup
+      active={1}
+      homogeneous
+      toggles={[
+        { name: "a", label: "Short" },
+        { name: "b", label: "Medium Text" },
+        { name: "c", label: "Long Label Here" },
+      ]}
+      data-testid="target"
+    />
+  ),
+
+  // AdwActionRow cases
+  "adw-action-row-default": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwActionRow title="Action Row" />
+    </GtkListBox>
+  ),
+  "adw-action-row-with-subtitle": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwActionRow title="Action Row" subtitle="Subtitle text" />
+    </GtkListBox>
+  ),
+  "adw-action-row-activatable": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwActionRow title="Activatable Row" activatable />
+    </GtkListBox>
+  ),
+
+  // AdwEntryRow cases
+  "adw-entry-row-default": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwEntryRow title="Entry Row" />
+    </GtkListBox>
+  ),
+  "adw-entry-row-with-text": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwEntryRow title="Entry Row" text="Hello World" />
+    </GtkListBox>
+  ),
+
+  // AdwPasswordEntryRow cases
+  "adw-password-entry-row-default": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwPasswordEntryRow title="Password" />
+    </GtkListBox>
+  ),
+
+  // AdwSpinRow cases
+  "adw-spin-row-default": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwSpinRow title="Spin Row" value={50} min={0} max={100} step={1} />
+    </GtkListBox>
+  ),
+
+  // AdwComboRow cases
+  "adw-combo-row-default": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwComboRow title="Combo Row" items={["Option 1", "Option 2", "Option 3"]} selected={0} />
+    </GtkListBox>
+  ),
+
+  // AdwSwitchRow cases
+  "adw-switch-row-default": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwSwitchRow title="Switch Row" />
+    </GtkListBox>
+  ),
+  "adw-switch-row-active": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwSwitchRow title="Switch Row" active />
+    </GtkListBox>
+  ),
+
+  // AdwExpanderRow cases
+  "adw-expander-row-default": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwExpanderRow title="Expander Row">
+        <AdwActionRow title="Child Row 1" />
+        <AdwActionRow title="Child Row 2" />
+      </AdwExpanderRow>
+    </GtkListBox>
+  ),
+  "adw-expander-row-expanded": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwExpanderRow title="Expander Row" expanded>
+        <AdwActionRow title="Child Row 1" />
+        <AdwActionRow title="Child Row 2" />
+      </AdwExpanderRow>
+    </GtkListBox>
+  ),
+
+  // AdwPreferencesRow cases
+  "adw-preferences-row-default": () => (
+    <GtkListBox selectionMode="none" className="boxed-list" data-testid="target">
+      <AdwPreferencesRow title="Preferences Row" />
+    </GtkListBox>
+  ),
+
+  // AdwPreferencesGroup cases
+  "adw-preferences-group-default": () => (
+    <AdwPreferencesGroup title="Group Title" data-testid="target">
+      <AdwActionRow title="Row 1" />
+      <AdwActionRow title="Row 2" />
+    </AdwPreferencesGroup>
+  ),
+  "adw-preferences-group-with-description": () => (
+    <AdwPreferencesGroup
+      title="Group Title"
+      description="A description of this group"
+      data-testid="target"
+    >
+      <AdwActionRow title="Row 1" />
+    </AdwPreferencesGroup>
+  ),
+
+  // AdwPreferencesPage cases
+  "adw-preferences-page-default": () => (
+    <AdwPreferencesPage data-testid="target">
+      <AdwPreferencesGroup title="General">
+        <AdwActionRow title="Setting 1" />
+        <AdwActionRow title="Setting 2" />
+      </AdwPreferencesGroup>
+    </AdwPreferencesPage>
+  ),
+
+  // AdwHeaderBar cases
+  "adw-headerbar-default": () => (
+    <AdwHeaderBar
+      showStartTitleButtons={false}
+      showEndTitleButtons={false}
+      showBackButton={false}
+      data-testid="target"
+    />
+  ),
+  "adw-headerbar-with-title": () => (
+    <AdwHeaderBar
+      showStartTitleButtons={false}
+      showEndTitleButtons={false}
+      showBackButton={false}
+      titleWidget={<GtkWindowTitle title="Header Title" />}
+      data-testid="target"
+    />
+  ),
+  "adw-headerbar-start-end": () => (
+    <AdwHeaderBar
+      showStartTitleButtons={false}
+      showEndTitleButtons={false}
+      showBackButton={false}
+      start={<GtkButton label="Start" />}
+      end={<GtkButton label="End" />}
+      data-testid="target"
+    />
+  ),
+
+  // AdwToolbarView cases
+  "adw-toolbar-view-default": () => (
+    <AdwToolbarView
+      topBars={
+        <AdwHeaderBar
+          showStartTitleButtons={false}
+          showEndTitleButtons={false}
+          showBackButton={false}
+        />
+      }
+      content={<GtkLabel label="Content" />}
+      data-testid="target"
+    />
+  ),
+  "adw-toolbar-view-with-bottom": () => (
+    <AdwToolbarView
+      topBars={
+        <AdwHeaderBar
+          showStartTitleButtons={false}
+          showEndTitleButtons={false}
+          showBackButton={false}
+        />
+      }
+      content={<GtkLabel label="Content" />}
+      bottomBars={<GtkActionBar start={<GtkButton label="Action" />} />}
+      data-testid="target"
+    />
+  ),
+
+  // AdwViewSwitcher cases
+  "adw-view-switcher-default": () => (
+    <AdwViewSwitcher
+      pages={[
+        { name: "page1", title: "Page 1", iconName: "open-menu-symbolic" },
+        { name: "page2", title: "Page 2", iconName: "open-menu-symbolic" },
+      ]}
+      activePageName="page1"
+      policy="wide"
+      data-testid="target"
+    />
+  ),
+
+  // AdwBreakpointBin cases
+  "adw-breakpoint-bin-default": () => (
+    <AdwBreakpointBin style={{ width: "200px", height: "100px" }} data-testid="target">
+      <GtkLabel label="Breakpoint content" />
+    </AdwBreakpointBin>
+  ),
+
+  // AdwNavigationView cases
+  "adw-navigation-view-default": () => (
+    <AdwNavigationView
+      pages={[{ tag: "home", title: "Home", children: <GtkLabel label="Home Page" /> }]}
+      initialPage="home"
+      data-testid="target"
+    />
+  ),
+
+  // AdwOverlaySplitView cases
+  "adw-overlay-split-view-default": () => (
+    <AdwOverlaySplitView
+      sidebar={<GtkLabel label="Sidebar" />}
+      content={<GtkLabel label="Content" />}
       data-testid="target"
     />
   ),

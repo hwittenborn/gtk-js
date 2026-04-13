@@ -38,6 +38,41 @@ enum Command {
         port_file: Option<PathBuf>,
     },
     ActionbarDefault,
+    AdwActionRowDefault,
+    AdwActionRowWithSubtitle,
+    AdwActionRowActivatable,
+    AdwBreakpointBinDefault,
+    AdwComboRowDefault,
+    AdwEntryRowDefault,
+    AdwEntryRowWithText,
+    AdwExpanderRowDefault,
+    AdwExpanderRowExpanded,
+    AdwHeaderbarDefault,
+    AdwHeaderbarWithTitle,
+    AdwHeaderbarStartEnd,
+    AdwNavigationViewDefault,
+    AdwOverlaySplitViewDefault,
+    AdwPasswordEntryRowDefault,
+    AdwPreferencesGroupDefault,
+    AdwPreferencesGroupWithDescription,
+    AdwPreferencesPageDefault,
+    AdwPreferencesRowDefault,
+    AdwSpinRowDefault,
+    AdwSwitchRowDefault,
+    AdwSwitchRowActive,
+    AdwToolbarViewDefault,
+    AdwToolbarViewWithBottom,
+    AdwViewSwitcherDefault,
+    AvatarDefault,
+    AvatarInitials,
+    AvatarSmall,
+    BannerRevealed,
+    BannerWithButton,
+    CarouselDefault,
+    ClampDefault,
+    StatusPageDefault,
+    StatusPageNoIcon,
+    ToastOverlayDefault,
     BoxHorizontalDefault,
     BoxVerticalDefault,
     BoxSpacing,
@@ -66,8 +101,14 @@ enum Command {
     ButtonTextDestructive,
     ButtonIcon,
     ButtonCircular,
+    ButtonContentIconLabel,
+    ButtonContentLabelOnly,
+    ButtonContentIconOnly,
     ButtonPill,
     ButtonDisabled,
+    ButtonRowDefault,
+    ButtonRowStartIcon,
+    ButtonRowDestructive,
     CalendarDefault,
     CheckButtonDefault,
     CheckButtonChecked,
@@ -153,6 +194,9 @@ enum Command {
     SpinnerSpinningCustomSize,
     SpinnerDisabledNotSpinning,
     SpinnerDisabledSpinning,
+    SplitButtonTextDefault,
+    SplitButtonIcon,
+    SplitButtonFlat,
     SwitchOffDefault,
     SwitchOnDefault,
     SwitchOffDisabled,
@@ -165,6 +209,9 @@ enum Command {
     ToggleTextChecked,
     ToggleTextFlat,
     ToggleDisabled,
+    ToggleGroupTextDefault,
+    ToggleGroupIcon,
+    ToggleGroupHomogeneous,
     WindowTitleTextDefault,
     WindowTitleWithSubtitle,
     WindowTitleLongText,
@@ -208,6 +255,41 @@ impl Command {
         match self {
             Self::Serve { .. } => None,
             Self::ActionbarDefault => Some("actionbar-default"),
+            Self::AdwActionRowDefault => Some("adw-action-row-default"),
+            Self::AdwActionRowWithSubtitle => Some("adw-action-row-with-subtitle"),
+            Self::AdwActionRowActivatable => Some("adw-action-row-activatable"),
+            Self::AdwBreakpointBinDefault => Some("adw-breakpoint-bin-default"),
+            Self::AdwComboRowDefault => Some("adw-combo-row-default"),
+            Self::AdwEntryRowDefault => Some("adw-entry-row-default"),
+            Self::AdwEntryRowWithText => Some("adw-entry-row-with-text"),
+            Self::AdwExpanderRowDefault => Some("adw-expander-row-default"),
+            Self::AdwExpanderRowExpanded => Some("adw-expander-row-expanded"),
+            Self::AdwHeaderbarDefault => Some("adw-headerbar-default"),
+            Self::AdwHeaderbarWithTitle => Some("adw-headerbar-with-title"),
+            Self::AdwHeaderbarStartEnd => Some("adw-headerbar-start-end"),
+            Self::AdwNavigationViewDefault => Some("adw-navigation-view-default"),
+            Self::AdwOverlaySplitViewDefault => Some("adw-overlay-split-view-default"),
+            Self::AdwPasswordEntryRowDefault => Some("adw-password-entry-row-default"),
+            Self::AdwPreferencesGroupDefault => Some("adw-preferences-group-default"),
+            Self::AdwPreferencesGroupWithDescription => Some("adw-preferences-group-with-description"),
+            Self::AdwPreferencesPageDefault => Some("adw-preferences-page-default"),
+            Self::AdwPreferencesRowDefault => Some("adw-preferences-row-default"),
+            Self::AdwSpinRowDefault => Some("adw-spin-row-default"),
+            Self::AdwSwitchRowDefault => Some("adw-switch-row-default"),
+            Self::AdwSwitchRowActive => Some("adw-switch-row-active"),
+            Self::AdwToolbarViewDefault => Some("adw-toolbar-view-default"),
+            Self::AdwToolbarViewWithBottom => Some("adw-toolbar-view-with-bottom"),
+            Self::AdwViewSwitcherDefault => Some("adw-view-switcher-default"),
+            Self::AvatarDefault => Some("avatar-default"),
+            Self::AvatarInitials => Some("avatar-initials"),
+            Self::AvatarSmall => Some("avatar-small"),
+            Self::BannerRevealed => Some("banner-revealed"),
+            Self::BannerWithButton => Some("banner-with-button"),
+            Self::CarouselDefault => Some("carousel-default"),
+            Self::ClampDefault => Some("clamp-default"),
+            Self::StatusPageDefault => Some("status-page-default"),
+            Self::StatusPageNoIcon => Some("status-page-no-icon"),
+            Self::ToastOverlayDefault => Some("toast-overlay-default"),
             Self::BoxHorizontalDefault => Some("box-horizontal-default"),
             Self::BoxVerticalDefault => Some("box-vertical-default"),
             Self::BoxSpacing => Some("box-spacing"),
@@ -236,8 +318,14 @@ impl Command {
             Self::ButtonTextDestructive => Some("button-text-destructive"),
             Self::ButtonIcon => Some("button-icon"),
             Self::ButtonCircular => Some("button-circular"),
+            Self::ButtonContentIconLabel => Some("button-content-icon-label"),
+            Self::ButtonContentLabelOnly => Some("button-content-label-only"),
+            Self::ButtonContentIconOnly => Some("button-content-icon-only"),
             Self::ButtonPill => Some("button-pill"),
             Self::ButtonDisabled => Some("button-disabled"),
+            Self::ButtonRowDefault => Some("button-row-default"),
+            Self::ButtonRowStartIcon => Some("button-row-start-icon"),
+            Self::ButtonRowDestructive => Some("button-row-destructive"),
             Self::CalendarDefault => Some("calendar-default"),
             Self::CheckButtonDefault => Some("check-button-default"),
             Self::CheckButtonChecked => Some("check-button-checked"),
@@ -317,6 +405,9 @@ impl Command {
             Self::SpinnerSpinningCustomSize => Some("spinner-spinning-custom-size"),
             Self::SpinnerDisabledNotSpinning => Some("spinner-disabled-not-spinning"),
             Self::SpinnerDisabledSpinning => Some("spinner-disabled-spinning"),
+            Self::SplitButtonTextDefault => Some("split-button-text-default"),
+            Self::SplitButtonIcon => Some("split-button-icon"),
+            Self::SplitButtonFlat => Some("split-button-flat"),
             Self::SwitchOffDefault => Some("switch-off-default"),
             Self::SwitchOnDefault => Some("switch-on-default"),
             Self::SwitchOffDisabled => Some("switch-off-disabled"),
@@ -329,6 +420,9 @@ impl Command {
             Self::ToggleTextChecked => Some("toggle-text-checked"),
             Self::ToggleTextFlat => Some("toggle-text-flat"),
             Self::ToggleDisabled => Some("toggle-disabled"),
+            Self::ToggleGroupTextDefault => Some("toggle-group-text-default"),
+            Self::ToggleGroupIcon => Some("toggle-group-icon"),
+            Self::ToggleGroupHomogeneous => Some("toggle-group-homogeneous"),
             Self::WindowTitleTextDefault => Some("window-title-text-default"),
             Self::WindowTitleWithSubtitle => Some("window-title-with-subtitle"),
             Self::WindowTitleLongText => Some("window-title-long-text"),
@@ -342,6 +436,99 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
     match name {
         "actionbar-default" => {
             widget_case!(cases::actionbar_default::ActionbarDefault, false)
+        }
+        "adw-action-row-default" => {
+            widget_case!(cases::adw_action_row_default::AdwActionRowDefault, false)
+        }
+        "adw-action-row-with-subtitle" => {
+            widget_case!(cases::adw_action_row_with_subtitle::AdwActionRowWithSubtitle, false)
+        }
+        "adw-action-row-activatable" => {
+            widget_case!(cases::adw_action_row_activatable::AdwActionRowActivatable, false)
+        }
+        "adw-breakpoint-bin-default" => {
+            widget_case!(cases::adw_breakpoint_bin_default::AdwBreakpointBinDefault, false)
+        }
+        "adw-combo-row-default" => {
+            widget_case!(cases::adw_combo_row_default::AdwComboRowDefault, false)
+        }
+        "adw-entry-row-default" => {
+            widget_case!(cases::adw_entry_row_default::AdwEntryRowDefault, false)
+        }
+        "adw-entry-row-with-text" => {
+            widget_case!(cases::adw_entry_row_with_text::AdwEntryRowWithText, false)
+        }
+        "adw-expander-row-default" => {
+            widget_case!(cases::adw_expander_row_default::AdwExpanderRowDefault, false)
+        }
+        "adw-expander-row-expanded" => {
+            widget_case!(cases::adw_expander_row_expanded::AdwExpanderRowExpanded, false)
+        }
+        "adw-headerbar-default" => {
+            widget_case!(cases::adw_headerbar_default::AdwHeaderbarDefault, false)
+        }
+        "adw-headerbar-with-title" => {
+            widget_case!(cases::adw_headerbar_with_title::AdwHeaderbarWithTitle, false)
+        }
+        "adw-headerbar-start-end" => {
+            widget_case!(cases::adw_headerbar_start_end::AdwHeaderbarStartEnd, false)
+        }
+        "adw-navigation-view-default" => {
+            widget_case!(cases::adw_navigation_view_default::AdwNavigationViewDefault, false)
+        }
+        "adw-overlay-split-view-default" => {
+            widget_case!(cases::adw_overlay_split_view_default::AdwOverlaySplitViewDefault, false)
+        }
+        "adw-password-entry-row-default" => {
+            widget_case!(cases::adw_password_entry_row_default::AdwPasswordEntryRowDefault, false)
+        }
+        "adw-preferences-group-default" => {
+            widget_case!(cases::adw_preferences_group_default::AdwPreferencesGroupDefault, false)
+        }
+        "adw-preferences-group-with-description" => {
+            widget_case!(cases::adw_preferences_group_with_description::AdwPreferencesGroupWithDescription, false)
+        }
+        "adw-preferences-page-default" => {
+            widget_case!(cases::adw_preferences_page_default::AdwPreferencesPageDefault, false)
+        }
+        "adw-preferences-row-default" => {
+            widget_case!(cases::adw_preferences_row_default::AdwPreferencesRowDefault, false)
+        }
+        "adw-spin-row-default" => {
+            widget_case!(cases::adw_spin_row_default::AdwSpinRowDefault, false)
+        }
+        "adw-switch-row-default" => {
+            widget_case!(cases::adw_switch_row_default::AdwSwitchRowDefault, false)
+        }
+        "adw-switch-row-active" => {
+            widget_case!(cases::adw_switch_row_active::AdwSwitchRowActive, false)
+        }
+        "adw-toolbar-view-default" => {
+            widget_case!(cases::adw_toolbar_view_default::AdwToolbarViewDefault, false)
+        }
+        "adw-toolbar-view-with-bottom" => {
+            widget_case!(cases::adw_toolbar_view_with_bottom::AdwToolbarViewWithBottom, false)
+        }
+        "adw-view-switcher-default" => {
+            widget_case!(cases::adw_view_switcher_default::AdwViewSwitcherDefault, false)
+        }
+        "avatar-default" => widget_case!(cases::avatar_default::AvatarDefault, false),
+        "avatar-initials" => widget_case!(cases::avatar_initials::AvatarInitials, false),
+        "avatar-small" => widget_case!(cases::avatar_small::AvatarSmall, false),
+        "banner-revealed" => widget_case!(cases::banner_revealed::BannerRevealed, false),
+        "banner-with-button" => {
+            widget_case!(cases::banner_with_button::BannerWithButton, false)
+        }
+        "carousel-default" => widget_case!(cases::carousel_default::CarouselDefault, false),
+        "clamp-default" => widget_case!(cases::clamp_default::ClampDefault, false),
+        "status-page-default" => {
+            widget_case!(cases::status_page_default::StatusPageDefault, false)
+        }
+        "status-page-no-icon" => {
+            widget_case!(cases::status_page_no_icon::StatusPageNoIcon, false)
+        }
+        "toast-overlay-default" => {
+            widget_case!(cases::toast_overlay_default::ToastOverlayDefault, false)
         }
         "box-horizontal-default" => {
             widget_case!(cases::box_horizontal_default::BoxHorizontalDefault, false)
@@ -403,8 +590,26 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         }
         "button-icon" => widget_case!(cases::button_icon::ButtonIcon, false),
         "button-circular" => widget_case!(cases::button_circular::ButtonCircular, false),
+        "button-content-icon-label" => {
+            widget_case!(cases::button_content_icon_label::ButtonContentIconLabel, false)
+        }
+        "button-content-label-only" => {
+            widget_case!(cases::button_content_label_only::ButtonContentLabelOnly, false)
+        }
+        "button-content-icon-only" => {
+            widget_case!(cases::button_content_icon_only::ButtonContentIconOnly, false)
+        }
         "button-pill" => widget_case!(cases::button_pill::ButtonPill, false),
         "button-disabled" => widget_case!(cases::button_disabled::ButtonDisabled, false),
+        "button-row-default" => {
+            widget_case!(cases::button_row_default::ButtonRowDefault, true)
+        }
+        "button-row-start-icon" => {
+            widget_case!(cases::button_row_start_icon::ButtonRowStartIcon, true)
+        }
+        "button-row-destructive" => {
+            widget_case!(cases::button_row_destructive::ButtonRowDestructive, true)
+        }
         "calendar-default" => widget_case!(cases::calendar_default::CalendarDefault, false),
         "check-button-default" => {
             widget_case!(cases::check_button_default::CheckButtonDefault, false)
@@ -638,6 +843,15 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
                 false
             )
         }
+        "split-button-text-default" => {
+            widget_case!(cases::split_button_text_default::SplitButtonTextDefault, false)
+        }
+        "split-button-icon" => {
+            widget_case!(cases::split_button_icon::SplitButtonIcon, false)
+        }
+        "split-button-flat" => {
+            widget_case!(cases::split_button_flat::SplitButtonFlat, false)
+        }
         "switch-off-default" => widget_case!(cases::switch_off_default::SwitchOffDefault, false),
         "switch-on-default" => widget_case!(cases::switch_on_default::SwitchOnDefault, false),
         "switch-off-disabled" => widget_case!(cases::switch_off_disabled::SwitchOffDisabled, false),
@@ -652,6 +866,15 @@ fn create_widget_for_case(name: &str) -> Option<(gtk::Widget, bool)> {
         "toggle-text-checked" => widget_case!(cases::toggle_text_checked::ToggleTextChecked, false),
         "toggle-text-flat" => widget_case!(cases::toggle_text_flat::ToggleTextFlat, false),
         "toggle-disabled" => widget_case!(cases::toggle_disabled::ToggleDisabled, false),
+        "toggle-group-text-default" => {
+            widget_case!(cases::toggle_group_text_default::ToggleGroupTextDefault, false)
+        }
+        "toggle-group-icon" => {
+            widget_case!(cases::toggle_group_icon::ToggleGroupIcon, false)
+        }
+        "toggle-group-homogeneous" => {
+            widget_case!(cases::toggle_group_homogeneous::ToggleGroupHomogeneous, false)
+        }
         "window-title-text-default" => {
             widget_case!(
                 cases::window_title_text_default::WindowTitleTextDefault,
@@ -684,6 +907,41 @@ fn is_known_case(name: &str) -> bool {
     matches!(
         name,
         "actionbar-default"
+            | "adw-action-row-default"
+            | "adw-action-row-with-subtitle"
+            | "adw-action-row-activatable"
+            | "adw-breakpoint-bin-default"
+            | "adw-combo-row-default"
+            | "adw-entry-row-default"
+            | "adw-entry-row-with-text"
+            | "adw-expander-row-default"
+            | "adw-expander-row-expanded"
+            | "adw-headerbar-default"
+            | "adw-headerbar-with-title"
+            | "adw-headerbar-start-end"
+            | "adw-navigation-view-default"
+            | "adw-overlay-split-view-default"
+            | "adw-password-entry-row-default"
+            | "adw-preferences-group-default"
+            | "adw-preferences-group-with-description"
+            | "adw-preferences-page-default"
+            | "adw-preferences-row-default"
+            | "adw-spin-row-default"
+            | "adw-switch-row-default"
+            | "adw-switch-row-active"
+            | "adw-toolbar-view-default"
+            | "adw-toolbar-view-with-bottom"
+            | "adw-view-switcher-default"
+            | "avatar-default"
+            | "avatar-initials"
+            | "avatar-small"
+            | "banner-revealed"
+            | "banner-with-button"
+            | "carousel-default"
+            | "clamp-default"
+            | "status-page-default"
+            | "status-page-no-icon"
+            | "toast-overlay-default"
             | "box-horizontal-default"
             | "box-vertical-default"
             | "box-spacing"
@@ -716,8 +974,14 @@ fn is_known_case(name: &str) -> bool {
             | "button-text-destructive"
             | "button-icon"
             | "button-circular"
+            | "button-content-icon-label"
+            | "button-content-label-only"
+            | "button-content-icon-only"
             | "button-pill"
             | "button-disabled"
+            | "button-row-default"
+            | "button-row-start-icon"
+            | "button-row-destructive"
             | "calendar-default"
             | "check-button-default"
             | "check-button-checked"
@@ -793,6 +1057,9 @@ fn is_known_case(name: &str) -> bool {
             | "spinner-spinning-custom-size"
             | "spinner-disabled-not-spinning"
             | "spinner-disabled-spinning"
+            | "split-button-text-default"
+            | "split-button-icon"
+            | "split-button-flat"
             | "switch-off-default"
             | "switch-on-default"
             | "switch-off-disabled"
@@ -805,6 +1072,9 @@ fn is_known_case(name: &str) -> bool {
             | "toggle-text-checked"
             | "toggle-text-flat"
             | "toggle-disabled"
+            | "toggle-group-text-default"
+            | "toggle-group-icon"
+            | "toggle-group-homogeneous"
             | "window-title-text-default"
             | "window-title-with-subtitle"
             | "window-title-long-text"
