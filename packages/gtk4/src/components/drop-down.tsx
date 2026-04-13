@@ -97,14 +97,16 @@ export const GtkDropDown = forwardRef<HTMLDivElement, GtkDropDownProps>(function
           <div className="gtk-contents">
             {enableSearch && (
               <div className="dropdown-searchbar">
-                <input
-                  type="search"
-                  className="gtk-entry search"
-                  placeholder="Search..."
-                  value={search}
-                  onChange={(e) => setSearch(e.target.value)}
-                  autoFocus
-                />
+                <div className="gtk-entry search">
+                  <input
+                    type="search"
+                    className="gtk-text"
+                    placeholder="Search..."
+                    value={search}
+                    onChange={(e) => setSearch(e.target.value)}
+                    autoFocus
+                  />
+                </div>
               </div>
             )}
             <div className="gtk-scrolledwindow" style={{ maxHeight: 400, overflowY: "auto" }}>

@@ -1,5 +1,6 @@
 import {
   AdwaitaProvider,
+  GtkActionBar,
   GtkBox,
   GtkButton,
   GtkCalendar,
@@ -13,6 +14,7 @@ import {
   GtkFlowBoxChild,
   GtkFrame,
   GtkGrid,
+  GtkHeaderBar,
   GtkImage,
   GtkLabel,
   GtkLevelBar,
@@ -30,6 +32,7 @@ import {
   GtkScale,
   GtkScrollbar,
   GtkScrolledWindow,
+  GtkSearchBar,
   GtkSearchEntry,
   GtkSeparator,
   GtkSpinButton,
@@ -545,6 +548,46 @@ const cases: Record<string, () => React.ReactElement> = {
         <GtkLabel label="Row 3" />
       </GtkListBoxRow>
     </GtkListBox>
+  ),
+
+  // GtkHeaderBar cases
+  "headerbar-default": () => <GtkHeaderBar showWindowControls={false} data-testid="target" />,
+  "headerbar-with-title": () => (
+    <GtkHeaderBar
+      showWindowControls={false}
+      titleWidget={<GtkWindowTitle title="Title" />}
+      data-testid="target"
+    />
+  ),
+  "headerbar-start-end": () => (
+    <GtkHeaderBar
+      showWindowControls={false}
+      start={<GtkButton label="Start" />}
+      end={<GtkButton label="End" />}
+      data-testid="target"
+    />
+  ),
+
+  // GtkActionBar cases
+  "actionbar-default": () => (
+    <GtkActionBar
+      start={<GtkButton label="Action" />}
+      end={<GtkButton label="Done" />}
+      data-testid="target"
+    />
+  ),
+
+  // GtkSearchBar cases
+  "searchbar-default": () => (
+    <GtkSearchBar searchModeEnabled child={<GtkSearchEntry />} data-testid="target" />
+  ),
+  "searchbar-with-close-button": () => (
+    <GtkSearchBar
+      searchModeEnabled
+      showCloseButton
+      child={<GtkSearchEntry />}
+      data-testid="target"
+    />
   ),
 
   // Expected-failure cases: intentionally broken for testing the comparison

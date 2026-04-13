@@ -6,6 +6,8 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
 
 ### GTK4 Components
 
+- [x] GtkActionBar
+  - [x] default
 - [x] GtkButton
   - [x] text-default
   - [x] text-flat
@@ -105,6 +107,9 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] default
 - [x] GtkScrollbar
   - [x] default
+- [x] GtkSearchBar
+  - [x] default
+  - [x] with-close-button
 - [x] GtkCalendar
   - [x] default
 - [x] GtkSpinner
@@ -134,6 +139,10 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] default
 - [x] GtkFlowBox
   - [x] default
+- [x] GtkHeaderBar
+  - [x] default
+  - [x] with-title
+  - [x] start-end
 - [x] GtkPaned
   - [x] horizontal
   - [x] vertical
@@ -245,15 +254,21 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
 
 ---
 
-### Cycle 7 — Shell Chrome
+### ~~Cycle 7 — Shell Chrome~~ ✓ Complete (partial — see GtkWindow note)
 
 **Goal:** Cover the structural widgets that form the visible frame of a GTK application window. GtkHeaderBar, GtkActionBar, and GtkSearchBar are toolbar-style bars that attach to specific edges of the window. GtkWindowTitle is a small label pair embedded inside a header bar. GtkWindow is the outermost container and the last to be tested because it depends on all the chrome widgets above being correct first. This cycle effectively validates that a complete application shell renders faithfully.
 
-- [ ] GtkHeaderBar
-- [ ] GtkActionBar
-- [ ] GtkSearchBar
+- [x] GtkHeaderBar
+  - [x] default (no controls, bare frame)
+  - [x] with-title (GtkWindowTitle in center slot)
+  - [x] start-end (buttons in start/end positions)
+- [x] GtkActionBar
+  - [x] default (revealed, start + end buttons)
+- [x] GtkSearchBar
+  - [x] default (visible, with GtkSearchEntry child)
+  - [x] with-close-button (visible, entry + close button placement)
 - [x] GtkWindowTitle
-- [ ] GtkWindow
+- [ ] GtkWindow — **deferred**: native `gtk::Window` is a toplevel (GDK surface) and cannot be embedded as content inside the `adw::Window` host used by the test harness. Requires a standalone window rendering path in the harness before native comparison is possible.
 
 ---
 
