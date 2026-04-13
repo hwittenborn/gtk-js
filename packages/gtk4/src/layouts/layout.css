@@ -25,6 +25,16 @@
   flex: 1;
 }
 
+/* hexpand + halign=start: widget stays natural size, margin fills remaining space.
+ * Equivalent to GTK hexpand=TRUE, halign=GTK_ALIGN_START — the allocation grows
+ * but the widget renders at its natural size, pushing siblings to the end. */
+.gtk-box-layout.horizontal > [data-hexpand="true"] {
+  margin-right: auto;
+}
+.gtk-box-layout.vertical > [data-hexpand="true"] {
+  margin-bottom: auto;
+}
+
 /* -- Widget alignment in horizontal BoxLayout: valign = cross-axis -- */
 .gtk-box-layout.horizontal > [data-valign="start"] {
   align-self: flex-start;
@@ -346,4 +356,47 @@
 }
 .gtk-popover.background[data-position="left"] > .gtk-contents {
   margin-right: 11px;
+}
+
+/* === GtkCalendar grid ===
+ * The calendar's grid node is a GtkGrid using GtkGridLayout.
+ * Column count: 7 without week numbers, 8 with (first column for week numbers).
+ * Each column gets equal width (1fr). Items auto-place left-to-right.
+ * GtkLabel defaults halign=CENTER, so all grid labels get justify-content:center. */
+.gtk-calendar > .gtk-grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+}
+
+.gtk-calendar > .gtk-grid[data-week-numbers] {
+  grid-template-columns: auto repeat(7, 1fr);
+}
+
+/* GtkLabel halign=CENTER: center text within each grid cell */
+.gtk-calendar > .gtk-grid > .gtk-label {
+  justify-content: center;
+}
+
+/* Prevent layout shift when navigating months/years.
+ * Native: month is in a GtkStack (sized to widest month = "September"),
+ * year gets +10px via gtk_widget_set_size_request. */
+.gtk-calendar > .gtk-header > .gtk-label.month {
+  min-width: 6ch;
+  justify-content: center;
+}
+
+.gtk-calendar > .gtk-header > .gtk-label.year {
+  min-width: 4ch;
+  justify-content: center;
+}
+
+/* Web adaptation: day-number cells are clickable — show pointer cursor and
+ * a subtle hover highlight (Adwaita button hover = 7% currentColor). */
+.gtk-calendar > .gtk-grid > .gtk-label.day-number {
+  cursor: pointer;
+}
+
+.gtk-calendar > .gtk-grid > .gtk-label.day-number:hover {
+  background-color: color-mix(in srgb, currentColor 7%, transparent);
+  border-radius: 9px;
 }
