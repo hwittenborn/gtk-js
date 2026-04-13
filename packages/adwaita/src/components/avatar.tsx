@@ -32,10 +32,11 @@ const COLORS: [string, string, string][] = [
   ["#d8d7d3", "#c0bfbc", "#6e6d71"],
 ];
 
+// Matches GLib's g_str_hash (DJB hash with multiplier 33)
 function hashString(s: string): number {
   let hash = 0;
   for (let i = 0; i < s.length; i++) {
-    hash = ((hash << 5) - hash + s.charCodeAt(i)) | 0;
+    hash = ((hash << 5) + hash + s.charCodeAt(i)) | 0;
   }
   return Math.abs(hash);
 }

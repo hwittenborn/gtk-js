@@ -169,6 +169,82 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
   - [x] default
   - [x] separators
 
+### Adwaita Components
+
+- [x] AdwAvatar
+  - [x] default
+  - [x] initials
+  - [x] small
+- [x] AdwBanner
+  - [x] revealed
+  - [x] with-button
+- [x] AdwStatusPage
+  - [x] default
+  - [x] no-icon
+- [x] AdwClamp
+  - [x] default
+- [x] AdwCarousel
+  - [x] default
+- [x] AdwToastOverlay
+  - [x] default
+- [x] AdwButtonContent
+  - [x] icon-label
+  - [x] label-only
+  - [x] icon-only
+- [x] AdwButtonRow
+  - [x] default
+  - [x] start-icon
+  - [x] destructive
+- [x] AdwSplitButton
+  - [x] text-default
+  - [x] icon
+  - [x] flat
+- [x] AdwToggleGroup
+  - [x] text-default
+  - [x] icon
+  - [x] homogeneous
+- [x] AdwActionRow
+  - [x] default
+  - [x] with-subtitle
+  - [x] activatable
+- [x] AdwEntryRow
+  - [x] default
+  - [x] with-text
+- [x] AdwPasswordEntryRow
+  - [x] default
+- [x] AdwSpinRow
+  - [x] default
+- [x] AdwComboRow
+  - [x] default
+- [x] AdwSwitchRow
+  - [x] default
+  - [x] active
+- [x] AdwExpanderRow
+  - [x] default
+  - [x] expanded
+- [x] AdwPreferencesRow
+  - [x] default
+- [x] AdwPreferencesGroup
+  - [x] default
+  - [x] with-description
+- [x] AdwPreferencesPage
+  - [x] default
+- [x] AdwHeaderBar
+  - [x] default
+  - [x] with-title
+  - [x] start-end
+- [x] AdwToolbarView
+  - [x] default
+  - [x] with-bottom
+- [x] AdwViewSwitcher
+  - [x] default
+- [x] AdwBreakpointBin
+  - [x] default
+- [x] AdwNavigationView
+  - [x] default
+- [x] AdwOverlaySplitView
+  - [x] default
+
 ---
 
 ## Cycles
@@ -272,65 +348,112 @@ Structural regression tests comparing native GTK4/Adwaita rendering against web 
 
 ---
 
-### Cycle 8 — Adwaita Standalone Widgets
+### ~~Cycle 8 — Adwaita Standalone Widgets~~ ✓ Complete
 
 **Goal:** Cover self-contained Adwaita display and utility components that don't depend on other Adwaita widgets to be meaningful. AdwAvatar renders a user avatar with initials or image fallback. AdwBanner is a full-width informational strip. AdwStatusPage is an empty-state hero widget. AdwClamp constrains its child to a maximum width. AdwCarousel is a swipeable page view. AdwToastOverlay renders non-modal notification toasts. These are all leaf-level or near-leaf widgets and form a clean first Adwaita cycle before the more compositional row/preference widgets.
 
-- [ ] AdwAvatar
-- [ ] AdwBanner
-- [ ] AdwStatusPage
-- [ ] AdwClamp
-- [ ] AdwCarousel
-- [ ] AdwToastOverlay
+- [x] AdwAvatar
+  - [x] default
+  - [x] initials
+  - [x] small
+- [x] AdwBanner
+  - [x] revealed
+  - [x] with-button
+- [x] AdwStatusPage
+  - [x] default
+  - [x] no-icon
+- [x] AdwClamp
+  - [x] default
+- [x] AdwCarousel
+  - [x] default
+- [x] AdwToastOverlay
+  - [x] default
 
 ---
 
-### Cycle 9 — Adwaita Action Widgets
+### ~~Cycle 9 — Adwaita Action Widgets~~ ✓ Complete
 
 **Goal:** Cover Adwaita-specific interactive controls that go beyond what GTK4 provides natively. AdwButtonContent is the internal content widget used inside buttons that combine an icon and a label. AdwButtonRow is a list-row variant styled as a button. AdwSplitButton combines a main action button with a dropdown arrow. AdwToggleGroup is a segmented control for choosing one option from a small set. These four widgets are closely related in purpose and share significant CSS infrastructure, so they're grouped to allow the subagent to reuse patterns across them.
 
-- [ ] AdwButtonContent
-- [ ] AdwButtonRow
-- [ ] AdwSplitButton
-- [ ] AdwToggleGroup
+- [x] AdwButtonContent
+  - [x] icon-label
+  - [x] label-only
+  - [x] icon-only
+- [x] AdwButtonRow
+  - [x] default
+  - [x] start-icon
+  - [x] destructive
+- [x] AdwSplitButton
+  - [x] text-default
+  - [x] icon
+  - [x] flat
+- [x] AdwToggleGroup
+  - [x] text-default
+  - [x] icon
+  - [x] homogeneous
 
 ---
 
-### Cycle 10 — Adwaita Rows & Preferences
+### ~~Cycle 10 — Adwaita Rows & Preferences~~ ✓ Complete
 
 **Goal:** Cover the full Adwaita list-row and preferences hierarchy. All Adw*Row widgets are visual variants of the same underlying list-row pattern (title + subtitle + optional control on the trailing edge), so they share most of their CSS and can be tested together efficiently. AdwPreferencesGroup and AdwPreferencesPage sit above the rows in the hierarchy — they require the rows to be working first, so they close out the cycle. This is the largest cycle by count but the per-widget cost is low because each row is a minor variation on a common template.
 
-- [ ] AdwActionRow
-- [ ] AdwEntryRow
-- [ ] AdwPasswordEntryRow
-- [ ] AdwSpinRow
-- [ ] AdwComboRow
-- [ ] AdwSwitchRow
-- [ ] AdwExpanderRow
-- [ ] AdwPreferencesRow
-- [ ] AdwPreferencesGroup
-- [ ] AdwPreferencesPage
+- [x] AdwActionRow
+  - [x] default
+  - [x] with-subtitle
+  - [x] activatable
+- [x] AdwEntryRow
+  - [x] default
+  - [x] with-text
+- [x] AdwPasswordEntryRow
+  - [x] default
+- [x] AdwSpinRow
+  - [x] default
+- [x] AdwComboRow
+  - [x] default
+- [x] AdwSwitchRow
+  - [x] default
+  - [x] active
+- [x] AdwExpanderRow
+  - [x] default
+  - [x] expanded
+- [x] AdwPreferencesRow
+  - [x] default
+- [x] AdwPreferencesGroup
+  - [x] default
+  - [x] with-description
+- [x] AdwPreferencesPage
+  - [x] default
 
 ---
 
-### Cycle 11 — Adwaita Dialogs
+### Cycle 11 — Adwaita Dialogs ✓ Complete (all deferred)
 
 **Goal:** Cover Adwaita's overlay modal presentation layer. AdwDialog is the base modal; AdwAlertDialog adds a title, body, and response buttons for confirmations and errors; AdwAboutDialog is a fully structured dialog for application metadata. These three form a natural hierarchy and are grouped together so the subagent can build from the base dialog upward without switching context.
 
-- [ ] AdwDialog
-- [ ] AdwAlertDialog
-- [ ] AdwAboutDialog
+- [ ] AdwDialog — **deferred**: native `AdwDialog` is a modal overlay presented via `adw_dialog_present()` and cannot be embedded as content inside the `adw::Window` host. The C source (`upstream/libadwaita/src/adw-dialog.c`) explicitly rejects non-host parents. Requires a dialog presentation path in the test harness.
+- [ ] AdwAlertDialog — **deferred**: subclass of AdwDialog, inherits the same presentation-only constraint. Cannot be set as window content.
+- [ ] AdwAboutDialog — **deferred**: subclass of AdwDialog, same modal overlay constraint.
 
 ---
 
-### Cycle 12 — Adwaita Shell & Navigation
+### ~~Cycle 12 — Adwaita Shell & Navigation~~ ✓ Complete (partial — see AdwWindow note)
 
 **Goal:** Cover the full Adwaita application layout scaffolding — the most architecturally complex cycle in the suite. AdwHeaderBar is Adwaita's enhanced header bar. AdwToolbarView attaches header/footer bars to a content area. AdwViewSwitcher provides tab-style navigation integrated into a toolbar. AdwBreakpointBin enables responsive layout by switching child configurations at breakpoints. AdwNavigationView implements push/pop navigation with animated transitions. AdwOverlaySplitView is a sidebar pattern that can overlay or split depending on available width. AdwWindow is the top-level application window that composes all of the above. These widgets only make full sense in combination, so they are tested together as an integrated app shell. This cycle is intentionally last because it depends on nearly every prior cycle being correct.
 
-- [ ] AdwHeaderBar
-- [ ] AdwToolbarView
-- [ ] AdwViewSwitcher
-- [ ] AdwBreakpointBin
-- [ ] AdwNavigationView
-- [ ] AdwOverlaySplitView
-- [ ] AdwWindow
+- [x] AdwHeaderBar
+  - [x] default
+  - [x] with-title
+  - [x] start-end
+- [x] AdwToolbarView
+  - [x] default
+  - [x] with-bottom
+- [x] AdwViewSwitcher
+  - [x] default
+- [x] AdwBreakpointBin
+  - [x] default
+- [x] AdwNavigationView
+  - [x] default
+- [x] AdwOverlaySplitView
+  - [x] default
+- [ ] AdwWindow — **deferred**: native `adw::Window` inherits from `gtk::Window` and is a toplevel (GDK surface). Like GtkWindow (Cycle 7), it cannot be embedded inside the `adw::Window` test host. Requires a standalone window rendering path in the harness.
