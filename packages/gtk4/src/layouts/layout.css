@@ -99,8 +99,9 @@
 /* === GtkActionBar ===
  * GtkActionBar defaults to halign=GTK_ALIGN_FILL in native GTK, meaning it
  * always fills the full width allocated by its parent. On the web we must
- * make this explicit so it stretches inside any flex/block container. */
-.gtk-actionbar {
+ * make this explicit so it stretches inside any flex/block container.
+ * Only apply the fill-width behavior when no explicit halign is set. */
+.gtk-actionbar:not([data-halign]) {
   width: 100%;
 }
 
