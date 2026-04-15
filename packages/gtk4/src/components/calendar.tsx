@@ -154,18 +154,23 @@ export const GtkCalendar = forwardRef<HTMLDivElement, GtkCalendarProps>(function
 
   const today = now.getFullYear() === year && now.getMonth() === month ? now.getDate() : -1;
 
-  const classes = ["gtk-calendar", "view"];
+  const classes = ["gtk-calendar", "view", "gtk-box-layout", "vertical"];
   if (className) classes.push(className);
 
   return (
     <div ref={ref} className={classes.join(" ")} {...alignAttrs(halign, valign)} {...rest}>
       {showHeading && (
-        <div className="gtk-header">
+        <div className="gtk-header gtk-box-layout horizontal">
           <button className="gtk-button flat" type="button" onClick={() => navigate(0, -1)}>
             <span className="gtk-image">{PrevIcon && <PrevIcon size={16} />}</span>
           </button>
           <span className="gtk-label month">{MONTH_NAMES[month]}</span>
-          <button className="gtk-button flat" type="button" onClick={() => navigate(0, 1)}>
+          <button
+            className="gtk-button flat"
+            type="button"
+            data-hexpand="true"
+            onClick={() => navigate(0, 1)}
+          >
             <span className="gtk-image">{NextIcon && <NextIcon size={16} />}</span>
           </button>
           <button className="gtk-button flat" type="button" onClick={() => navigate(-1, 0)}>
@@ -177,7 +182,11 @@ export const GtkCalendar = forwardRef<HTMLDivElement, GtkCalendarProps>(function
           </button>
         </div>
       )}
-      <div className="gtk-grid" role="grid">
+      <div
+        className="gtk-grid"
+        role="grid"
+        {...(showWeekNumbers ? { "data-week-numbers": "" } : {})}
+      >
         {showDayNames && (
           <>
             {showWeekNumbers && <span className="gtk-label week-number" />}
