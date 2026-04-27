@@ -112,7 +112,7 @@ export function GtkProvider({
   return (
     <ThemeContext.Provider value={theme}>
       <IconProvider value={icons}>
-        <div data-gtk-provider="" style={style}>
+        <div data-gtk-provider="" className="background" style={style}>
           {children}
         </div>
       </IconProvider>

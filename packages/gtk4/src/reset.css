@@ -11,6 +11,14 @@ body:has([data-gtk-provider]) {
   padding: 0;
 }
 
+/* The provider div has .background for color inheritance (color: var(--window-fg-color)),
+   but its background-color must be transparent so it doesn't paint a rectangle
+   behind a rounded GtkWindow (CSD corner bleed in transparent-window contexts like Tauri).
+   The GtkWindow's own .background class handles the visible background. */
+[data-gtk-provider] {
+  background-color: transparent !important;
+}
+
 :where([data-gtk-provider]),
 :where([data-gtk-provider] *) {
   margin: 0;
