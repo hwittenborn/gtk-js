@@ -8,6 +8,7 @@
   "main": "src/index.ts",
   "exports": {
     ".": "./src/index.ts",
+    "./build": "./src/build.ts",
     "./compile": "./src/compile.ts"
   },
   "dependencies": {
