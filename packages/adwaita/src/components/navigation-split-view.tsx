@@ -69,6 +69,7 @@ function CollapsedNavigator({
   const prevShowContentRef = useRef(internalShowContent);
   // Track whether changes are from internal navigation (pop/push) vs prop
   const internalChangeRef = useRef(false);
+  const canPop = internalShowContent && content.canPop !== false;
 
   // Sync external prop to internal state
   useEffect(() => {
@@ -123,12 +124,12 @@ function CollapsedNavigator({
   );
 
   const pop = useCallback((): boolean => {
-    if (!internalShowContent) return false;
+    if (!canPop) return false;
     internalChangeRef.current = true;
     setInternalShowContent(false);
     onShowContentChanged?.(false);
     return true;
-  }, [internalShowContent, onShowContentChanged]);
+  }, [canPop, onShowContentChanged]);
 
   const handleTransitionEnd = useCallback(
     (event: React.TransitionEvent<HTMLDivElement>, key: number) => {
@@ -140,12 +141,12 @@ function CollapsedNavigator({
 
   const handleKeyDown = useCallback(
     (e: React.KeyboardEvent) => {
-      if (e.key === "Escape" && internalShowContent) {
+      if (e.key === "Escape" && canPop) {
         e.preventDefault();
         pop();
       }
     },
-    [internalShowContent, pop],
+    [canPop, pop],
   );
 
   const renderPage = (
@@ -212,7 +213,7 @@ function CollapsedNavigator({
   const currentPage = internalShowContent ? content : sidebar;
 
   return (
-    <NavContext.Provider value={{ push, pop, canPop: internalShowContent }}>
+    <NavContext.Provider value={{ push, pop, canPop }}>
       <div
         className="gtk-navigation-view gtk-bin-layout"
         onKeyDown={handleKeyDown}

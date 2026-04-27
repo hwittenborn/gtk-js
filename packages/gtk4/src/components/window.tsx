@@ -1,5 +1,6 @@
 import {
   forwardRef,
+  type CSSProperties,
   type HTMLAttributes,
   type ReactNode,
   useCallback,
@@ -65,10 +66,11 @@ function measureShadowExtent(el: HTMLElement): number {
   const regex = /(-?[\d.]+)px\s+(-?[\d.]+)px\s+([\d.]+)px(?:\s+([\d.]+)px)?/g;
   let match: RegExpExecArray | null;
   while ((match = regex.exec(shadow)) !== null) {
-    const offsetX = Math.abs(parseFloat(match[1]));
-    const offsetY = Math.abs(parseFloat(match[2]));
-    const blur = parseFloat(match[3]);
-    const spread = parseFloat(match[4] ?? "0");
+    const [, offsetXRaw = "0", offsetYRaw = "0", blurRaw = "0", spreadRaw = "0"] = match;
+    const offsetX = Math.abs(parseFloat(offsetXRaw));
+    const offsetY = Math.abs(parseFloat(offsetYRaw));
+    const blur = parseFloat(blurRaw);
+    const spread = parseFloat(spreadRaw);
     const extent = Math.max(offsetX, offsetY) + blur + spread;
     if (extent > maxExtent) maxExtent = extent;
   }
@@ -89,7 +91,7 @@ type ResizeDirection =
   | "SouthEast"
   | "SouthWest";
 
-const HANDLE_EDGES: { direction: ResizeDirection; style: React.CSSProperties }[] = [
+const HANDLE_EDGES: { direction: ResizeDirection; style: CSSProperties }[] = [
   // Edges
   { direction: "North", style: { top: -HANDLE_SIZE / 2, left: HANDLE_SIZE, right: HANDLE_SIZE, height: HANDLE_SIZE, cursor: "n-resize" } },
   { direction: "South", style: { bottom: -HANDLE_SIZE / 2, left: HANDLE_SIZE, right: HANDLE_SIZE, height: HANDLE_SIZE, cursor: "s-resize" } },
@@ -112,7 +114,7 @@ const HANDLE_EDGES: { direction: ResizeDirection; style: React.CSSProperties }[]
  * Use `allocateShadow` to automatically:
  * 1. Add padding around the window for the CSD box-shadow (measured from CSS)
  * 2. Render invisible resize handles at the visible window edges
- * 3. Remove both when maximized/fullscreen
+ * 3. Remove both when maximized
  *
  * The resize handles call `onResize(direction)` which should invoke
  * Tauri's `startResizeDragging(direction)`.
@@ -152,9 +154,9 @@ export const GtkWindow = forwardRef<HTMLDivElement, GtkWindowProps>(function Gtk
 
   const mergedRef = useCallback(
     (node: HTMLDivElement | null) => {
-      (windowRef as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      windowRef.current = node;
       if (typeof ref === "function") ref(node);
-      else if (ref) (ref as React.MutableRefObject<HTMLDivElement | null>).current = node;
+      else if (ref) ref.current = node;
     },
     [ref],
   );
@@ -167,23 +169,51 @@ export const GtkWindow = forwardRef<HTMLDivElement, GtkWindowProps>(function Gtk
     const el = windowRef.current;
     if (!el) return;
 
-    const extent = measureShadowExtent(el);
-    setShadowPadding(extent);
+    let frame = 0;
+    const updateShadowPadding = () => {
+      const extent = measureShadowExtent(el);
+      setShadowPadding((current) => (current === extent ? current : extent));
+    };
+
+    updateShadowPadding();
+
+    const scheduleUpdate = () => {
+      if (frame) return;
+      frame = window.requestAnimationFrame(() => {
+        frame = 0;
+        updateShadowPadding();
+      });
+    };
+
+    const themeNode = document.getElementById("gtk-js-theme");
+    if (!themeNode) {
+      return () => {
+        if (frame) window.cancelAnimationFrame(frame);
+      };
+    }
 
     const observer = new MutationObserver(() => {
-      setShadowPadding(measureShadowExtent(el));
+      scheduleUpdate();
     });
-    observer.observe(document.head, { childList: true, subtree: true, characterData: true });
-    return () => observer.disconnect();
+    observer.observe(themeNode, {
+      childList: true,
+      subtree: true,
+      characterData: true,
+      attributes: true,
+    });
+    return () => {
+      observer.disconnect();
+      if (frame) window.cancelAnimationFrame(frame);
+    };
   }, [allocateShadow, maximized]);
 
-  const showHandles = allocateShadow && !maximized && onResize;
+  const showHandles = allocateShadow && !maximized && !!onResize;
 
   const windowElement = (
     <div
       ref={mergedRef}
       className={classes.join(" ")}
-      {...alignAttrs(halign, valign)}
+      {...(!allocateShadow ? alignAttrs(halign, valign) : {})}
       style={
         allocateShadow
           ? { width: "100%", height: "100%", position: "relative", ...style }
@@ -199,7 +229,7 @@ export const GtkWindow = forwardRef<HTMLDivElement, GtkWindowProps>(function Gtk
         HANDLE_EDGES.map(({ direction, style: handleStyle }) => (
           <div
             key={direction}
-            onPointerDown={() => onResize(direction)}
+            onPointerDown={() => onResize?.(direction)}
             style={{
               position: "absolute",
               ...handleStyle,
@@ -222,6 +252,7 @@ export const GtkWindow = forwardRef<HTMLDivElement, GtkWindowProps>(function Gtk
     <WindowControlsContext.Provider value={windowControls}>
       <div
         className="gtk-window-shadow-alloc"
+        {...alignAttrs(halign, valign)}
         style={{
           padding: shadowPadding,
           width: "100%",
