@@ -1,8 +1,15 @@
 const packages = [
   "packages/gtk-css",
   "packages/icon-helpers",
-  "packages/gtk4-icons",
-  "packages/adwaita-icons",
+  "themes/adwaita",
+  "themes/whitesur",
+  "themes/mactahoe",
+  "themes/fluent",
+  "icons/gtk4",
+  "icons/adwaita",
+  "icons/whitesur",
+  "icons/mactahoe",
+  "icons/fluent",
   "packages/gtk4",
   "packages/adwaita",
 ];

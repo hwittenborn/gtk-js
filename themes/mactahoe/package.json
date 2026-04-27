@@ -1,6 +1,9 @@
 {
   "name": "@gtk-js/theme-mactahoe",
-  "version": "0.0.2",
+  "publishConfig": {
+    "access": "public"
+  },
+  "version": "0.0.1",
   "main": "src/index.ts",
   "dependencies": {
     "@gtk-js/gtk-css": "workspace:*",
