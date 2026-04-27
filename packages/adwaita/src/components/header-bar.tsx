@@ -27,7 +27,7 @@ function WindowControlButton({ name, onClick }: { name: string; onClick?: () => 
       className={`gtk-button image-button ${name}`}
       type="button"
       onClick={onClick}
-      onMouseDown={(e) => {
+      onPointerDown={(e) => {
         // Stop propagation so the windowhandle drag handler doesn't fire.
         // In Tauri/WebKitGTK, startDragging() captures all input and
         // prevents the subsequent click event from reaching the button.
@@ -95,10 +95,8 @@ export const AdwHeaderBar = forwardRef<HTMLDivElement, AdwHeaderBarProps>(functi
   if (className) classes.push(className);
 
   const handleDrag = useCallback(
-    (e: React.MouseEvent) => {
+    (e: React.PointerEvent) => {
       if (!controls?.drag) return;
-      // Don't initiate drag when clicking interactive elements (buttons, inputs, etc.)
-      // Native GtkWindowHandle checks if the target is an actionable widget.
       if (
         e.target instanceof HTMLElement &&
         e.target.closest("button, [role='button'], a, input, select, textarea")
@@ -111,7 +109,7 @@ export const AdwHeaderBar = forwardRef<HTMLDivElement, AdwHeaderBarProps>(functi
 
   return (
     <div ref={ref} className={classes.join(" ")} {...rest}>
-      <div className="gtk-windowhandle" onMouseDown={handleDrag}>
+      <div className="gtk-windowhandle" onPointerDown={handleDrag}>
         <div className="gtk-box gtk-center-layout">
           <div className="gtk-box gtk-box-layout horizontal start gtk-center-layout-start">
             {showStartTitleButtons && <WindowControls side="start" layout={decorationLayout} />}

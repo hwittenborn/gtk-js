@@ -75,14 +75,14 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
   // Close popover on outside click
   useEffect(() => {
     if (!open) return;
-    const handler = (e: MouseEvent) => {
+    const handler = (e: PointerEvent) => {
       if (rowRef.current && e.target instanceof Node && !rowRef.current.contains(e.target)) {
         setOpen(false);
         setSearch("");
       }
     };
-    document.addEventListener("mousedown", handler);
-    return () => document.removeEventListener("mousedown", handler);
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
   }, [open]);
 
   const displaySubtitle = useSubtitle ? items[selected] : subtitle;
@@ -135,15 +135,19 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
         >
           <div className="gtk-contents">
             {enableSearch && (
-              <input
-                type="search"
+              <div
                 className="gtk-entry search combo-searchbar"
-                placeholder="Search..."
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
                 onClick={(e) => e.stopPropagation()}
-                autoFocus
-              />
+              >
+                <input
+                  type="search"
+                  className="gtk-text"
+                  placeholder="Search..."
+                  value={search}
+                  onChange={(e) => setSearch(e.target.value)}
+                  autoFocus
+                />
+              </div>
             )}
             <div className="gtk-scrolledwindow" style={{ maxHeight: 400, overflow: "auto" }}>
               <div className="gtk-viewport">

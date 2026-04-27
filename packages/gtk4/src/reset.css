@@ -41,6 +41,7 @@ body:has([data-gtk-provider]) {
 
 /* Re-enable text selection for editable widgets */
 :where([data-gtk-provider] .gtk-text),
+:where([data-gtk-provider] input),
 :where([data-gtk-provider] textarea),
 :where([data-gtk-provider] [contenteditable="true"]) {
   -webkit-user-select: text;
