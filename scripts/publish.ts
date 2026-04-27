@@ -18,7 +18,7 @@ for (const dir of packages) {
   const pkg = await Bun.file(`${dir}/package.json`).json();
   const { name, version } = pkg;
 
-  const res = await fetch(`https://registry.npmjs.org/${name}/${version}`);
+  const res = await fetch(`https://registry.npmjs.org/${encodeURIComponent(name)}/${version}`);
   if (res.ok) {
     console.log(`${name}@${version} already published, skipping`);
     continue;
