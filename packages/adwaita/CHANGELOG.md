@@ -1,5 +1,15 @@
 # @gtk-js/adwaita
 
+## 0.1.1
+
+### Patch Changes
+
+- 0982123: Bump all packages past burned npm versions
+- Updated dependencies [0982123]
+  - @gtk-js/gtk4@0.1.1
+  - @gtk-js/icons-adwaita@0.1.1
+  - @gtk-js/theme-adwaita@0.0.2
+
 ## 0.2.0
 
 ### Minor Changes
