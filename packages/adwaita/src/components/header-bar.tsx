@@ -1,5 +1,5 @@
-import { useIcon } from "@gtk-js/gtk4";
-import { forwardRef, type HTMLAttributes, type ReactNode } from "react";
+import { useIcon, useWindowControls } from "@gtk-js/gtk4";
+import { forwardRef, type HTMLAttributes, type ReactNode, useCallback } from "react";
 import type { AdwCenteringPolicy } from "../types.ts";
 
 export interface AdwHeaderBarProps extends HTMLAttributes<HTMLDivElement> {
@@ -14,7 +14,7 @@ export interface AdwHeaderBarProps extends HTMLAttributes<HTMLDivElement> {
   end?: ReactNode;
 }
 
-function WindowControlButton({ name }: { name: string }) {
+function WindowControlButton({ name, onClick }: { name: string; onClick?: () => void }) {
   const iconMap: Record<string, string> = {
     close: "WindowClose",
     minimize: "WindowMinimize",
@@ -23,7 +23,17 @@ function WindowControlButton({ name }: { name: string }) {
   const Icon = useIcon(iconMap[name] ?? "");
   if (!Icon) return null;
   return (
-    <button className={`gtk-button image-button ${name}`} type="button">
+    <button
+      className={`gtk-button image-button ${name}`}
+      type="button"
+      onClick={onClick}
+      onPointerDown={(e) => {
+        // Stop propagation so the windowhandle drag handler doesn't fire.
+        // In Tauri/WebKitGTK, startDragging() captures all input and
+        // prevents the subsequent click event from reaching the button.
+        e.stopPropagation();
+      }}
+    >
       <span className="gtk-image">
         <Icon size={16} />
       </span>
@@ -32,14 +42,22 @@ function WindowControlButton({ name }: { name: string }) {
 }
 
 function WindowControls({ side, layout }: { side: "start" | "end"; layout: string }) {
+  const controls = useWindowControls();
   const [startPart = "", endPart = ""] = layout.split(":");
   const part = side === "start" ? startPart : endPart;
   const buttons = part.split(",").filter((b) => b && b !== "appmenu" && b !== "icon");
   if (buttons.length === 0) return <div className={`gtk-windowcontrols ${side} empty`} />;
+
+  const clickHandlers: Record<string, (() => void) | undefined> = {
+    close: controls?.close,
+    minimize: controls?.minimize,
+    maximize: controls?.maximize,
+  };
+
   return (
     <div className={`gtk-windowcontrols gtk-box-layout horizontal ${side}`} style={{ gap: 3 }}>
       {buttons.map((name) => (
-        <WindowControlButton key={name} name={name} />
+        <WindowControlButton key={name} name={name} onClick={clickHandlers[name]} />
       ))}
     </div>
   );
@@ -48,11 +66,9 @@ function WindowControls({ side, layout }: { side: "start" | "end"; layout: strin
 /**
  * AdwHeaderBar — An adaptive header bar with navigation integration.
  *
- * Differences from GtkHeaderBar:
- * - Independent start/end title button control
- * - Built-in back button for NavigationView
- * - show-title property
- * - centering-policy (LOOSE/STRICT)
+ * Window control buttons (close, minimize, maximize) call handlers from
+ * WindowControlsContext, which is set up by the parent GtkWindow.
+ * The titlebar drag region calls the drag handler for window move.
  *
  * @see https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.HeaderBar.html
  */
@@ -74,12 +90,26 @@ export const AdwHeaderBar = forwardRef<HTMLDivElement, AdwHeaderBarProps>(functi
   ref,
 ) {
   const BackIcon = useIcon("GoPrevious");
+  const controls = useWindowControls();
   const classes = ["gtk-headerbar"];
   if (className) classes.push(className);
 
+  const handleDrag = useCallback(
+    (e: React.PointerEvent) => {
+      if (!controls?.drag) return;
+      if (
+        e.target instanceof HTMLElement &&
+        e.target.closest("button, [role='button'], a, input, select, textarea")
+      )
+        return;
+      controls.drag();
+    },
+    [controls],
+  );
+
   return (
     <div ref={ref} className={classes.join(" ")} {...rest}>
-      <div className="gtk-windowhandle">
+      <div className="gtk-windowhandle" onPointerDown={handleDrag}>
         <div className="gtk-box gtk-center-layout">
           <div className="gtk-box gtk-box-layout horizontal start gtk-center-layout-start">
             {showStartTitleButtons && <WindowControls side="start" layout={decorationLayout} />}

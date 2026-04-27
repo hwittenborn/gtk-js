@@ -36,8 +36,13 @@ export const AdwPreferencesPage = forwardRef<HTMLDivElement, AdwPreferencesPageP
     if (className) classes.push(className);
 
     return (
-      <div ref={ref} className={classes.join(" ")} style={style} {...rest}>
-        <div className="gtk-scrolledwindow" style={{ overflow: "auto", flex: 1 }}>
+      <div
+        ref={ref}
+        className={classes.join(" ")}
+        style={{ flex: 1, minHeight: 0, ...style }}
+        {...rest}
+      >
+        <div className="gtk-scrolledwindow" style={{ overflow: "auto", flex: 1, minHeight: 0 }}>
           <div className="gtk-clamp" style={{ maxWidth: 600, margin: "0 auto" }}>
             <div
               className="gtk-box gtk-box-layout vertical"

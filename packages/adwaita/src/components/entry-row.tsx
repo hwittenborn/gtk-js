@@ -22,10 +22,22 @@ export interface AdwEntryRowProps extends HTMLAttributes<HTMLDivElement> {
 }
 
 /**
+ * Upstream animation parameters for the empty ↔ filled transition.
+ * @see upstream/libadwaita/src/adw-entry-row.c — EMPTY_ANIMATION_DURATION, ADW_EASE
+ * @see upstream/libadwaita/src/adw-easing.c — ADW_EASE = cubic-bezier(0.25, 0.1, 0.25, 1.0)
+ */
+const EMPTY_TRANSITION = "150ms cubic-bezier(0.25, 0.1, 0.25, 1.0)";
+
+/**
  * AdwEntryRow — A list row with an integrated text entry.
  *
  * CSS node: row.entry
  *
+ * The editable-area uses a custom layout matching upstream's allocate_editable_area:
+ * title label stacks above the text input, with an animated transition between
+ * empty (title centered as placeholder) and filled (title shrunk to subtitle above input).
+ *
+ * @see upstream/libadwaita/src/adw-entry-row.c — allocate_editable_area
  * @see https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.EntryRow.html
  */
 export const AdwEntryRow = forwardRef<HTMLDivElement, AdwEntryRowProps>(function AdwEntryRow(
@@ -52,6 +64,7 @@ export const AdwEntryRow = forwardRef<HTMLDivElement, AdwEntryRowProps>(function
 
   const text = controlledText ?? internalText;
   const hasContent = text.length > 0;
+  const expanded = hasContent || focused;
 
   const ApplyIcon = useIcon("AdwEntryApply");
   const EditIcon = useIcon("DocumentEdit");
@@ -100,26 +113,51 @@ export const AdwEntryRow = forwardRef<HTMLDivElement, AdwEntryRowProps>(function
             {prefixWidget}
           </div>
         )}
-        <div className="editable-area" style={{ flex: 1, padding: "0 6px" }}>
-          <span
-            className={`gtk-label title ${hasContent || focused ? "subtitle" : "dimmed"}`}
-            style={{ fontSize: hasContent || focused ? "smaller" : undefined }}
+        <div
+          className="editable-area"
+          style={{ flex: 1, padding: "0 6px", display: "flex", alignItems: "center" }}
+        >
+          <div
+            style={{
+              display: "flex",
+              flexDirection: "column",
+              flex: 1,
+              justifyContent: "center",
+              minWidth: 0,
+              gap: expanded ? 3 : 0,
+              transition: `gap ${EMPTY_TRANSITION}`,
+            }}
           >
-            {title}
-          </span>
-          <input
-            ref={inputRef}
-            className="gtk-text"
-            type={inputPurpose === "password" ? "password" : "text"}
-            value={text}
-            maxLength={maxLength > 0 ? maxLength : undefined}
-            onChange={handleChange}
-            onKeyDown={handleKeyDown}
-            onFocus={() => setFocused(true)}
-            onBlur={() => setFocused(false)}
-          />
+            <span
+              className={`gtk-label title ${expanded ? "subtitle" : "dimmed"}`}
+              style={{
+                fontSize: expanded ? "0.75em" : "1em",
+                transition: `font-size ${EMPTY_TRANSITION}`,
+                transformOrigin: "left center",
+              }}
+            >
+              {title}
+            </span>
+            <input
+              ref={inputRef}
+              className="gtk-text"
+              type={inputPurpose === "password" ? "password" : "text"}
+              value={text}
+              maxLength={maxLength > 0 ? maxLength : undefined}
+              onChange={handleChange}
+              onKeyDown={handleKeyDown}
+              onFocus={() => setFocused(true)}
+              onBlur={() => setFocused(false)}
+              style={{
+                height: expanded ? "1.2em" : 0,
+                opacity: expanded ? 1 : 0,
+                overflow: "hidden",
+                transition: `height ${EMPTY_TRANSITION}, opacity ${EMPTY_TRANSITION}`,
+              }}
+            />
+          </div>
           {!focused && !hasContent && EditIcon && (
-            <span className="gtk-image edit-icon">
+            <span className="gtk-image edit-icon" style={{ display: "flex", alignItems: "center" }}>
               <EditIcon size={16} />
             </span>
           )}

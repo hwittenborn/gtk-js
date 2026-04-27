@@ -1,5 +1,13 @@
 import { useIcon } from "@gtk-js/gtk4";
-import { forwardRef, type HTMLAttributes, useCallback, useMemo, useState } from "react";
+import {
+  forwardRef,
+  type HTMLAttributes,
+  useCallback,
+  useEffect,
+  useMemo,
+  useRef,
+  useState,
+} from "react";
 
 export interface AdwComboRowProps extends HTMLAttributes<HTMLDivElement> {
   title: string;
@@ -8,6 +16,7 @@ export interface AdwComboRowProps extends HTMLAttributes<HTMLDivElement> {
   selected?: number;
   enableSearch?: boolean;
   useSubtitle?: boolean;
+  iconName?: string;
   onSelected?: (index: number) => void;
 }
 
@@ -16,6 +25,7 @@ export interface AdwComboRowProps extends HTMLAttributes<HTMLDivElement> {
  *
  * CSS node: row.combo
  *
+ * @see upstream/libadwaita/src/adw-combo-row.ui
  * @see https://gnome.pages.gitlab.gnome.org/libadwaita/doc/1-latest/class.ComboRow.html
  */
 export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function AdwComboRow(
@@ -26,8 +36,10 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
     selected: controlledSelected,
     enableSearch = false,
     useSubtitle = false,
+    iconName,
     onSelected,
     className,
+    style,
     ...rest
   },
   ref,
@@ -37,9 +49,11 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const selected = isControlled ? controlledSelected : internalSelected;
+  const rowRef = useRef<HTMLDivElement>(null);
 
   const ArrowIcon = useIcon("PanDown");
   const CheckIcon = useIcon("ObjectSelect");
+  const PrefixIcon = useIcon(iconName ?? "");
 
   const filtered = useMemo(() => {
     if (!search) return items.map((item, i) => ({ item, i }));
@@ -58,6 +72,19 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
     [isControlled, onSelected],
   );
 
+  // Close popover on outside click
+  useEffect(() => {
+    if (!open) return;
+    const handler = (e: PointerEvent) => {
+      if (rowRef.current && e.target instanceof Node && !rowRef.current.contains(e.target)) {
+        setOpen(false);
+        setSearch("");
+      }
+    };
+    document.addEventListener("pointerdown", handler);
+    return () => document.removeEventListener("pointerdown", handler);
+  }, [open]);
+
   const displaySubtitle = useSubtitle ? items[selected] : subtitle;
 
   const classes = ["gtk-row", "combo", "activatable"];
@@ -65,7 +92,16 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
   if (className) classes.push(className);
 
   return (
-    <div ref={ref} className={classes.join(" ")} {...rest}>
+    <div
+      ref={(el) => {
+        rowRef.current = el;
+        if (typeof ref === "function") ref(el);
+        else if (ref) ref.current = el;
+      }}
+      className={classes.join(" ")}
+      style={{ position: "relative", ...style }}
+      {...rest}
+    >
       <div
         className="gtk-box gtk-box-layout horizontal header"
         style={{ gap: 6, alignItems: "center", cursor: "pointer" }}
@@ -74,6 +110,13 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
           setSearch("");
         }}
       >
+        {PrefixIcon && (
+          <div className="gtk-box prefixes" style={{ gap: 6 }}>
+            <span className="gtk-image">
+              <PrefixIcon size={16} />
+            </span>
+          </div>
+        )}
         <div className="gtk-box gtk-box-layout vertical title" style={{ flex: 1, gap: 3 }}>
           <span className="gtk-label title">{title}</span>
           {displaySubtitle && <span className="gtk-label subtitle">{displaySubtitle}</span>}
@@ -86,13 +129,19 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
         )}
       </div>
       {open && (
-        <div className="gtk-popover background menu">
+        <div
+          className="gtk-popover menu"
+          style={{ position: "absolute", top: "100%", left: 0, right: 0, zIndex: 100 }}
+        >
           <div className="gtk-contents">
             {enableSearch && (
-              <div className="combo-searchbar" style={{ padding: 6 }}>
+              <div
+                className="gtk-entry search combo-searchbar"
+                onClick={(e) => e.stopPropagation()}
+              >
                 <input
                   type="search"
-                  className="gtk-entry search"
+                  className="gtk-text"
                   placeholder="Search..."
                   value={search}
                   onChange={(e) => setSearch(e.target.value)}
@@ -100,23 +149,27 @@ export const AdwComboRow = forwardRef<HTMLDivElement, AdwComboRowProps>(function
                 />
               </div>
             )}
-            <div style={{ maxHeight: 400, overflowY: "auto" }}>
-              {filtered.map(({ item, i }) => (
-                <div
-                  key={i}
-                  className={`gtk-row activatable ${i === selected ? "selected" : ""}`}
-                  role="option"
-                  aria-selected={i === selected}
-                  onClick={() => selectItem(i)}
-                >
-                  <span className="gtk-label">{item}</span>
-                  {i === selected && CheckIcon && (
-                    <span className="gtk-image">
-                      <CheckIcon size={16} />
-                    </span>
-                  )}
+            <div className="gtk-scrolledwindow" style={{ maxHeight: 400, overflow: "auto" }}>
+              <div className="gtk-viewport">
+                <div className="gtk-list">
+                  {filtered.map(({ item, i }) => (
+                    <div
+                      key={i}
+                      className="gtk-row activatable"
+                      role="option"
+                      aria-selected={i === selected}
+                      onClick={() => selectItem(i)}
+                    >
+                      <span className="gtk-label">{item}</span>
+                      {i === selected && CheckIcon && (
+                        <span className="gtk-image">
+                          <CheckIcon size={16} />
+                        </span>
+                      )}
+                    </div>
+                  ))}
                 </div>
-              ))}
+              </div>
             </div>
           </div>
         </div>
