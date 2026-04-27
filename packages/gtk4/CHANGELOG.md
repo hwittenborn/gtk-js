@@ -1,5 +1,17 @@
 # @gtk-js/gtk4
 
+## 0.2.0
+
+### Minor Changes
+
+- e36fdea: Provide default icon sets for providers
+
+### Patch Changes
+
+- c791659: fix scale drag tracking, window controls, entry-row animation, combo-row popover, scrollbar styling, text selection, preferences-page scrolling
+  - @gtk-js/icon-helpers@0.2.0
+  - @gtk-js/icons-gtk4@0.2.0
+
 ## 0.1.0
 
 ### Minor Changes
