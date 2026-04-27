@@ -100,7 +100,9 @@ export type { GtkCenterLayoutProps } from "./layouts/center-layout.tsx";
 export { GtkCenterLayout } from "./layouts/center-layout.tsx";
 export type { GtkProviderProps } from "./provider.tsx";
 export { GtkProvider, useGtkTheme } from "./provider.tsx";
-
 // Types
 export type * from "./types.ts";
 export { DecorationLayout } from "./types.ts";
+// Window controls
+export type { WindowControlsAPI } from "./window-controls-context.tsx";
+export { useWindowControls } from "./window-controls-context.tsx";

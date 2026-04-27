@@ -1,4 +1,11 @@
-import React, { forwardRef, type HTMLAttributes, useCallback, useRef, useState } from "react";
+import React, {
+  forwardRef,
+  type HTMLAttributes,
+  useCallback,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
 import {
   alignAttrs,
   type GtkAlignProps,
@@ -79,7 +86,24 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
   const value = isControlled ? controlledValue : internalValue;
 
   const troughRef = useRef<HTMLDivElement>(null);
+  const sliderRef = useRef<HTMLDivElement>(null);
   const [fineTune, setFineTune] = useState(false);
+  // Measured slider metrics for theme-independent positioning.
+  // The slider's CSS margin shifts its visual position, so we measure from
+  // the DOM to compute the correct left/top range for any theme.
+  const [sliderMetrics, setSliderMetrics] = useState({ size: 20, margin: 0 });
+
+  useLayoutEffect(() => {
+    const slider = sliderRef.current;
+    if (!slider) return;
+    const style = getComputedStyle(slider);
+    const isHoriz = orientation === "horizontal";
+    const size = parseFloat(isHoriz ? style.minWidth : style.minHeight) || 20;
+    const margin = parseFloat(isHoriz ? style.marginLeft : style.marginTop) || 0;
+    setSliderMetrics((prev) =>
+      prev.size === size && prev.margin === margin ? prev : { size, margin },
+    );
+  }, [orientation]);
 
   const fraction = max > min ? (value - min) / (max - min) : 0;
   const displayFraction = inverted ? 1 - fraction : fraction;
@@ -121,14 +145,24 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
   const updateFromPointer = useCallback(
     (clientX: number, clientY: number) => {
       const trough = troughRef.current;
-      if (!trough) return;
-      const rect = trough.getBoundingClientRect();
-      let frac: number;
-      if (orientation === "horizontal") {
-        frac = (clientX - rect.left) / rect.width;
-      } else {
-        frac = (clientY - rect.top) / rect.height;
-      }
+      const slider = sliderRef.current;
+      if (!trough || !slider) return;
+      const troughRect = trough.getBoundingClientRect();
+      const sliderRect = slider.getBoundingClientRect();
+      // The slider's visual center determines where the pointer should map.
+      // visual_center = CSS_left + margin + size/2
+      // At f=0: CSS_left = -margin, so center = size/2
+      // At f=1: CSS_left = troughSize - margin - size, so center = troughSize - size/2
+      // Span = troughSize - size
+      const isHoriz = orientation === "horizontal";
+      const sliderSize = isHoriz ? sliderRect.width : sliderRect.height;
+      const troughSize = isHoriz ? troughRect.width : troughRect.height;
+      const minCenter = sliderSize / 2;
+      const maxCenter = troughSize - sliderSize / 2;
+      const span = maxCenter - minCenter;
+      const pointer = isHoriz ? clientX - troughRect.left : clientY - troughRect.top;
+      let frac = span > 0 ? (pointer - minCenter) / span : 0;
+      frac = Math.max(0, Math.min(1, frac));
       if (inverted) frac = 1 - frac;
       const raw = min + frac * (max - min);
       const snapped = clampAndSnap(raw);
@@ -141,7 +175,7 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
   const handlePointerDown = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
       if (e.button !== 0) return;
-      (e.currentTarget as HTMLElement).setPointerCapture(e.pointerId);
+      e.currentTarget.setPointerCapture(e.pointerId);
       setFineTune(e.shiftKey);
       updateFromPointer(e.clientX, e.clientY);
     },
@@ -150,7 +184,7 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
 
   const handlePointerMove = useCallback(
     (e: React.PointerEvent<HTMLDivElement>) => {
-      if (!(e.currentTarget as HTMLElement).hasPointerCapture(e.pointerId)) return;
+      if (!e.currentTarget.hasPointerCapture(e.pointerId)) return;
       setFineTune(e.shiftKey);
       updateFromPointer(e.clientX, e.clientY);
     },
@@ -158,7 +192,7 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
   );
 
   const handlePointerUp = useCallback((e: React.PointerEvent<HTMLDivElement>) => {
-    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    e.currentTarget.releasePointerCapture(e.pointerId);
     setFineTune(false);
   }, []);
 
@@ -185,18 +219,35 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
   );
 
   const isHoriz = orientation === "horizontal";
-  // GTK highlight grows to the center of the slider handle:
-  // width = fraction * (trough_width - slider_width) + slider_width / 2
-  // As CSS: calc(fraction * (100% - 20px) + 10px)
-  const highlightStyle: React.CSSProperties = isHoriz
-    ? { width: displayFraction <= 0 ? "0px" : `calc(${displayFraction} * (100% - 20px) + 10px)` }
-    : { height: displayFraction <= 0 ? "0px" : `calc(${displayFraction} * (100% - 20px) + 10px)` };
-  // GTK positions slider at: (trough_size - slider_size) * fraction
-  // As CSS: left = fraction * (100% - slider_min_size)
-  // slider min-size is 20px per adwaita CSS
+  // Position the slider and highlight using measured metrics so the visual
+  // bounds align with the trough edges for any theme's slider size + margin.
+  // For absolute positioning, only margin-left affects position:
+  //   visual_left = CSS_left + margin_left
+  //   visual_right = CSS_left + margin_left + size
+  // At f=0: visual_left = 0 → CSS_left = -margin
+  // At f=1: visual_right = 100% → CSS_left = 100% - margin - size
+  // Range of CSS_left: -margin to (100% - margin - size). Span = 100% - size.
+  const { size: slSize, margin: slMargin } = sliderMetrics;
+  const leftMin = -slMargin; // e.g. 8 when margin=-8
   const sliderStyle: React.CSSProperties = isHoriz
-    ? { left: `calc(${displayFraction} * (100% - 20px))` }
-    : { top: `calc(${displayFraction} * (100% - 20px))` };
+    ? { left: `calc(${leftMin}px + ${displayFraction} * (100% - ${slSize}px))` }
+    : { top: `calc(${leftMin}px + ${displayFraction} * (100% - ${slSize}px))` };
+  // Highlight grows to the visual center of the slider handle.
+  // Visual center = CSS_left + margin + size/2 = leftMin + f*(100%-slSize) + margin + size/2
+  //               = f*(100%-slSize) + size/2  (since leftMin + margin = 0)
+  const highlightStyle: React.CSSProperties = isHoriz
+    ? {
+        width:
+          displayFraction <= 0
+            ? "0px"
+            : `calc(${displayFraction} * (100% - ${slSize}px) + ${slSize / 2}px)`,
+      }
+    : {
+        height:
+          displayFraction <= 0
+            ? "0px"
+            : `calc(${displayFraction} * (100% - ${slSize}px) + ${slSize / 2}px)`,
+      };
 
   return (
     <div
@@ -218,7 +269,7 @@ export const GtkScale = forwardRef<HTMLDivElement, GtkScaleProps>(function GtkSc
       {drawValue && <span className={`gtk-value ${valuePos}`}>{value.toFixed(digits)}</span>}
       <div ref={troughRef} className="gtk-trough">
         {hasOrigin && <div className="gtk-highlight" style={highlightStyle} />}
-        <div className="gtk-slider" style={sliderStyle} />
+        <div ref={sliderRef} className="gtk-slider" style={sliderStyle} />
       </div>
       {marks && marks.length > 0 && (
         <div className="gtk-marks">

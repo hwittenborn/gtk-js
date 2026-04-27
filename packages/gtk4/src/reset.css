@@ -24,6 +24,19 @@ body:has([data-gtk-provider]) {
   color: inherit;
   text-decoration: none;
   list-style: none;
+  /* GTK widgets don't allow text selection by default — only editable
+     widgets (GtkTextView, GtkEntry) opt in via selectable property.
+     @see upstream/gtk/gtk/gtklabel.c — selectable defaults to FALSE */
+  -webkit-user-select: none;
+  user-select: none;
+}
+
+/* Re-enable text selection for editable widgets */
+:where([data-gtk-provider] .gtk-text),
+:where([data-gtk-provider] textarea),
+:where([data-gtk-provider] [contenteditable="true"]) {
+  -webkit-user-select: text;
+  user-select: text;
 }
 
 :where([data-gtk-provider] button) {
@@ -43,9 +56,15 @@ body:has([data-gtk-provider]) {
   display: block;
 }
 
-/* GTK clips widget rendering to border-radius automatically.
-   On the web, border-radius doesn't clip children without overflow. */
+/* GtkWindow manually allocates its child to exactly (window_width, window_height
+   - titlebar_height).  On the web we replicate this with a flex column so the
+   titlebar takes its natural height and the content div (flex:1) fills the rest.
+   In native GTK the window manager supplies the size constraint; on the web the
+   container must provide a bounded height (e.g. html/body at 100%).
+   @see upstream/gtk/gtk/gtkwindow.c — _gtk_window_set_allocation */
 :where([data-gtk-provider] .gtk-window.csd) {
+  display: flex;
+  flex-direction: column;
   overflow: clip;
 }
 
@@ -94,4 +113,57 @@ body:has([data-gtk-provider]) {
 :where([data-gtk-provider] .gtk-entry > .gtk-text) {
   flex: 1;
   min-width: 0;
+}
+
+/* GtkScrolledWindow — style the browser scrollbar to match Adwaita's overlay
+   indicator: thin rounded thumb, transparent track, 8px wide, fully rounded.
+   Uses both standard properties (Firefox) and webkit pseudo-elements
+   (Chrome, Safari, Electron, Tauri/WebKitGTK) for cross-browser coverage.
+   @see upstream/libadwaita/src/stylesheet/widgets/_scrolling.scss
+   Dimensions: slider 8px wide, 40px min length, border-radius 99px
+   Colors: currentColor at 20% idle, 40% hover, 60% active
+   Transition: 200ms linear */
+
+/* Standard scrollbar properties (Firefox) */
+:where([data-gtk-provider] .gtk-scrolledwindow) {
+  scrollbar-width: thin;
+  scrollbar-color: color-mix(in srgb, currentColor 20%, transparent) transparent;
+}
+
+:where([data-gtk-provider] .gtk-scrolledwindow:hover) {
+  scrollbar-color: color-mix(in srgb, currentColor 40%, transparent) transparent;
+}
+
+/* Webkit/Blink scrollbar (Chrome, Safari, Electron, Tauri) */
+:where([data-gtk-provider] .gtk-scrolledwindow::-webkit-scrollbar) {
+  width: 8px;
+  height: 8px;
+}
+
+:where([data-gtk-provider] .gtk-scrolledwindow::-webkit-scrollbar-track) {
+  background: transparent;
+}
+
+:where([data-gtk-provider] .gtk-scrolledwindow::-webkit-scrollbar-thumb) {
+  background-color: color-mix(in srgb, currentColor 20%, transparent);
+  border-radius: 99px;
+  border: 2px solid transparent;
+  background-clip: padding-box;
+  transition: background-color 200ms linear;
+}
+
+:where([data-gtk-provider] .gtk-scrolledwindow::-webkit-scrollbar-thumb:hover) {
+  background-color: color-mix(in srgb, currentColor 40%, transparent);
+}
+
+:where([data-gtk-provider] .gtk-scrolledwindow::-webkit-scrollbar-thumb:active) {
+  background-color: color-mix(in srgb, currentColor 60%, transparent);
+}
+
+:where([data-gtk-provider] .gtk-scrolledwindow::-webkit-scrollbar-button) {
+  display: none;
+}
+
+:where([data-gtk-provider] .gtk-scrolledwindow::-webkit-scrollbar-corner) {
+  background: transparent;
 }
