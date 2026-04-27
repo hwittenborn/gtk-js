@@ -15,7 +15,7 @@ export interface AdwNavigationPageProps {
   children: ReactNode;
 }
 
-const NavContext = createContext<{
+export const NavContext = createContext<{
   push: (tag: string) => void;
   pop: () => boolean;
   canPop: boolean;

@@ -1,0 +1,145 @@
+---
+title: Tauri Integration
+description: Using gtk-js with Tauri for native desktop apps.
+---
+
+## Overview
+
+gtk-js works with [Tauri](https://tauri.app) to build native desktop apps that look and feel like GNOME applications. Since Tauri uses a webview for rendering, you need to configure a few things so `GtkWindow` can fully manage the window chrome (decorations, shadows, resize handles).
+
+## Tauri Window Configuration
+
+Disable Tauri's native decorations and enable a transparent background so `GtkWindow` can render its own CSD (client-side decorations):
+
+```json title="src-tauri/tauri.conf.json"
+{
+  "app": {
+    "windows": [
+      {
+        "title": "My App",
+        "width": 900,
+        "height": 600,
+        "decorations": false,
+        "transparent": true
+      }
+    ]
+  }
+}
+```
+
+- **`decorations: false`** — Removes the OS title bar. `GtkWindow` + `AdwHeaderBar` render their own.
+- **`transparent: true`** — Makes the webview background transparent so CSD rounded corners and shadows render correctly.
+
+## Wiring Window Controls
+
+`GtkWindow` provides close/minimize/maximize/drag callbacks to descendant `AdwHeaderBar` components via `WindowControlsContext`. Wire these to the Tauri window API:
+
+```tsx
+import { AdwaitaProvider, GtkWindow, AdwHeaderBar } from "@gtk-js/adwaita";
+import { getCurrentWindow } from "@tauri-apps/api/window";
+import { useCallback, useEffect, useState } from "react";
+
+const appWindow = getCurrentWindow();
+
+function App() {
+  const [maximized, setMaximized] = useState(false);
+
+  useEffect(() => {
+    appWindow.isMaximized().then(setMaximized);
+    const unlisten = appWindow.onResized(() => {
+      appWindow.isMaximized().then(setMaximized);
+    });
+    return () => { unlisten.then((f) => f()); };
+  }, []);
+
+  const handleClose = useCallback(() => { appWindow.close(); }, []);
+  const handleMinimize = useCallback(() => { appWindow.minimize(); }, []);
+  const handleMaximize = useCallback(() => { appWindow.toggleMaximize(); }, []);
+  const handleDrag = useCallback(() => { appWindow.startDragging(); }, []);
+  const handleResize = useCallback((direction: string) => {
+    appWindow.startResizeDragging(direction);
+  }, []);
+
+  return (
+    <AdwaitaProvider style={{ width: "100vw", height: "100vh" }}>
+      <GtkWindow
+        maximized={maximized}
+        allocateShadow
+        onClose={handleClose}
+        onMinimize={handleMinimize}
+        onMaximize={handleMaximize}
+        onDrag={handleDrag}
+        onResize={handleResize}
+      >
+        <AdwHeaderBar>My App</AdwHeaderBar>
+        {/* Your content here */}
+      </GtkWindow>
+    </AdwaitaProvider>
+  );
+}
+```
+
+### What each prop does
+
+| Prop | Purpose |
+|------|---------|
+| `maximized` | Adds the `.maximized` CSS class, removing border-radius and shadows (matching native GTK behavior). You must track this from Tauri's API. |
+| `allocateShadow` | Adds padding around the window for the CSD box-shadow. When used together with `onResize`, it also provides the visible edge area needed for client-side resize handles. |
+| `onClose` | Passed to `AdwHeaderBar`'s close button via context. |
+| `onMinimize` | Passed to `AdwHeaderBar`'s minimize button via context. |
+| `onMaximize` | Passed to `AdwHeaderBar`'s maximize button via context. |
+| `onDrag` | Passed to `AdwHeaderBar`'s titlebar drag region via context. |
+| `onResize` | Called with a direction string (`"North"`, `"SouthEast"`, etc.) when a resize handle is dragged. Resize handles are only rendered when both `allocateShadow` and `onResize` are provided. Pass this to Tauri's `startResizeDragging()`. |
+
+## Maximized State
+
+You **must** track the window's maximized state and pass it as the `maximized` prop. Without this:
+
+- Border-radius won't disappear when maximized (native GTK removes it)
+- Box-shadow won't disappear when maximized
+- Shadow padding from `allocateShadow` won't be removed
+
+Track it via Tauri's `onResized` event + `isMaximized()`:
+
+```tsx
+useEffect(() => {
+  appWindow.isMaximized().then(setMaximized);
+  const unlisten = appWindow.onResized(() => {
+    appWindow.isMaximized().then(setMaximized);
+  });
+  return () => { unlisten.then((f) => f()); };
+}, []);
+```
+
+## CSD Shadows and Resize Handles
+
+In native GTK, the window manager allocates extra surface space around the window for CSD shadows, and uses that shadow region as the resize handle area.
+
+In Tauri, the OS window boundary determines where resize handles appear. Without `allocateShadow`, shadows would be clipped at the window edge and resize handles would be at the wrong position.
+
+`allocateShadow` solves the shadow-clipping side by itself, and enables resize handles when paired with `onResize`:
+
+1. **Shadow padding** — Measures the theme's `box-shadow` extent from CSS and adds matching padding so shadows render without clipping. This is theme-agnostic.
+2. **Resize handles** — When `onResize` is provided, renders invisible resize zones at the visible window edges (not the OS window edge), with correct resize cursors. The callback receives a direction string you pass to Tauri's `startResizeDragging()`.
+
+Both are automatically removed when `maximized` is `true`.
+
+## Required Tauri Permissions
+
+The window control and resize APIs require explicit permissions in Tauri 2. Add these to your capabilities file:
+
+```json title="src-tauri/capabilities/default.json"
+{
+  "permissions": [
+    "core:default",
+    "core:window:allow-close",
+    "core:window:allow-minimize",
+    "core:window:allow-toggle-maximize",
+    "core:window:allow-start-dragging",
+    "core:window:allow-start-resize-dragging",
+    "core:window:allow-is-maximized"
+  ]
+}
+```
+
+Without these, the window control buttons and resize handles will silently fail.

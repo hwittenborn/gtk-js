@@ -1,6 +1,7 @@
 import { useIcon, useWindowControls } from "@gtk-js/gtk4";
 import { forwardRef, type HTMLAttributes, type ReactNode, useCallback } from "react";
 import type { AdwCenteringPolicy } from "../types.ts";
+import { useNavigation } from "./navigation-view.tsx";
 
 export interface AdwHeaderBarProps extends HTMLAttributes<HTMLDivElement> {
   titleWidget?: ReactNode;
@@ -91,6 +92,7 @@ export const AdwHeaderBar = forwardRef<HTMLDivElement, AdwHeaderBarProps>(functi
 ) {
   const BackIcon = useIcon("GoPrevious");
   const controls = useWindowControls();
+  const nav = useNavigation();
   const classes = ["gtk-headerbar"];
   if (className) classes.push(className);
 
@@ -113,8 +115,13 @@ export const AdwHeaderBar = forwardRef<HTMLDivElement, AdwHeaderBarProps>(functi
         <div className="gtk-box gtk-center-layout">
           <div className="gtk-box gtk-box-layout horizontal start gtk-center-layout-start">
             {showStartTitleButtons && <WindowControls side="start" layout={decorationLayout} />}
-            {showBackButton && BackIcon && (
-              <button className="gtk-button image-button back flat" type="button">
+            {showBackButton && nav.canPop && BackIcon && (
+              <button
+                className="gtk-button image-button back flat"
+                type="button"
+                onClick={() => nav.pop()}
+                onPointerDown={(e) => e.stopPropagation()}
+              >
                 <span className="gtk-image">
                   <BackIcon size={16} />
                 </span>
